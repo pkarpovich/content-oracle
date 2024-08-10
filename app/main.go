@@ -1,9 +1,23 @@
 package main
 
 import (
-	"fmt"
+	"content-oracle/app/config"
+	"log"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
+	log.Printf("[INFO] Starting app")
+
+	cfg, err := config.Init()
+	if err != nil {
+		log.Fatalf("[ERROR] Error reading config: %s", err)
+	}
+
+	if err := run(cfg); err != nil {
+		log.Fatalf("[ERROR] Error running app: %s", err)
+	}
+}
+
+func run(cfg *config.Config) error {
+	return nil
 }
