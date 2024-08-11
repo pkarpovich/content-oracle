@@ -1,6 +1,7 @@
 package http
 
 import (
+	"content-oracle/app/content"
 	"content-oracle/app/providers/twitch"
 	"context"
 	"encoding/json"
@@ -15,11 +16,13 @@ import (
 
 type Client struct {
 	TwitchClient   *twitch.Client
+	ContentService *content.Client
 	BaseStaticPath string
 	Port           int
 }
 
 type ClientOptions struct {
+	ContentService *content.Client
 	TwitchClient   *twitch.Client
 	BaseStaticPath string
 	Port           int
@@ -28,6 +31,7 @@ type ClientOptions struct {
 func NewClient(opt *ClientOptions) *Client {
 	return &Client{
 		BaseStaticPath: opt.BaseStaticPath,
+		ContentService: opt.ContentService,
 		TwitchClient:   opt.TwitchClient,
 		Port:           opt.Port,
 	}
@@ -37,6 +41,7 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", c.healthHandler)
 	mux.HandleFunc("GET /auth/twitch/callback", c.twitchAuthCallbackHandler)
+	mux.HandleFunc("GET /api/content", c.getAllContentHandler)
 
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%d", c.Port),
@@ -89,24 +94,34 @@ func (c *Client) twitchAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	token, err := c.TwitchClient.GetAuthToken(code)
+	if err := c.TwitchClient.SetAuthToken(code); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(struct {
+		Status string `json:"status"`
+	}{
+		Status: "ok",
+	})
+	if err != nil {
+		log.Printf("[ERROR] failed to encode auth response: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
+	contentList, err := c.ContentService.GetAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("[INFO] token: %s", token)
-	resp, err := c.TwitchClient.GetLiveStreams()
+	err = json.NewEncoder(w).Encode(contentList)
 	if err != nil {
-		log.Printf("[ERROR] failed to get live streams: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	log.Printf("[INFO] live streams: %v", resp.Data)
-
-	err = json.NewEncoder(w).Encode(token)
-	if err != nil {
-		log.Printf("[ERROR] failed to encode token response: %s", err)
+		log.Printf("[ERROR] failed to encode content response: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

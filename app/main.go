@@ -2,8 +2,11 @@ package main
 
 import (
 	"content-oracle/app/config"
+	"content-oracle/app/content"
+	"content-oracle/app/database"
 	"content-oracle/app/http"
 	"content-oracle/app/providers/twitch"
+	"content-oracle/app/store/settings"
 	"context"
 	"log"
 	"os"
@@ -31,18 +34,34 @@ func run(cfg *config.Config) error {
 
 	done := make(chan struct{})
 
+	db, err := database.NewClient("content-oracle.db")
+	if err != nil {
+		log.Printf("[ERROR] Error creating database client: %s", err)
+		return err
+	}
+
+	settingsRepository, err := settings.NewRepository(db)
+	if err != nil {
+		log.Printf("[ERROR] Error creating settings repository: %s", err)
+		return err
+	}
+
 	twitchClient, err := twitch.NewClient(&twitch.ClientOptions{
-		RedirectURI:  cfg.Twitch.RedirectURI,
-		ClientID:     cfg.Twitch.ClientID,
-		ClientSecret: cfg.Twitch.ClientSecret,
-		UserId:       cfg.Twitch.UserId,
+		SettingsRepository: settingsRepository,
+		RedirectURI:        cfg.Twitch.RedirectURI,
+		ClientID:           cfg.Twitch.ClientID,
+		ClientSecret:       cfg.Twitch.ClientSecret,
+		UserId:             cfg.Twitch.UserId,
 	})
 	if err != nil {
 		log.Printf("[ERROR] Error creating Twitch client: %s", err)
 		return err
 	}
 
+	contentService := content.NewClient(twitchClient)
+
 	go http.NewClient(&http.ClientOptions{
+		ContentService: contentService,
 		TwitchClient:   twitchClient,
 		BaseStaticPath: cfg.Http.BaseStaticPath,
 		Port:           cfg.Http.Port,
