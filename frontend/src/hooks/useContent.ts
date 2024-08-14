@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const BaseURL = import.meta.env.VITE_API_BASE_URL || window.location.origin;
-console.log(BaseURL);
 
-type Content = {
+export type Content = {
     description: string;
     id: string;
     isLive: boolean;
@@ -27,5 +26,17 @@ export const useContent = () => {
             .finally(() => setLoading(false));
     }, []);
 
-    return { content, error, loading };
+    const openContent = useCallback(async (url: string) => {
+        const resp = await fetch(`${BaseURL}/api/content/open`, {
+            body: JSON.stringify({ url }),
+            headers: { "Content-Type": "application/json" },
+            method: "POST",
+        });
+
+        if (!resp.ok) {
+            throw new Error("Failed to open content");
+        }
+    }, []);
+
+    return { content, error, loading, openContent };
 };

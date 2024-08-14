@@ -2,16 +2,24 @@ package content
 
 import (
 	"content-oracle/app/providers/twitch"
+	"content-oracle/app/providers/zima"
 	"fmt"
+	"log"
 	"strings"
 )
 
 type Client struct {
 	twitchClient *twitch.Client
+	zimaClient   *zima.Client
 }
 
-func NewClient(twitchClient *twitch.Client) *Client {
-	return &Client{twitchClient: twitchClient}
+type ClientOptions struct {
+	TwitchClient *twitch.Client
+	ZimaClient   *zima.Client
+}
+
+func NewClient(opt *ClientOptions) *Client {
+	return &Client{twitchClient: opt.TwitchClient, zimaClient: opt.ZimaClient}
 }
 
 type Content struct {
@@ -33,7 +41,7 @@ func (c *Client) GetAll() ([]Content, error) {
 	for _, stream := range resp.Data.Streams {
 		urlTemplate := stream.ThumbnailURL
 
-		width := "150"
+		width := "350"
 		height := "220"
 		url := strings.Replace(urlTemplate, "{width}", width, 1)
 		url = strings.Replace(url, "{height}", height, 1)
@@ -43,8 +51,35 @@ func (c *Client) GetAll() ([]Content, error) {
 			Title:       stream.Title,
 			Description: "",
 			Thumbnail:   url,
-			Url:         fmt.Sprintf("https://twitch.tv/%s", stream.UserLogin),
+			Url:         fmt.Sprintf("https://www.twitch.tv/%s", stream.UserLogin),
 			IsLive:      true,
+		})
+	}
+
+	return content, nil
+}
+
+func (c *Client) OpenContentUrl(url string) error {
+	return c.zimaClient.OpenUrl(url)
+}
+
+func (c *Client) GetYoutubeHistory() ([]Content, error) {
+	history, err := c.zimaClient.GetContent()
+	if err != nil {
+		log.Printf("[ERROR] failed to get youtube history: %s", err)
+		return nil, err
+	}
+
+	var content []Content
+
+	for _, item := range history {
+		content = append(content, Content{
+			ID:          item.ID,
+			Title:       item.Title,
+			Description: item.Artist,
+			Thumbnail:   "",
+			Url:         "",
+			IsLive:      false,
 		})
 	}
 

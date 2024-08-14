@@ -6,6 +6,7 @@ import (
 	"content-oracle/app/database"
 	"content-oracle/app/http"
 	"content-oracle/app/providers/twitch"
+	"content-oracle/app/providers/zima"
 	"content-oracle/app/store/settings"
 	"context"
 	"log"
@@ -58,7 +59,12 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
-	contentService := content.NewClient(twitchClient)
+	zimaClient := zima.NewClient(cfg.Zima.Url)
+
+	contentService := content.NewClient(&content.ClientOptions{
+		TwitchClient: twitchClient,
+		ZimaClient:   zimaClient,
+	})
 
 	go http.NewClient(&http.ClientOptions{
 		ContentService: contentService,

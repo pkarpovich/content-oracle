@@ -42,6 +42,7 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux.HandleFunc("GET /api/health", c.healthHandler)
 	mux.HandleFunc("GET /auth/twitch/callback", c.twitchAuthCallbackHandler)
 	mux.HandleFunc("GET /api/content", c.getAllContentHandler)
+	mux.HandleFunc("POST /api/content/open", c.openContentHandler)
 
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%d", c.Port),
@@ -119,12 +120,40 @@ func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	youtubeHistory, err := c.ContentService.GetYoutubeHistory()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	contentList = append(contentList, youtubeHistory...)
+
 	err = json.NewEncoder(w).Encode(contentList)
 	if err != nil {
 		log.Printf("[ERROR] failed to encode content response: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+type OpenContentRequest struct {
+	Url string `json:"url"`
+}
+
+func (c *Client) openContentHandler(w http.ResponseWriter, r *http.Request) {
+	var req OpenContentRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err = c.ContentService.OpenContentUrl(req.Url); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (c *Client) fileHandler(w http.ResponseWriter, r *http.Request) {

@@ -18,9 +18,14 @@ type HttpConfig struct {
 	BaseStaticPath string `env:"BASE_STATIC_PATH" env-default:"frontend/dist"`
 }
 
+type ZimaConfig struct {
+	Url string `env:"ZIMA_URL"`
+}
+
 type Config struct {
 	Twitch TwitchConfig
 	Http   HttpConfig
+	Zima   ZimaConfig
 }
 
 func Init() (*Config, error) {
