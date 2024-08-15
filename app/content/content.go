@@ -41,8 +41,8 @@ func (c *Client) GetAll() ([]Content, error) {
 	for _, stream := range resp.Data.Streams {
 		urlTemplate := stream.ThumbnailURL
 
-		width := "350"
-		height := "220"
+		width := "320"
+		height := "180"
 		url := strings.Replace(urlTemplate, "{width}", width, 1)
 		url = strings.Replace(url, "{height}", height, 1)
 
@@ -73,12 +73,16 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 	var content []Content
 
 	for _, item := range history {
+		if item.Metadata == nil {
+			continue
+		}
+
 		content = append(content, Content{
 			ID:          item.ID,
 			Title:       item.Title,
 			Description: item.Artist,
-			Thumbnail:   "",
-			Url:         "",
+			Thumbnail:   item.Metadata.PosterLink,
+			Url:         item.Metadata.ContentUrl,
 			IsLive:      false,
 		})
 	}

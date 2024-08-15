@@ -26,24 +26,28 @@ type Playback struct {
 	UpdatedAt string `json:"updatedAt"`
 }
 
-type Content struct {
-	ID          string   `json:"id"`
-	Title       string   `json:"title"`
-	Artist      string   `json:"artist"`
-	Album       string   `json:"album"`
-	Application string   `json:"application"`
-	MediaType   string   `json:"mediaType"`
-	CreatedAt   string   `json:"createdAt"`
-	Playback    Playback `json:"playback"`
+type Metadata struct {
+	ID         string `json:"id"`
+	ContentID  string `json:"contentId"`
+	ContentUrl string `json:"contentUrl"`
+	PosterLink string `json:"posterLink"`
 }
 
-type ContentResponse struct {
-	Content Content `json:"content"`
+type Content struct {
+	ID          string     `json:"id"`
+	Title       string     `json:"title"`
+	Artist      string     `json:"artist"`
+	Album       string     `json:"album"`
+	Application string     `json:"application"`
+	MediaType   string     `json:"mediaType"`
+	CreatedAt   string     `json:"createdAt"`
+	Playback    []Playback `json:"playback"`
+	Metadata    *Metadata  `json:"metadata"`
 }
 
 type InvokeActionResponse struct {
-	Message  string            `json:"message"`
-	Response []ContentResponse `json:"response"`
+	Message  string    `json:"message"`
+	Response []Content `json:"response"`
 }
 
 func (c *Client) GetContent() ([]Content, error) {
@@ -54,13 +58,7 @@ func (c *Client) GetContent() ([]Content, error) {
 		return nil, err
 	}
 
-	var content []Content
-
-	for _, contentResp := range resp.Response {
-		content = append(content, contentResp.Content)
-	}
-
-	return content, nil
+	return resp.Response, nil
 }
 
 type OpenUrlActionPayload struct {
