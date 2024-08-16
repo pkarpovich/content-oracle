@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const BaseURL = import.meta.env.VITE_API_BASE_URL || window.location.origin;
 
 export type Content = {
+    category: string;
     description: string;
     id: string;
     isLive: boolean;
@@ -39,5 +40,19 @@ export const useContent = () => {
         }
     }, []);
 
-    return { content, error, loading, openContent };
+    const groupedContent = useMemo<Map<string, Content[]>>(
+        () =>
+            content.reduce((acc, item) => {
+                if (!acc.has(item.category)) {
+                    acc.set(item.category, []);
+                }
+
+                acc.get(item.category)?.push(item);
+
+                return acc;
+            }, new Map()),
+        [content],
+    );
+
+    return { content, error, groupedContent, loading, openContent };
 };

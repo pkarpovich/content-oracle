@@ -32,6 +32,7 @@ type Content struct {
 	Url         string  `json:"url"`
 	IsLive      bool    `json:"isLive"`
 	Position    float64 `json:"position"`
+	Category    string  `json:"category"`
 }
 
 func (c *Client) GetAll() ([]Content, error) {
@@ -56,6 +57,7 @@ func (c *Client) GetAll() ([]Content, error) {
 			Thumbnail:   url,
 			Url:         fmt.Sprintf("https://www.twitch.tv/%s", stream.UserLogin),
 			IsLive:      true,
+			Category:    "Live Streams",
 		})
 	}
 
@@ -109,6 +111,7 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 			Url:         item.Metadata.ContentUrl,
 			IsLive:      false,
 			Position:    playbackPosition,
+			Category:    "YouTube History",
 		})
 	}
 

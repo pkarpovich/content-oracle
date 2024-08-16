@@ -9,4 +9,5 @@
     flex: 1;
     flex-direction: column;
     overflow-y: auto;
+    padding: 25px;
 }

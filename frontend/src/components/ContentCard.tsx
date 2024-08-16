@@ -6,6 +6,7 @@ import ShareIcon from "../icons/share.svg";
 import styles from "./ContentCard.module.css";
 import { IconButton } from "./IconButton.tsx";
 import { ProgressBar } from "./ProgressBar.tsx";
+import { Typography } from "./Typography.tsx";
 
 type Props = {
     imageUrl: string;
@@ -45,7 +46,9 @@ export const ContentCard = ({ imageUrl, isLive, onOpenUrl, position, title, url 
             <img alt={title} className={styles.image} src={imageUrl} />
             <ProgressBar isLive={isLive} progress={position} />
             <div className={styles.content}>
-                <h3 className={styles.title}>{title}</h3>
+                <Typography className={styles.title} variant="text">
+                    {title}
+                </Typography>
             </div>
         </div>
     );
