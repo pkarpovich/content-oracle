@@ -22,9 +22,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
-      - "traefik.http.routers.magnet-feed-sync.rule=Host(`content-oracle.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.magnet-feed-sync.entrypoints=https"
-      - "traefik.http.routers.magnet-feed-sync.tls.certresolver=le"
+      - "traefik.http.routers.content-oracle.rule=Host(`content-oracle.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.content-oracle.entrypoints=https"
+      - "traefik.http.routers.content-oracle.tls.certresolver=le"
 
 networks:
   proxy:
