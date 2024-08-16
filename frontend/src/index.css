@@ -1,32 +1,38 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+    --primary: oklch(84.71% 0.2 84.93);
+    --bg-color: oklch(90.92% 0.08767 88.516);
+    --primary-text-color: oklch(0.26 0.15 284.07);
+    --shadow-color: oklch(0.26 0.15 284.07);
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-color);
+    color: var(--primary-text-color);
+    color-scheme: light dark;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
+
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+    color: #535bf2;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  min-width: 320px;
-  min-height: 100vh;
+    margin: 0;
+    display: flex;
+    min-width: 320px;
+    min-height: 100vh;
 }
 
 div#root {
@@ -34,15 +40,14 @@ div#root {
     flex: 1;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+@media (prefers-color-scheme: dark) {
+    :root {
+        /*--bg-color: oklch(0.67 0.22 43.34);*/
+        --bg-color: oklch(0.26 0.15 284.07);
+        --primary-text-color: oklch(90.92% 0.08767 88.516);
+        --shadow-color: oklch(90.92% 0.08767 88.516);
+
+        color: var(--primary-text-color);
+        background-color: var(--bg-color);
+    }
 }

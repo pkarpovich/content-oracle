@@ -2,7 +2,9 @@
     display: inline-flex;
     border: none;
     border-radius: 50%;
-    padding: 6px;
-    background-color: #ffc107;
+    padding: 10px;
+    background-color: var(--bg-color);
+    fill: var(--primary-text-color);
     cursor: pointer;
+    box-shadow: 0 0 10px var(--shadow-color);
 }
