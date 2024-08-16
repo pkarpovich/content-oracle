@@ -43,6 +43,7 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux.HandleFunc("GET /auth/twitch/callback", c.twitchAuthCallbackHandler)
 	mux.HandleFunc("GET /api/content", c.getAllContentHandler)
 	mux.HandleFunc("POST /api/content/open", c.openContentHandler)
+	mux.HandleFunc("GET /", c.fileHandler)
 
 	server := &http.Server{
 		Addr: fmt.Sprintf(":%d", c.Port),

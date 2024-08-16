@@ -1,0 +1,31 @@
+services:
+  content-oracle:
+    container_name: content-oracle
+    build:
+      context: .
+      target: final
+    restart: unless-stopped
+    environment:
+      TWITCH_CLIENT_ID: ${TWITCH_CLIENT_ID}
+      TWITCH_CLIENT_SECRET: ${TWITCH_CLIENT_SECRET}
+      TWITCH_REDIRECT_URI: ${TWITCH_REDIRECT_URI}
+      TWITCH_USER_ID: ${TWITCH_USER_ID}
+      BASE_STATIC_PATH: /static
+      ZIMA_URL: ${ZIMA_URL}
+      HTTP_PORT: 8080
+    volumes:
+      - .db:/.db
+    expose:
+      - 8080
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.magnet-feed-sync.rule=Host(`content-oracle.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.magnet-feed-sync.entrypoints=https"
+      - "traefik.http.routers.magnet-feed-sync.tls.certresolver=le"
+
+networks:
+  proxy:
+    external: true
