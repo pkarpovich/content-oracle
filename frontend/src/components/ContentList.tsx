@@ -12,8 +12,10 @@ export const ContentList = ({ content, onOpenUrl }: Props) => (
         {content.map((item) => (
             <ContentCard
                 imageUrl={item.thumbnail}
+                isLive={item.isLive}
                 key={item.id}
                 onOpenUrl={onOpenUrl}
+                position={item.position}
                 title={item.title}
                 url={item.url}
             />

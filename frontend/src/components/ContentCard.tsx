@@ -5,15 +5,18 @@ import EnterIcon from "../icons/enter.svg";
 import ShareIcon from "../icons/share.svg";
 import styles from "./ContentCard.module.css";
 import { IconButton } from "./IconButton.tsx";
+import { ProgressBar } from "./ProgressBar.tsx";
 
 type Props = {
     imageUrl: string;
+    isLive: boolean;
     onOpenUrl: (url: string) => void;
+    position: number;
     title: string;
     url: string;
 };
 
-export const ContentCard = ({ imageUrl, onOpenUrl, title, url }: Props) => {
+export const ContentCard = ({ imageUrl, isLive, onOpenUrl, position, title, url }: Props) => {
     const handleOpenButtonClick = useCallback(() => {
         window.open(url, "_blank");
     }, [url]);
@@ -40,6 +43,7 @@ export const ContentCard = ({ imageUrl, onOpenUrl, title, url }: Props) => {
                 </IconButton>
             </div>
             <img alt={title} className={styles.image} src={imageUrl} />
+            <ProgressBar isLive={isLive} progress={position} />
             <div className={styles.content}>
                 <h3 className={styles.title}>{title}</h3>
             </div>

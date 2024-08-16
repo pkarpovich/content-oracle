@@ -6,6 +6,7 @@ export type Content = {
     description: string;
     id: string;
     isLive: boolean;
+    position: number;
     thumbnail: string;
     title: string;
     url: string;

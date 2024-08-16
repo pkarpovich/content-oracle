@@ -1,9 +1,8 @@
 .listContainer {
     padding: 10px;
-    display: flex;
-    align-items: flex-start;
-    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 2fr));
     gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex: 1;
+    align-content: flex-start;
 }
