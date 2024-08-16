@@ -2,6 +2,7 @@ package settings
 
 import (
 	"content-oracle/app/database"
+	"log"
 	"time"
 )
 
@@ -31,15 +32,20 @@ func NewRepository(db *database.Client) (*Repository, error) {
 	return &Repository{db: db}, nil
 }
 
-func (s *Repository) GetSettings() (Settings, error) {
+func (s *Repository) GetSettings() (*Settings, error) {
 	var settings Settings
 	row := s.db.QueryRow(`SELECT twitch_access_token, twitch_refresh_token FROM settings WHERE id = ?`, DefaultSettingsID)
-	err := row.Scan(&settings.TwitchAccessToken, &settings.TwitchRefreshToken)
-	if err != nil {
-		return settings, err
+	if err := row.Err(); err != nil {
+		return nil, err
 	}
 
-	return settings, nil
+	err := row.Scan(&settings.TwitchAccessToken, &settings.TwitchRefreshToken)
+	if err != nil {
+		log.Printf("[ERROR] Error scanning settings: %s", err)
+		return nil, nil
+	}
+
+	return &settings, nil
 }
 
 func (s *Repository) UpdateSettings(settings *Settings) error {

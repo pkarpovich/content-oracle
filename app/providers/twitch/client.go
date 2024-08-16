@@ -35,7 +35,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 		return nil, err
 	}
 
-	if appSettings.TwitchAccessToken != "" {
+	if appSettings != nil && appSettings.TwitchAccessToken != "" {
 		client.SetUserAccessToken(appSettings.TwitchAccessToken)
 		client.SetRefreshToken(appSettings.TwitchRefreshToken)
 	} else {
