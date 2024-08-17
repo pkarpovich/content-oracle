@@ -13,6 +13,13 @@ type TwitchConfig struct {
 	UserId       string `env:"TWITCH_USER_ID"`
 }
 
+type YoutubeConfig struct {
+	ClientID     string `env:"YOUTUBE_CLIENT_ID"`
+	ClientSecret string `env:"YOUTUBE_CLIENT_SECRET"`
+	RedirectURI  string `env:"YOUTUBE_REDIRECT_URI"`
+	ConfigPath   string `env:"YOUTUBE_CONFIG_PATH"`
+}
+
 type HttpConfig struct {
 	Port           int    `env:"HTTP_PORT" env-default:"8080"`
 	BaseStaticPath string `env:"BASE_STATIC_PATH" env-default:"frontend/dist"`
@@ -23,9 +30,10 @@ type ZimaConfig struct {
 }
 
 type Config struct {
-	Twitch TwitchConfig
-	Http   HttpConfig
-	Zima   ZimaConfig
+	Twitch  TwitchConfig
+	Http    HttpConfig
+	Zima    ZimaConfig
+	Youtube YoutubeConfig
 }
 
 func Init() (*Config, error) {

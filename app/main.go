@@ -6,6 +6,7 @@ import (
 	"content-oracle/app/database"
 	"content-oracle/app/http"
 	"content-oracle/app/providers/twitch"
+	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
 	"content-oracle/app/store/settings"
 	"context"
@@ -59,6 +60,18 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
+	youtubeClient, err := youtube.NewClient(&youtube.ClientOptions{
+		ClientID:           cfg.Youtube.ClientID,
+		ClientSecret:       cfg.Youtube.ClientSecret,
+		RedirectURI:        cfg.Youtube.RedirectURI,
+		ConfigPath:         cfg.Youtube.ConfigPath,
+		SettingsRepository: settingsRepository,
+	})
+	if err != nil {
+		log.Printf("[ERROR] Error creating YouTube client: %s", err)
+		return err
+	}
+
 	zimaClient := zima.NewClient(cfg.Zima.Url)
 
 	contentService := content.NewClient(&content.ClientOptions{
@@ -69,6 +82,7 @@ func run(cfg *config.Config) error {
 	go http.NewClient(&http.ClientOptions{
 		ContentService: contentService,
 		TwitchClient:   twitchClient,
+		YouTubeService: youtubeClient,
 		BaseStaticPath: cfg.Http.BaseStaticPath,
 		Port:           cfg.Http.Port,
 	}).Start(ctx, done)

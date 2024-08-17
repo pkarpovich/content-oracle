@@ -3,6 +3,7 @@ package http
 import (
 	"content-oracle/app/content"
 	"content-oracle/app/providers/twitch"
+	"content-oracle/app/providers/youtube"
 	"context"
 	"encoding/json"
 	"errors"
@@ -17,6 +18,7 @@ import (
 type Client struct {
 	TwitchClient   *twitch.Client
 	ContentService *content.Client
+	YouTubeService *youtube.Client
 	BaseStaticPath string
 	Port           int
 }
@@ -24,6 +26,7 @@ type Client struct {
 type ClientOptions struct {
 	ContentService *content.Client
 	TwitchClient   *twitch.Client
+	YouTubeService *youtube.Client
 	BaseStaticPath string
 	Port           int
 }
@@ -32,6 +35,7 @@ func NewClient(opt *ClientOptions) *Client {
 	return &Client{
 		BaseStaticPath: opt.BaseStaticPath,
 		ContentService: opt.ContentService,
+		YouTubeService: opt.YouTubeService,
 		TwitchClient:   opt.TwitchClient,
 		Port:           opt.Port,
 	}
@@ -41,8 +45,10 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", c.healthHandler)
 	mux.HandleFunc("GET /auth/twitch/callback", c.twitchAuthCallbackHandler)
+	mux.HandleFunc("GET /auth/youtube/callback", c.youtubeAuthCallbackHandler)
 	mux.HandleFunc("GET /api/content", c.getAllContentHandler)
 	mux.HandleFunc("POST /api/content/open", c.openContentHandler)
+	mux.HandleFunc("GET /api/settings", c.getSettings)
 	mux.HandleFunc("GET /", c.fileHandler)
 
 	server := &http.Server{
@@ -114,6 +120,31 @@ func (c *Client) twitchAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func (c *Client) youtubeAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	if code == "" {
+		http.Error(w, "code not found", http.StatusBadRequest)
+		return
+	}
+
+	if err := c.YouTubeService.HandleAuthCode(code); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(struct {
+		Status string `json:"status"`
+	}{
+		Status: "ok",
+	})
+	if err != nil {
+		log.Printf("[ERROR] failed to encode auth response: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentList, err := c.ContentService.GetAll()
 	if err != nil {
@@ -132,6 +163,40 @@ func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(contentList)
 	if err != nil {
 		log.Printf("[ERROR] failed to encode content response: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+type YoutubeSubscription struct {
+	ChannelId string `json:"channelId"`
+	Name      string `json:"name"`
+	Rank      int    `json:"rank"`
+	URL       string `json:"url"`
+}
+
+type SettingsResponse struct {
+	Subscriptions []YoutubeSubscription `json:"subscriptions"`
+}
+
+func (c *Client) getSettings(w http.ResponseWriter, r *http.Request) {
+	subscriptions, err := c.YouTubeService.GetUserSubscriptions()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var subscriptionsResponse []YoutubeSubscription
+	for _, sub := range subscriptions {
+		subscriptionsResponse = append(subscriptionsResponse, YoutubeSubscription{
+			URL:       fmt.Sprintf("https://www.youtube.com/channel/%s", sub.Snippet.ResourceId.ChannelId),
+			ChannelId: sub.Snippet.ResourceId.ChannelId,
+			Name:      sub.Snippet.Title,
+			Rank:      0,
+		})
+	}
+
+	if err = json.NewEncoder(w).Encode(SettingsResponse{Subscriptions: subscriptionsResponse}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

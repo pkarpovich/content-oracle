@@ -13,6 +13,7 @@ type Repository struct {
 type Settings struct {
 	TwitchAccessToken  string
 	TwitchRefreshToken string
+	YoutubeAccessToken string
 	UpdatedAt          string
 }
 
@@ -23,6 +24,7 @@ func NewRepository(db *database.Client) (*Repository, error) {
 		id INTEGER PRIMARY KEY,
 		twitch_access_token TEXT,
 		twitch_refresh_token TEXT,
+		youtube_access_token TEXT,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP	
 	);`)
 	if err != nil {
@@ -34,12 +36,12 @@ func NewRepository(db *database.Client) (*Repository, error) {
 
 func (s *Repository) GetSettings() (*Settings, error) {
 	var settings Settings
-	row := s.db.QueryRow(`SELECT twitch_access_token, twitch_refresh_token FROM settings WHERE id = ?`, DefaultSettingsID)
+	row := s.db.QueryRow(`SELECT twitch_access_token, twitch_refresh_token, youtube_access_token FROM settings WHERE id = ?`, DefaultSettingsID)
 	if err := row.Err(); err != nil {
 		return nil, err
 	}
 
-	err := row.Scan(&settings.TwitchAccessToken, &settings.TwitchRefreshToken)
+	err := row.Scan(&settings.TwitchAccessToken, &settings.TwitchRefreshToken, &settings.YoutubeAccessToken)
 	if err != nil {
 		log.Printf("[ERROR] Error scanning settings: %s", err)
 		return nil, nil
@@ -48,7 +50,7 @@ func (s *Repository) GetSettings() (*Settings, error) {
 	return &settings, nil
 }
 
-func (s *Repository) UpdateSettings(settings *Settings) error {
+func (s *Repository) UpdateTwitchSettings(settings *Settings) error {
 	_, err := s.db.Exec(`INSERT INTO settings (
     		id,
             twitch_access_token,
@@ -59,10 +61,36 @@ func (s *Repository) UpdateSettings(settings *Settings) error {
             ?,
             ?,
             ?
-        )`,
+        ) ON CONFLICT(id) DO UPDATE SET
+			twitch_access_token = excluded.twitch_access_token,
+			twitch_refresh_token = excluded.twitch_refresh_token,
+			updated_at = excluded.updated_at`,
 		DefaultSettingsID,
 		settings.TwitchAccessToken,
 		settings.TwitchRefreshToken,
+		time.Now().Format("2006-01-02 15:04:05"),
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Repository) UpdateYoutubeSettings(settings *Settings) error {
+	_, err := s.db.Exec(`INSERT INTO settings (
+			id,
+			youtube_access_token,
+			updated_at
+		) VALUES (
+			?,
+			?,
+			?
+		) ON CONFLICT(id) DO UPDATE SET
+			youtube_access_token = excluded.youtube_access_token,
+			updated_at = excluded.updated_at`,
+		DefaultSettingsID,
+		settings.YoutubeAccessToken,
 		time.Now().Format("2006-01-02 15:04:05"),
 	)
 	if err != nil {

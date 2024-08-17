@@ -72,7 +72,7 @@ func (c *Client) SetAuthToken(code string) error {
 		return err
 	}
 
-	err = c.settingsRepository.UpdateSettings(&settings.Settings{
+	err = c.settingsRepository.UpdateTwitchSettings(&settings.Settings{
 		TwitchAccessToken:  resp.Data.AccessToken,
 		TwitchRefreshToken: resp.Data.RefreshToken,
 	})
