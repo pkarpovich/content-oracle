@@ -26,7 +26,8 @@
     "import",
     "react",
     "filename-rules",
-    "perfectionist"
+    "perfectionist",
+    "@tanstack/eslint-plugin-query"
   ],
   "extends": [
     "eslint:recommended",

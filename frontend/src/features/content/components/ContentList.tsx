@@ -1,4 +1,4 @@
-import type { Content } from "../hooks/useContent.ts";
+import type { Content } from "../../../api/content.ts";
 import { ContentCard } from "./ContentCard.tsx";
 import styles from "./ContentList.module.css";
 

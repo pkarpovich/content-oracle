@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 
-import AppleTvIcon from "../icons/apple-tv.svg";
-import EnterIcon from "../icons/enter.svg";
-import ShareIcon from "../icons/share.svg";
+import { IconButton } from "../../../components/IconButton.tsx";
+import { ProgressBar } from "../../../components/ProgressBar.tsx";
+import { Typography } from "../../../components/Typography.tsx";
+import AppleTvIcon from "../../../icons/apple-tv.svg";
+import EnterIcon from "../../../icons/enter.svg";
+import ShareIcon from "../../../icons/share.svg";
 import styles from "./ContentCard.module.css";
-import { IconButton } from "./IconButton.tsx";
-import { ProgressBar } from "./ProgressBar.tsx";
-import { Typography } from "./Typography.tsx";
 
 type Props = {
     imageUrl: string;

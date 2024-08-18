@@ -1,6 +1,6 @@
+import { Logo } from "../../../components/Logo.tsx";
+import { Typography } from "../../../components/Typography.tsx";
 import style from "./Header.module.css";
-import { Logo } from "./Logo.tsx";
-import { Typography } from "./Typography.tsx";
 
 export const Header = () => (
     <header className={style.headerContainer}>
