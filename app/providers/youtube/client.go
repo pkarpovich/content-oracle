@@ -9,12 +9,13 @@ import (
 	"google.golang.org/api/youtube/v3"
 	"log"
 	"os"
+	"time"
 )
 
 type Client struct {
-	oauthConfig        *oauth2.Config
-	accessToken        string
 	settingsRepository *settings.Repository
+	tokenSource        oauth2.TokenSource
+	oauthConfig        *oauth2.Config
 }
 
 type ClientOptions struct {
@@ -58,16 +59,18 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 		log.Printf("Youtube auth URL: %v", authURL)
 	}
 
+	token := &oauth2.Token{
+		RefreshToken: appSettings.YoutubeRefreshToken,
+		AccessToken:  appSettings.YoutubeAccessToken,
+		TokenType:    "Bearer",
+		Expiry:       time.Time{}.Add(1),
+	}
+	tokenSource := config.TokenSource(context.Background(), token)
+
 	return &Client{
-		oauthConfig: &oauth2.Config{
-			ClientID:     opt.ClientID,
-			ClientSecret: opt.ClientSecret,
-			RedirectURL:  opt.RedirectURI,
-			Scopes:       []string{youtube.YoutubeReadonlyScope},
-			Endpoint:     google.Endpoint,
-		},
 		settingsRepository: opt.SettingsRepository,
-		accessToken:        appSettings.YoutubeAccessToken,
+		tokenSource:        tokenSource,
+		oauthConfig:        config,
 	}, nil
 }
 
@@ -79,9 +82,10 @@ func (c *Client) HandleAuthCode(code string) error {
 		return err
 	}
 
-	c.accessToken = token.AccessToken
+	c.tokenSource = c.oauthConfig.TokenSource(ctx, token)
 	err = c.settingsRepository.UpdateYoutubeSettings(&settings.Settings{
-		YoutubeAccessToken: token.AccessToken,
+		YoutubeAccessToken:  token.AccessToken,
+		YoutubeRefreshToken: token.RefreshToken,
 	})
 	if err != nil {
 		log.Printf("[ERROR] Unable to update youtube settings: %v", err)
@@ -91,16 +95,41 @@ func (c *Client) HandleAuthCode(code string) error {
 	return nil
 }
 
-func (c *Client) GetUserSubscriptions() ([]*youtube.Subscription, error) {
-	ctx := context.Background()
+func (c *Client) getService(ctx context.Context) (*youtube.Service, error) {
+	token, err := c.tokenSource.Token()
+	if err != nil {
+		log.Printf("[ERROR] Unable to retrieve token: %v", err)
+		return nil, err
+	}
 
-	service, err := youtube.NewService(ctx, option.WithTokenSource(
-		c.oauthConfig.TokenSource(ctx, &oauth2.Token{
-			AccessToken: c.accessToken,
-		}),
-	))
+	newToken, err := oauth2.ReuseTokenSource(token, c.tokenSource).Token()
+	if err != nil {
+		log.Printf("[ERROR] Unable to refresh token: %v", err)
+		return nil, err
+	}
+
+	err = c.settingsRepository.UpdateYoutubeSettings(&settings.Settings{
+		YoutubeAccessToken:  newToken.AccessToken,
+		YoutubeRefreshToken: newToken.RefreshToken,
+	})
+	if err != nil {
+		log.Printf("[ERROR] Unable to update youtube settings: %v", err)
+		return nil, err
+	}
+
+	service, err := youtube.NewService(ctx, option.WithHTTPClient(c.oauthConfig.Client(ctx, newToken)))
 	if err != nil {
 		log.Printf("[ERROR] Unable to create youtube client: %v", err)
+		return nil, err
+	}
+
+	return service, nil
+}
+
+func (c *Client) GetUserSubscriptions() ([]*youtube.Subscription, error) {
+	ctx := context.Background()
+	service, err := c.getService(ctx)
+	if err != nil {
 		return nil, err
 	}
 
