@@ -305,6 +305,13 @@
   },
   "overrides": [
     {
+      "files": ["src/routes/**/*"],
+      "rules": {
+        "filename-rules/match": "off",
+        "import/no-extraneous-dependencies": "off"
+      }
+    },
+    {
       "files": ["pages/**/*", "app/**/*"],
       "rules": {
         "import/no-default-export": "off",

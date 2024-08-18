@@ -1,12 +1,12 @@
 import { Fragment } from "react";
 
-import styles from "./App.module.css";
-import { ContentList } from "./components/ContentList.tsx";
-import { Header } from "./components/Header.tsx";
-import { Typography } from "./components/Typography.tsx";
-import { useContent } from "./hooks/useContent.ts";
+import { ContentList } from "../components/ContentList.tsx";
+import { Header } from "../components/Header.tsx";
+import { Typography } from "../components/Typography.tsx";
+import { useContent } from "../hooks/useContent.ts";
+import styles from "./Launchpad.module.css";
 
-export const App = () => {
+export const Launchpad = () => {
     const { error, groupedContent, loading, openContent } = useContent();
 
     return (
