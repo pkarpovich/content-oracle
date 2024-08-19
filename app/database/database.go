@@ -58,3 +58,7 @@ func (c *Client) Query(query string, args ...any) (*sql.Rows, error) {
 func (c *Client) QueryRow(query string, args ...any) *sql.Row {
 	return c.db.QueryRow(query, args...)
 }
+
+func (c *Client) Begin() (*sql.Tx, error) {
+	return c.db.Begin()
+}

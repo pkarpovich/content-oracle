@@ -4,6 +4,7 @@ import (
 	"content-oracle/app/content"
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
+	"content-oracle/app/store/youtubeRanking"
 	"context"
 	"encoding/json"
 	"errors"
@@ -12,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"sort"
 	"time"
 )
 
@@ -48,7 +50,8 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux.HandleFunc("GET /auth/youtube/callback", c.youtubeAuthCallbackHandler)
 	mux.HandleFunc("GET /api/content", c.getAllContentHandler)
 	mux.HandleFunc("POST /api/content/open", c.openContentHandler)
-	mux.HandleFunc("GET /api/settings", c.getSettings)
+	mux.HandleFunc("GET /api/settings", c.getSettingsHandler)
+	mux.HandleFunc("POST /api/settings", c.saveSettingsHandler)
 	mux.HandleFunc("GET /", c.fileHandler)
 
 	server := &http.Server{
@@ -169,37 +172,84 @@ func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type YoutubeSubscription struct {
-	ChannelId string `json:"channelId"`
-	Name      string `json:"name"`
-	Rank      int    `json:"rank"`
-	URL       string `json:"url"`
+	ChannelId  string `json:"channelId"`
+	Name       string `json:"name"`
+	Rank       int    `json:"rank"`
+	URL        string `json:"url"`
+	PreviewURL string `json:"previewUrl"`
 }
 
 type SettingsResponse struct {
-	Subscriptions []YoutubeSubscription `json:"subscriptions"`
+	Subscriptions []YoutubeSubscription    `json:"subscriptions"`
+	Ranking       []youtubeRanking.Ranking `json:"ranking"`
 }
 
-func (c *Client) getSettings(w http.ResponseWriter, r *http.Request) {
+func (c *Client) getSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	subscriptions, err := c.YouTubeService.GetUserSubscriptions()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	var subscriptionsResponse []YoutubeSubscription
-	for _, sub := range subscriptions {
-		subscriptionsResponse = append(subscriptionsResponse, YoutubeSubscription{
-			URL:       fmt.Sprintf("https://www.youtube.com/channel/%s", sub.Snippet.ResourceId.ChannelId),
-			ChannelId: sub.Snippet.ResourceId.ChannelId,
-			Name:      sub.Snippet.Title,
-			Rank:      0,
-		})
-	}
-
-	if err = json.NewEncoder(w).Encode(SettingsResponse{Subscriptions: subscriptionsResponse}); err != nil {
+	ranking, err := c.YouTubeService.GetRanking()
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	rankingMap := make(map[string]int)
+	for _, rank := range ranking {
+		rankingMap[rank.ID] = rank.Rank
+	}
+
+	var subscriptionsResponse []YoutubeSubscription
+	for _, sub := range subscriptions {
+		subscriptionsResponse = append(subscriptionsResponse, YoutubeSubscription{
+			URL:        fmt.Sprintf("https://www.youtube.com/channel/%s", sub.Snippet.ResourceId.ChannelId),
+			PreviewURL: sub.Snippet.Thumbnails.Default.Url,
+			ChannelId:  sub.Snippet.ResourceId.ChannelId,
+			Name:       sub.Snippet.Title,
+			Rank:       rankingMap[sub.Snippet.ResourceId.ChannelId],
+		})
+	}
+
+	sort.Slice(subscriptionsResponse, func(i, j int) bool {
+		return subscriptionsResponse[i].Rank > subscriptionsResponse[j].Rank
+	})
+
+	resp := &SettingsResponse{
+		Subscriptions: subscriptionsResponse,
+		Ranking:       ranking,
+	}
+
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (c *Client) saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
+	var req SettingsResponse
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var rankings []youtubeRanking.Ranking
+	for _, rank := range req.Ranking {
+		rankings = append(rankings, youtubeRanking.Ranking{
+			ID:   rank.ID,
+			Rank: rank.Rank,
+		})
+	}
+
+	if err = c.YouTubeService.UpdateRanking(rankings); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 type OpenContentRequest struct {

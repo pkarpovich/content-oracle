@@ -1,0 +1,24 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    align-items: center;
+}
+
+.subscriptionsContainer {
+    height: 700px;
+    overflow: auto;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.pointsContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 1200px;
+}

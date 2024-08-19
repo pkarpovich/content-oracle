@@ -2,6 +2,7 @@ package youtube
 
 import (
 	"content-oracle/app/store/settings"
+	"content-oracle/app/store/youtubeRanking"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -13,6 +14,7 @@ import (
 )
 
 type Client struct {
+	rankingRepository  *youtubeRanking.Repository
 	settingsRepository *settings.Repository
 	tokenSource        oauth2.TokenSource
 	oauthConfig        *oauth2.Config
@@ -24,6 +26,7 @@ type ClientOptions struct {
 	RedirectURI        string
 	ConfigPath         string
 	SettingsRepository *settings.Repository
+	RankingRepository  *youtubeRanking.Repository
 }
 
 func NewClient(opt *ClientOptions) (*Client, error) {
@@ -69,6 +72,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 
 	return &Client{
 		settingsRepository: opt.SettingsRepository,
+		rankingRepository:  opt.RankingRepository,
 		tokenSource:        tokenSource,
 		oauthConfig:        config,
 	}, nil
@@ -146,4 +150,12 @@ func (c *Client) GetUserSubscriptions() ([]*youtube.Subscription, error) {
 	})
 
 	return channels, nil
+}
+
+func (c *Client) GetRanking() ([]youtubeRanking.Ranking, error) {
+	return c.rankingRepository.GetAll()
+}
+
+func (c *Client) UpdateRanking(ranking []youtubeRanking.Ranking) error {
+	return c.rankingRepository.BatchUpdate(ranking)
 }

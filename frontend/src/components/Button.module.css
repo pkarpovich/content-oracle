@@ -1,0 +1,10 @@
+.button {
+    display: inline-flex;
+    border: none;
+    padding: 10px;
+    background-color: var(--primary-text-color);
+    color: var(--bg-color);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--shadow-color);
+    font-size: 1.5rem;
+}

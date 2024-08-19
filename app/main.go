@@ -9,6 +9,7 @@ import (
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
 	"content-oracle/app/store/settings"
+	"content-oracle/app/store/youtubeRanking"
 	"context"
 	"log"
 	"os"
@@ -48,6 +49,12 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
+	youtubeRankingRepository, err := youtubeRanking.NewRepository(db)
+	if err != nil {
+		log.Printf("[ERROR] Error creating YouTube ranking repository: %s", err)
+		return err
+	}
+
 	twitchClient, err := twitch.NewClient(&twitch.ClientOptions{
 		SettingsRepository: settingsRepository,
 		RedirectURI:        cfg.Twitch.RedirectURI,
@@ -66,6 +73,7 @@ func run(cfg *config.Config) error {
 		RedirectURI:        cfg.Youtube.RedirectURI,
 		ConfigPath:         cfg.Youtube.ConfigPath,
 		SettingsRepository: settingsRepository,
+		RankingRepository:  youtubeRankingRepository,
 	})
 	if err != nil {
 		log.Printf("[ERROR] Error creating YouTube client: %s", err)
