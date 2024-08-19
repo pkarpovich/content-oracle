@@ -36,6 +36,7 @@ type Metadata struct {
 	ContentID  string `json:"contentId"`
 	ContentUrl string `json:"contentUrl"`
 	PosterLink string `json:"posterLink"`
+	VideoID    string `json:"videoId"`
 }
 
 type Content struct {

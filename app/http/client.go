@@ -49,6 +49,7 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux.HandleFunc("GET /auth/twitch/callback", c.twitchAuthCallbackHandler)
 	mux.HandleFunc("GET /auth/youtube/callback", c.youtubeAuthCallbackHandler)
 	mux.HandleFunc("GET /api/content", c.getAllContentHandler)
+	mux.HandleFunc("GET /api/content/suggestions", c.getYoutubeSuggestionsHandler)
 	mux.HandleFunc("POST /api/content/open", c.openContentHandler)
 	mux.HandleFunc("GET /api/settings", c.getSettingsHandler)
 	mux.HandleFunc("POST /api/settings", c.saveSettingsHandler)
@@ -160,8 +161,29 @@ func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	contentList = append(contentList, youtubeHistory...)
+
+	youtubeSuggestions, err := c.ContentService.GetYoutubeSuggestions()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	contentList = append(contentList, youtubeSuggestions...)
+
+	err = json.NewEncoder(w).Encode(contentList)
+	if err != nil {
+		log.Printf("[ERROR] failed to encode content response: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (c *Client) getYoutubeSuggestionsHandler(w http.ResponseWriter, r *http.Request) {
+	contentList, err := c.ContentService.GetYoutubeSuggestions()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	err = json.NewEncoder(w).Encode(contentList)
 	if err != nil {
@@ -185,7 +207,13 @@ type SettingsResponse struct {
 }
 
 func (c *Client) getSettingsHandler(w http.ResponseWriter, r *http.Request) {
-	subscriptions, err := c.YouTubeService.GetUserSubscriptions()
+	youtubeService, err := c.YouTubeService.GetService(context.Background())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	subscriptions, err := c.YouTubeService.GetUserSubscriptions(youtubeService)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

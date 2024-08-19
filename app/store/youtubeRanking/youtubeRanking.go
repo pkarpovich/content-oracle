@@ -28,7 +28,7 @@ func NewRepository(db *database.Client) (*Repository, error) {
 
 func (r *Repository) GetAll() ([]Ranking, error) {
 	rankings := make([]Ranking, 0)
-	rows, err := r.db.Query(`SELECT id, rank FROM youtube_ranking ORDER BY rank`)
+	rows, err := r.db.Query(`SELECT id, rank FROM youtube_ranking ORDER BY rank desc`)
 	if err != nil {
 		return nil, err
 	}

@@ -2,37 +2,47 @@ package content
 
 import (
 	"content-oracle/app/providers/twitch"
+	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
+	"context"
 	"fmt"
 	"log"
 	"regexp"
+	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 type Client struct {
-	twitchClient *twitch.Client
-	zimaClient   *zima.Client
+	twitchClient  *twitch.Client
+	zimaClient    *zima.Client
+	youtubeClient *youtube.Client
 }
 
 type ClientOptions struct {
-	TwitchClient *twitch.Client
-	ZimaClient   *zima.Client
+	YouTubeClient *youtube.Client
+	TwitchClient  *twitch.Client
+	ZimaClient    *zima.Client
 }
 
 func NewClient(opt *ClientOptions) *Client {
-	return &Client{twitchClient: opt.TwitchClient, zimaClient: opt.ZimaClient}
+	return &Client{
+		twitchClient:  opt.TwitchClient,
+		zimaClient:    opt.ZimaClient,
+		youtubeClient: opt.YouTubeClient,
+	}
 }
 
 type Content struct {
 	ID          string  `json:"id"`
 	Title       string  `json:"title"`
-	Description string  `json:"description"`
 	Thumbnail   string  `json:"thumbnail"`
 	Url         string  `json:"url"`
 	IsLive      bool    `json:"isLive"`
 	Position    float64 `json:"position"`
 	Category    string  `json:"category"`
+	PublishedAt string  `json:"publishedAt"`
 }
 
 func (c *Client) GetAll() ([]Content, error) {
@@ -51,13 +61,12 @@ func (c *Client) GetAll() ([]Content, error) {
 		url = strings.Replace(url, "{height}", height, 1)
 
 		content = append(content, Content{
-			ID:          stream.ID,
-			Title:       stream.Title,
-			Description: "",
-			Thumbnail:   url,
-			Url:         fmt.Sprintf("https://www.twitch.tv/%s", stream.UserLogin),
-			IsLive:      true,
-			Category:    "Live Streams",
+			ID:        stream.ID,
+			Title:     stream.Title,
+			Thumbnail: url,
+			Url:       fmt.Sprintf("https://www.twitch.tv/%s", stream.UserLogin),
+			IsLive:    true,
+			Category:  "Live Streams",
 		})
 	}
 
@@ -104,16 +113,80 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 		}
 
 		content = append(content, Content{
-			ID:          item.ID,
-			Title:       item.Title,
-			Description: item.Artist,
-			Thumbnail:   item.Metadata.PosterLink,
-			Url:         item.Metadata.ContentUrl,
-			IsLive:      false,
-			Position:    playbackPosition,
-			Category:    "YouTube History",
+			ID:        item.ID,
+			Title:     item.Title,
+			Thumbnail: item.Metadata.PosterLink,
+			Url:       item.Metadata.ContentUrl,
+			IsLive:    false,
+			Position:  playbackPosition,
+			Category:  "YouTube History",
 		})
 	}
+
+	return content, nil
+}
+
+func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
+	history, err := c.zimaClient.GetContent()
+	if err != nil {
+		log.Printf("[ERROR] failed to get youtube history: %s", err)
+		return nil, err
+	}
+
+	ranking, err := c.youtubeClient.GetRanking()
+	if err != nil {
+		log.Printf("[ERROR] failed to get youtube ranking: %s", err)
+		return nil, err
+	}
+
+	var content []Content
+	const MaxSuggestions = 20
+
+	youtubeService, err := c.youtubeClient.GetService(context.Background())
+	if err != nil {
+		log.Printf("[ERROR] failed to get youtube service: %s", err)
+		return nil, err
+	}
+
+	for _, rank := range ranking {
+		if len(content) >= MaxSuggestions {
+			break
+		}
+
+		videos, err := c.youtubeClient.GetChannelVideos(youtubeService, rank.ID)
+		if err != nil {
+			log.Printf("[ERROR] failed to get channel videos: %s", err)
+			continue
+		}
+
+		for _, video := range videos {
+			videoId := video.ContentDetails.Upload.VideoId
+			if videoId == "" {
+				continue
+			}
+
+			if slices.ContainsFunc(history, func(item zima.Content) bool {
+				return item.Metadata != nil && item.Metadata.VideoID == videoId
+			}) {
+				continue
+			}
+
+			content = append(content, Content{
+				ID:          videoId,
+				Title:       video.Snippet.Title,
+				Thumbnail:   video.Snippet.Thumbnails.Medium.Url,
+				Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", videoId),
+				IsLive:      false,
+				Position:    0,
+				Category:    "YouTube Suggestions",
+				PublishedAt: video.Snippet.PublishedAt,
+			})
+		}
+	}
+
+	sort.Slice(content, func(i, j int) bool {
+		return content[i].PublishedAt > content[j].PublishedAt
+	})
 
 	return content, nil
 }
@@ -125,7 +198,7 @@ type PlaybackInfo struct {
 }
 
 func parsePlayback(playbackStr string) (*PlaybackInfo, error) {
-	regex := regexp.MustCompile(`(\d+)\/(\d+)s \(([\d.]+)%\)`)
+	regex := regexp.MustCompile(`(\d+)/(\d+)s \(([\d.]+)%\)`)
 	match := regex.FindStringSubmatch(playbackStr)
 
 	if len(match) == 0 {

@@ -10,6 +10,7 @@ import (
 	"google.golang.org/api/youtube/v3"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -99,7 +100,7 @@ func (c *Client) HandleAuthCode(code string) error {
 	return nil
 }
 
-func (c *Client) getService(ctx context.Context) (*youtube.Service, error) {
+func (c *Client) GetService(ctx context.Context) (*youtube.Service, error) {
 	token, err := c.tokenSource.Token()
 	if err != nil {
 		log.Printf("[ERROR] Unable to retrieve token: %v", err)
@@ -130,12 +131,8 @@ func (c *Client) getService(ctx context.Context) (*youtube.Service, error) {
 	return service, nil
 }
 
-func (c *Client) GetUserSubscriptions() ([]*youtube.Subscription, error) {
+func (c *Client) GetUserSubscriptions(service *youtube.Service) ([]*youtube.Subscription, error) {
 	ctx := context.Background()
-	service, err := c.getService(ctx)
-	if err != nil {
-		return nil, err
-	}
 
 	part := []string{"snippet"}
 	call := service.Subscriptions.List(part)
@@ -143,13 +140,106 @@ func (c *Client) GetUserSubscriptions() ([]*youtube.Subscription, error) {
 
 	var channels = make([]*youtube.Subscription, 0)
 
-	err = call.Pages(ctx, func(page *youtube.SubscriptionListResponse) error {
+	if err := call.Pages(ctx, func(page *youtube.SubscriptionListResponse) error {
 		channels = append(channels, page.Items...)
 
 		return nil
-	})
+	}); err != nil {
+		return nil, err
+	}
 
 	return channels, nil
+}
+
+func (c *Client) GetChannelVideos(service *youtube.Service, channelId string) ([]*youtube.Activity, error) {
+	ctx := context.Background()
+
+	part := []string{"snippet", "contentDetails"}
+	call := service.Activities.List(part)
+	call.ChannelId(channelId)
+	call.PublishedAfter(time.Now().Add(time.Duration(-7) * time.Hour * 24).Format(time.RFC3339))
+
+	var videos = make([]*youtube.Activity, 0)
+
+	if err := call.Pages(ctx, func(page *youtube.ActivityListResponse) error {
+		for _, item := range page.Items {
+			if item.Snippet.Type != "upload" || item.Snippet.Description == "" {
+				continue
+			}
+
+			videos = append(videos, item)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	if len(videos) == 0 {
+		return nil, nil
+	}
+
+	videos, err := c.filterShortVideos(ctx, service, videos)
+	if err != nil {
+		return nil, err
+	}
+
+	return videos, nil
+}
+
+func (c *Client) filterShortVideos(ctx context.Context, service *youtube.Service, videos []*youtube.Activity) ([]*youtube.Activity, error) {
+	var filteredVideos = make([]*youtube.Activity, 0)
+
+	var videoIds = make([]string, 0)
+	for _, video := range videos {
+		videoIds = append(videoIds, video.ContentDetails.Upload.VideoId)
+	}
+
+	call := service.Videos.List([]string{"contentDetails"}).Id(videoIds...)
+
+	var videoDetails = make([]*youtube.Video, 0)
+	if err := call.Pages(ctx, func(page *youtube.VideoListResponse) error {
+		videoDetails = append(videoDetails, page.Items...)
+
+		return nil
+	}); err != nil {
+		return filteredVideos, err
+	}
+
+	for _, video := range videoDetails {
+		var originalVideo *youtube.Activity
+		for _, v := range videos {
+			if v.ContentDetails.Upload.VideoId == video.Id {
+				originalVideo = v
+				break
+			}
+		}
+		if originalVideo == nil {
+			continue
+		}
+
+		duration, err := time.ParseDuration(parseISO8601Duration(video.ContentDetails.Duration))
+		if err != nil {
+			log.Printf("[ERROR] Failed to parse duration: %v", err)
+			continue
+		}
+
+		if duration > time.Minute {
+			filteredVideos = append(filteredVideos, originalVideo)
+		}
+	}
+
+	return filteredVideos, nil
+}
+
+func parseISO8601Duration(duration string) string {
+	duration = strings.ToLower(duration)
+	duration = strings.Replace(duration, "pt", "", 1)
+	duration = strings.Replace(duration, "h", "h", 1)
+	duration = strings.Replace(duration, "m", "m", 1)
+	duration = strings.Replace(duration, "s", "s", 1)
+
+	return duration
 }
 
 func (c *Client) GetRanking() ([]youtubeRanking.Ranking, error) {

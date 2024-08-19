@@ -83,8 +83,9 @@ func run(cfg *config.Config) error {
 	zimaClient := zima.NewClient(cfg.Zima.Url)
 
 	contentService := content.NewClient(&content.ClientOptions{
-		TwitchClient: twitchClient,
-		ZimaClient:   zimaClient,
+		TwitchClient:  twitchClient,
+		ZimaClient:    zimaClient,
+		YouTubeClient: youtubeClient,
 	})
 
 	go http.NewClient(&http.ClientOptions{
