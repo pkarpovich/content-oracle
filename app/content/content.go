@@ -55,8 +55,8 @@ func (c *Client) GetAll() ([]Content, error) {
 	for _, stream := range resp.Data.Streams {
 		urlTemplate := stream.ThumbnailURL
 
-		width := "320"
-		height := "180"
+		width := "1280"
+		height := "720"
 		url := strings.Replace(urlTemplate, "{width}", width, 1)
 		url = strings.Replace(url, "{height}", height, 1)
 

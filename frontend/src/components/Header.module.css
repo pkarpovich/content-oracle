@@ -2,11 +2,11 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    box-shadow: 0 0 10px var(--shadow-color);
+    box-shadow: 3px 6px 6px hsl(0deg 0% 0% / 0.4);
     background-color: var(--bg-color);
     display: flex;
     align-content: center;
-    height: 90px;
+    height: var(--header-height);
     width: 100%;
     justify-content: center;
 }
@@ -17,4 +17,13 @@
     align-items: center;
     justify-content: flex-end;
     padding: 0 20px;
+}
+
+.appName {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    color: var(--primary-text-color);
+    cursor: pointer;
 }

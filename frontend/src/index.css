@@ -1,15 +1,19 @@
 :root {
     --primary: oklch(84.71% 0.2 84.93);
-    --bg-color: oklch(90.92% 0.08767 88.516);
-    --primary-text-color: oklch(0.26 0.15 284.07);
-    --shadow-color: oklch(0.26 0.15 284.07);
+    --bg-color: #000000cc;
+    --card-bg-color: #2c2c2e;
+    --shadow-color: oklch(84.71% 0.2 84.93);
+    --primary-text-color: var(--primary);
+    --secondary-text-color: #fff;
+    --header-height: 50px;
 
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    font-family: Roboto, sans-serif;
     line-height: 1.5;
     font-weight: 400;
 
     background-color: var(--bg-color);
     color: var(--primary-text-color);
+
     color-scheme: light dark;
 
     font-synthesis: none;
@@ -17,7 +21,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-
 
 a {
     font-weight: 500;
@@ -38,16 +41,27 @@ body {
 div#root {
     display: flex;
     flex: 1;
+
+    /* From https://css.glass */
+    /*background: rgba(198, 184, 184, 0.17);*/
+    /*border-radius: 16px;*/
+    /*box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);*/
+    /*backdrop-filter: blur(12.3px);*/
+    /*-webkit-backdrop-filter: blur(12.3px);*/
+    /*border: 1px solid rgba(198, 184, 184, 0.3);*/
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        /*--bg-color: oklch(0.67 0.22 43.34);*/
-        --bg-color: oklch(0.26 0.15 284.07);
-        --primary-text-color: oklch(90.92% 0.08767 88.516);
-        --shadow-color: oklch(90.92% 0.08767 88.516);
+        --primary: oklch(84.71% 0.2 84.93);
+        --bg-color: #000000cc;
+        --card-bg-color: #2c2c2e;
+        --shadow-color: oklch(84.71% 0.2 84.93);
+        --primary-text-color: var(--primary);
+        --secondary-text-color: #fff;
+        --header-height: 50px;
 
-        color: var(--primary-text-color);
         background-color: var(--bg-color);
+        color: var(--primary-text-color);
     }
 }

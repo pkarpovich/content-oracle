@@ -1,0 +1,30 @@
+.sidebarContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 40px;
+    height: calc(100vh - 90px);
+    padding: 20px 10px;
+    box-shadow: 3px 6px 6px hsl(0deg 0% 0% / 0.4);
+    position: sticky;
+    top: var(--header-height);
+    left: 0;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
+.innerContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.icon {
+    fill: var(--secondary-text-color);
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}

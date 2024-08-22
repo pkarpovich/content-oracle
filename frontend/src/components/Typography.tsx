@@ -2,6 +2,8 @@ import clsx from "clsx";
 import type { ElementType, ReactNode } from "react";
 import { Children } from "react";
 
+import style from "./Typography.module.css";
+
 type Variant = "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "text" | "title";
 
 type Props = {
@@ -25,5 +27,9 @@ const tags: Record<Variant, ElementType> = {
 export const Typography = ({ as, children, className, variant }: Props) => {
     const Tag = as ?? tags[variant];
 
-    return <Tag className={clsx(Boolean(className) && className)}>{Children.map(children, (child) => child)}</Tag>;
+    return (
+        <Tag className={clsx(style.typography, Boolean(className) && className)}>
+            {Children.map(children, (child) => child)}
+        </Tag>
+    );
 };

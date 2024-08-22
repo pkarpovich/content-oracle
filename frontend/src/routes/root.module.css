@@ -1,0 +1,10 @@
+.rootContainer {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.contentContainer {
+    display: flex;
+    flex: 1;
+}
