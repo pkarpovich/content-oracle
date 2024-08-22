@@ -14,7 +14,7 @@
     background-color: var(--bg-color);
     color: var(--primary-text-color);
 
-    color-scheme: light dark;
+    color-scheme: light;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -41,27 +41,4 @@ body {
 div#root {
     display: flex;
     flex: 1;
-
-    /* From https://css.glass */
-    /*background: rgba(198, 184, 184, 0.17);*/
-    /*border-radius: 16px;*/
-    /*box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);*/
-    /*backdrop-filter: blur(12.3px);*/
-    /*-webkit-backdrop-filter: blur(12.3px);*/
-    /*border: 1px solid rgba(198, 184, 184, 0.3);*/
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --primary: oklch(84.71% 0.2 84.93);
-        --bg-color: #000000cc;
-        --card-bg-color: #2c2c2e;
-        --shadow-color: oklch(84.71% 0.2 84.93);
-        --primary-text-color: var(--primary);
-        --secondary-text-color: #fff;
-        --header-height: 50px;
-
-        background-color: var(--bg-color);
-        color: var(--primary-text-color);
-    }
 }

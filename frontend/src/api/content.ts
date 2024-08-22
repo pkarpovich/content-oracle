@@ -11,13 +11,23 @@ export type Content = {
     url: string;
 };
 
-export const getAllContent = async (): Promise<Content[]> => {
+export const getAllContent = async (): Promise<Map<string, Content[]>> => {
     const resp = await fetch(`${BaseURL}/api/content`);
     if (!resp.ok) {
         throw new Error("Failed to fetch content");
     }
 
-    return resp.json();
+    const data = await resp.json();
+
+    return data.reduce((acc: Map<string, Content[]>, item: Content) => {
+        if (!acc.has(item.category)) {
+            acc.set(item.category, []);
+        }
+
+        acc.get(item.category)?.push(item);
+
+        return acc;
+    }, new Map());
 };
 
 export const openContent = async (url: string): Promise<void> => {
