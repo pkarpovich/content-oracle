@@ -8,6 +8,7 @@ import (
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
+	"content-oracle/app/store/activity"
 	"content-oracle/app/store/settings"
 	"content-oracle/app/store/youtubeRanking"
 	"context"
@@ -55,6 +56,12 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
+	activityRepository, err := activity.NewRepository(db)
+	if err != nil {
+		log.Printf("[ERROR] Error creating activity repository: %s", err)
+		return err
+	}
+
 	twitchClient, err := twitch.NewClient(&twitch.ClientOptions{
 		SettingsRepository: settingsRepository,
 		RedirectURI:        cfg.Twitch.RedirectURI,
@@ -86,6 +93,7 @@ func run(cfg *config.Config) error {
 		TwitchClient:  twitchClient,
 		ZimaClient:    zimaClient,
 		YouTubeClient: youtubeClient,
+		ActivityRepo:  activityRepository,
 	})
 
 	go http.NewClient(&http.ClientOptions{

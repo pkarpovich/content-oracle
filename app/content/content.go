@@ -4,6 +4,7 @@ import (
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
+	"content-oracle/app/store/activity"
 	"context"
 	"fmt"
 	"log"
@@ -18,19 +19,22 @@ type Client struct {
 	twitchClient  *twitch.Client
 	zimaClient    *zima.Client
 	youtubeClient *youtube.Client
+	activeRepo    *activity.Repository
 }
 
 type ClientOptions struct {
 	YouTubeClient *youtube.Client
+	ActivityRepo  *activity.Repository
 	TwitchClient  *twitch.Client
 	ZimaClient    *zima.Client
 }
 
 func NewClient(opt *ClientOptions) *Client {
 	return &Client{
+		youtubeClient: opt.YouTubeClient,
 		twitchClient:  opt.TwitchClient,
 		zimaClient:    opt.ZimaClient,
-		youtubeClient: opt.YouTubeClient,
+		activeRepo:    opt.ActivityRepo,
 	}
 }
 
@@ -84,10 +88,22 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 		return nil, err
 	}
 
+	videoActivity, err := c.activeRepo.GetAll()
+	if err != nil {
+		log.Printf("[ERROR] failed to get video activity: %s", err)
+		return nil, err
+	}
+
 	var content []Content
 
 	for _, item := range history {
 		if item.Metadata == nil {
+			continue
+		}
+
+		if itemActivityIndex := slices.IndexFunc(videoActivity, func(activity activity.Activity) bool {
+			return activity.ContentID == item.ID
+		}); videoActivity != nil && itemActivityIndex != -1 && videoActivity[itemActivityIndex].Status == "completed" {
 			continue
 		}
 
@@ -124,6 +140,13 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 	}
 
 	return content, nil
+}
+
+func (c *Client) CreateActivity(contentID string, status string) (*activity.Activity, error) {
+	return c.activeRepo.Create(activity.Activity{
+		ContentID: contentID,
+		Status:    status,
+	})
 }
 
 func (c *Client) GetYoutubeSuggestions() ([]Content, error) {

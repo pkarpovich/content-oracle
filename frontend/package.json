@@ -15,6 +15,7 @@
     "@tanstack/react-router": "^1.48.1",
     "@tanstack/react-virtual": "^3.9.0",
     "clsx": "^2.1.1",
+    "nanoid": "^5.0.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

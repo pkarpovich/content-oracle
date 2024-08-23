@@ -1,7 +1,7 @@
 import { BaseURL } from "./base.ts";
 
 export type Content = {
-    category: string;
+    category: Category;
     description: string;
     id: string;
     isLive: boolean;
@@ -11,7 +11,13 @@ export type Content = {
     url: string;
 };
 
-export const getAllContent = async (): Promise<Map<string, Content[]>> => {
+export enum Category {
+    liveStreams = "Live Streams",
+    youtubeHistory = "YouTube History",
+    youTubeSuggestions = "YouTube Suggestions",
+}
+
+export const getAllContent = async (): Promise<Map<Category, Content[]>> => {
     const resp = await fetch(`${BaseURL}/api/content`);
     if (!resp.ok) {
         throw new Error("Failed to fetch content");
@@ -19,7 +25,7 @@ export const getAllContent = async (): Promise<Map<string, Content[]>> => {
 
     const data = await resp.json();
 
-    return data.reduce((acc: Map<string, Content[]>, item: Content) => {
+    return data.reduce((acc: Map<Category, Content[]>, item: Content) => {
         if (!acc.has(item.category)) {
             acc.set(item.category, []);
         }

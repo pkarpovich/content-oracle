@@ -51,6 +51,7 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux.HandleFunc("GET /api/content", c.getAllContentHandler)
 	mux.HandleFunc("GET /api/content/suggestions", c.getYoutubeSuggestionsHandler)
 	mux.HandleFunc("POST /api/content/open", c.openContentHandler)
+	mux.HandleFunc("POST /api/activity", c.createActivityHandler)
 	mux.HandleFunc("GET /api/settings", c.getSettingsHandler)
 	mux.HandleFunc("POST /api/settings", c.saveSettingsHandler)
 	mux.HandleFunc("GET /", c.fileHandler)
@@ -298,6 +299,43 @@ func (c *Client) openContentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+type CreateActivityRequest struct {
+	ContentID string `json:"contentId"`
+	Status    string `json:"status"`
+}
+
+type CreateActivityResponse struct {
+	ID        int    `json:"id"`
+	ContentID string `json:"contentId"`
+	Status    string `json:"status"`
+}
+
+func (c *Client) createActivityHandler(w http.ResponseWriter, r *http.Request) {
+	var req CreateActivityRequest
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	activity, err := c.ContentService.CreateActivity(req.ContentID, req.Status)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(CreateActivityResponse{
+		ID:        activity.ID,
+		ContentID: activity.ContentID,
+		Status:    activity.Status,
+	})
+	if err != nil {
+		log.Printf("[ERROR] failed to encode activity response: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (c *Client) fileHandler(w http.ResponseWriter, r *http.Request) {

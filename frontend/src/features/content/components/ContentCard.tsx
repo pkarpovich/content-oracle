@@ -1,23 +1,30 @@
 import { useCallback } from "react";
 
+import type { Activity } from "../../../api/activity.ts";
+import { ActivityStatus } from "../../../api/activity.ts";
+import { Category } from "../../../api/content.ts";
 import { IconButton } from "../../../components/IconButton.tsx";
 import { ProgressBar } from "../../../components/ProgressBar.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import AppleTvIcon from "../../../icons/apple-tv.svg";
+import CheckIcon from "../../../icons/check.svg";
 import EnterIcon from "../../../icons/enter.svg";
 import ShareIcon from "../../../icons/share.svg";
 import styles from "./ContentCard.module.css";
 
 type Props = {
+    category: Category;
+    id: string;
     imageUrl: string;
     isLive: boolean;
+    onCheck: (activity: Activity) => void;
     onOpenUrl: (url: string) => void;
     position: number;
     title: string;
     url: string;
 };
 
-export const ContentCard = ({ imageUrl, isLive, onOpenUrl, position, title, url }: Props) => {
+export const ContentCard = ({ category, id, imageUrl, isLive, onCheck, onOpenUrl, position, title, url }: Props) => {
     const handleOpenButtonClick = useCallback(() => {
         window.open(url, "_blank");
     }, [url]);
@@ -30,9 +37,18 @@ export const ContentCard = ({ imageUrl, isLive, onOpenUrl, position, title, url 
         onOpenUrl(url);
     }, [onOpenUrl, url]);
 
+    const handleCheckButtonClick = useCallback(() => {
+        onCheck({ contentId: id, status: ActivityStatus.completed });
+    }, [id, onCheck]);
+
     return (
         <div className={styles.card}>
             <div className={styles.actionsRow}>
+                {category === Category.youtubeHistory ? (
+                    <IconButton onClick={handleCheckButtonClick}>
+                        <CheckIcon />
+                    </IconButton>
+                ) : null}
                 <IconButton onClick={handleShareButtonClick}>
                     <ShareIcon />
                 </IconButton>
