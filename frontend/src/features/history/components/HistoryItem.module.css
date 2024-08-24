@@ -1,0 +1,33 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    height: 180px;
+}
+
+.thumbnail {
+    min-width: 320px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.information {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 20px;
+}
+
+.text {
+    color: var(--secondary-text-color);
+}

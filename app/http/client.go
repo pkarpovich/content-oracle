@@ -54,6 +54,7 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux.HandleFunc("POST /api/activity", c.createActivityHandler)
 	mux.HandleFunc("GET /api/settings", c.getSettingsHandler)
 	mux.HandleFunc("POST /api/settings", c.saveSettingsHandler)
+	mux.HandleFunc("GET /api/history", c.getHistoryHandler)
 	mux.HandleFunc("GET /", c.fileHandler)
 
 	server := &http.Server{
@@ -333,6 +334,21 @@ func (c *Client) createActivityHandler(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		log.Printf("[ERROR] failed to encode activity response: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (c *Client) getHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	historyList, err := c.ContentService.GetFullHistory()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(historyList)
+	if err != nil {
+		log.Printf("[ERROR] failed to encode content response: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

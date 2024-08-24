@@ -17,6 +17,7 @@ func NewClient(url string) *Client {
 
 type GetContentActionArgs struct {
 	ApplicationName string `json:"applicationName"`
+	IncludePlayback bool   `json:"includePlayback"`
 }
 
 type GetContentActionPayload struct {
@@ -56,11 +57,12 @@ type InvokeActionResponse struct {
 	Response []Content `json:"response"`
 }
 
-func (c *Client) GetContent() ([]Content, error) {
+func (c *Client) GetContent(includePlayback bool, applicationName string) ([]Content, error) {
 	reqPayload := GetContentActionPayload{
 		Name: "content-collector-history",
 		Args: GetContentActionArgs{
-			ApplicationName: "YouTube (com.google.ios.youtube)",
+			IncludePlayback: includePlayback,
+			ApplicationName: applicationName,
 		},
 	}
 

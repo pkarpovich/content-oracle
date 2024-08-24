@@ -13,7 +13,10 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
+
+const YoutubeApplicationName = "YouTube (com.google.ios.youtube)"
 
 type Client struct {
 	twitchClient  *twitch.Client
@@ -82,7 +85,7 @@ func (c *Client) OpenContentUrl(url string) error {
 }
 
 func (c *Client) GetYoutubeHistory() ([]Content, error) {
-	history, err := c.zimaClient.GetContent()
+	history, err := c.zimaClient.GetContent(false, YoutubeApplicationName)
 	if err != nil {
 		log.Printf("[ERROR] failed to get youtube history: %s", err)
 		return nil, err
@@ -150,7 +153,7 @@ func (c *Client) CreateActivity(contentID string, status string) (*activity.Acti
 }
 
 func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
-	history, err := c.zimaClient.GetContent()
+	history, err := c.zimaClient.GetContent(false, YoutubeApplicationName)
 	if err != nil {
 		log.Printf("[ERROR] failed to get youtube history: %s", err)
 		return nil, err
@@ -214,6 +217,96 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 	return content, nil
 }
 
+type HistoryItem struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Arist       string `json:"artist"`
+	Thumbnail   string `json:"thumbnail"`
+	Url         string `json:"url"`
+	PublishedAt string `json:"publishedAt"`
+	Application string `json:"application"`
+}
+
+type HistoryPlaybackItem struct {
+	ContentID  string    `json:"contentId"`
+	StartTime  time.Time `json:"startTime"`
+	FinishTime time.Time `json:"finishTime"`
+}
+
+type HistoryPlayback struct {
+	ContentID  string    `json:"contentId"`
+	StartTime  time.Time `json:"startTime"`
+	FinishTime time.Time `json:"finishTime"`
+}
+
+type FullHistory struct {
+	Items    []HistoryItem     `json:"items"`
+	Playback []HistoryPlayback `json:"playback"`
+}
+
+func (c *Client) GetFullHistory() (*FullHistory, error) {
+	fullHistory, err := c.zimaClient.GetContent(true, "")
+	if err != nil {
+		log.Printf("[ERROR] failed to get youtube history: %s", err)
+		return nil, err
+	}
+
+	allPlayback := make([]zima.Playback, 0)
+
+	for _, item := range fullHistory {
+		for _, playback := range item.Playback {
+			allPlayback = append(allPlayback, playback)
+		}
+	}
+
+	sort.Slice(allPlayback, func(i, j int) bool {
+		return allPlayback[i].UpdatedAt > allPlayback[j].UpdatedAt
+	})
+
+	playback := make([]HistoryPlayback, 0)
+	for index, item := range allPlayback {
+		updatedAt, err := time.Parse(time.RFC3339, item.UpdatedAt)
+		if err != nil {
+			log.Printf("[ERROR] failed to parse updated at time: %s", err)
+			continue
+		}
+
+		if index == 0 || playback[len(playback)-1].ContentID != item.ContentID {
+			playback = append(playback, HistoryPlayback{
+				ContentID:  item.ContentID,
+				StartTime:  updatedAt,
+				FinishTime: updatedAt,
+			})
+			continue
+		}
+
+		playback[len(playback)-1].StartTime = updatedAt
+	}
+
+	var history []HistoryItem
+
+	for _, item := range fullHistory {
+		historyItem := HistoryItem{
+			ID:          item.ID,
+			Title:       item.Title,
+			Arist:       item.Artist,
+			Application: item.Application,
+		}
+
+		if item.Metadata != nil {
+			historyItem.Thumbnail = item.Metadata.PosterLink
+			historyItem.Url = item.Metadata.ContentUrl
+		}
+
+		history = append(history, historyItem)
+	}
+
+	return &FullHistory{
+		Playback: playback,
+		Items:    history,
+	}, nil
+}
+
 type PlaybackInfo struct {
 	StartTime  int
 	TotalTime  int
@@ -221,6 +314,19 @@ type PlaybackInfo struct {
 }
 
 func parsePlayback(playbackStr string) (*PlaybackInfo, error) {
+	if playbackStr == "Unknown" {
+		return &PlaybackInfo{
+			StartTime:  0,
+			TotalTime:  0,
+			Percentage: 0,
+		}, nil
+	}
+
+	// parse this playback string  6949s
+	if regexp.MustCompile(`^\d+s$`).MatchString(playbackStr) {
+		playbackStr = "0/" + playbackStr + " (0%)"
+	}
+
 	regex := regexp.MustCompile(`(\d+)/(\d+)s \(([\d.]+)%\)`)
 	match := regex.FindStringSubmatch(playbackStr)
 
