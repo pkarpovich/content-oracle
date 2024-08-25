@@ -172,6 +172,13 @@ func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	contentList = append(contentList, youtubeSuggestions...)
 
+	unsubscribedVideos, err := c.ContentService.GetVideoFromUnsubscribeChannels()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	contentList = append(contentList, unsubscribedVideos...)
+
 	err = json.NewEncoder(w).Encode(contentList)
 	if err != nil {
 		log.Printf("[ERROR] failed to encode content response: %s", err)

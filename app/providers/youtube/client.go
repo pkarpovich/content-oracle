@@ -205,6 +205,28 @@ func (c *Client) GetChannelVideos(service *youtube.Service, channelId string) ([
 	return videos, nil
 }
 
+func (c *Client) GetChannelByName(service *youtube.Service, name string) (*youtube.SearchResultSnippet, error) {
+	cacheKey := "youtube_channel_" + name
+
+	if item, ok := c.getFromCache(cacheKey); ok {
+		return item.(*youtube.SearchResultSnippet), nil
+	}
+
+	call := service.Search.List([]string{"snippet"}).Q(name).Type("channel").MaxResults(1)
+
+	response, err := call.Do()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(response.Items) == 0 {
+		return nil, nil
+	}
+
+	c.storeInCache(cacheKey, response.Items[0].Snippet)
+	return response.Items[0].Snippet, nil
+}
+
 func (c *Client) filterShortVideos(ctx context.Context, service *youtube.Service, videos []*youtube.Activity) ([]*youtube.Activity, error) {
 	var filteredVideos = make([]*youtube.Activity, 0)
 

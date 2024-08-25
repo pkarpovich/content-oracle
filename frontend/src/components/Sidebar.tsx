@@ -10,6 +10,7 @@ import LightOnIcon from "../icons/light-on.svg";
 import LiveIcon from "../icons/live.svg";
 import PreviousIcon from "../icons/previous.svg";
 import SettingsIcon from "../icons/settings.svg";
+import UnsubscribeIcon from "../icons/unsubscribe.svg";
 import style from "./Sidebar.module.css";
 
 type SidebarProps = {
@@ -89,6 +90,19 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 >
                     <LightOnIcon />
                     <span>{Category.youTubeSuggestions}</span>
+                </button>
+
+                <button
+                    className={clsx(style.icon, {
+                        [style.active]:
+                            state.location.pathname === Routes.Root &&
+                            state.location.hash === categoryToHash(Category.unsubscribedChannels),
+                    })}
+                    onClick={handleRouteClick(Routes.Root, categoryToHash(Category.unsubscribedChannels))}
+                    type="button"
+                >
+                    <UnsubscribeIcon />
+                    <span>Unsubscribed Channels</span>
                 </button>
 
                 <button

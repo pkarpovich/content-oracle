@@ -2,11 +2,12 @@ package content
 
 import (
 	"content-oracle/app/providers/twitch"
-	"content-oracle/app/providers/youtube"
+	yt "content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
 	"content-oracle/app/store/activity"
 	"context"
 	"fmt"
+	"google.golang.org/api/youtube/v3"
 	"log"
 	"regexp"
 	"slices"
@@ -17,16 +18,17 @@ import (
 )
 
 const YoutubeApplicationName = "YouTube (com.google.ios.youtube)"
+const MaxSuggestions = 20
 
 type Client struct {
 	twitchClient  *twitch.Client
 	zimaClient    *zima.Client
-	youtubeClient *youtube.Client
+	youtubeClient *yt.Client
 	activeRepo    *activity.Repository
 }
 
 type ClientOptions struct {
-	YouTubeClient *youtube.Client
+	YouTubeClient *yt.Client
 	ActivityRepo  *activity.Repository
 	TwitchClient  *twitch.Client
 	ZimaClient    *zima.Client
@@ -166,7 +168,6 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 	}
 
 	var content []Content
-	const MaxSuggestions = 20
 
 	youtubeService, err := c.youtubeClient.GetService(context.Background())
 	if err != nil {
@@ -197,16 +198,7 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 				continue
 			}
 
-			content = append(content, Content{
-				ID:          videoId,
-				Title:       video.Snippet.Title,
-				Thumbnail:   video.Snippet.Thumbnails.Medium.Url,
-				Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", videoId),
-				IsLive:      false,
-				Position:    0,
-				Category:    "YouTube Suggestions",
-				PublishedAt: video.Snippet.PublishedAt,
-			})
+			content = append(content, convertYoutubeVideoToContent(video, "YouTube Suggestions"))
 		}
 	}
 
@@ -354,4 +346,98 @@ func parsePlayback(playbackStr string) (*PlaybackInfo, error) {
 		TotalTime:  totalTime,
 		Percentage: percentage,
 	}, nil
+}
+
+func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
+	history, err := c.zimaClient.GetContent(false, YoutubeApplicationName)
+	if err != nil {
+		log.Printf("[ERROR] failed to get youtube history: %s", err)
+		return nil, err
+	}
+
+	youtubeService, err := c.youtubeClient.GetService(context.Background())
+	if err != nil {
+		log.Printf("[ERROR] failed to get youtube service: %s", err)
+		return nil, err
+	}
+
+	content := make([]Content, 0)
+
+	subscriptions, err := c.youtubeClient.GetUserSubscriptions(youtubeService)
+	if err != nil {
+		log.Printf("[ERROR] failed to get user subscriptions: %s", err)
+		return nil, err
+	}
+
+	allHistoryChannels := make([]string, 0)
+	for _, item := range history {
+		if slices.Contains(allHistoryChannels, item.Artist) {
+			continue
+		}
+
+		if item.Metadata != nil {
+			allHistoryChannels = append(allHistoryChannels, item.Artist)
+		}
+	}
+
+	unsubscribedChannels := make([]string, 0)
+	for _, historyChannel := range allHistoryChannels {
+		if !slices.ContainsFunc(subscriptions, func(subscription *youtube.Subscription) bool {
+			return subscription.Snippet.Title == historyChannel
+		}) {
+			unsubscribedChannels = append(unsubscribedChannels, historyChannel)
+		}
+	}
+
+	for _, channel := range unsubscribedChannels {
+		if len(content) >= MaxSuggestions {
+			break
+		}
+
+		unsubscribedChannel, err := c.youtubeClient.GetChannelByName(youtubeService, channel)
+		if err != nil {
+			log.Printf("[ERROR] failed to get channel by name: %s", err)
+			continue
+		}
+
+		if unsubscribedChannel == nil {
+			log.Printf("[ERROR] channel not found: %s", channel)
+			continue
+		}
+
+		videos, err := c.youtubeClient.GetChannelVideos(youtubeService, unsubscribedChannel.ChannelId)
+		if err != nil {
+			log.Printf("[ERROR] failed to get channel videos: %s", err)
+			continue
+		}
+
+		for _, video := range videos {
+			if alreadyInHistory := slices.ContainsFunc(history, func(item zima.Content) bool {
+				return item.Metadata != nil && item.Metadata.VideoID == video.ContentDetails.Upload.VideoId
+			}); alreadyInHistory {
+				continue
+			}
+
+			content = append(content, convertYoutubeVideoToContent(video, "Unsubscribed Channels"))
+		}
+	}
+
+	sort.Slice(content, func(i, j int) bool {
+		return content[i].PublishedAt > content[j].PublishedAt
+	})
+
+	return content, nil
+}
+
+func convertYoutubeVideoToContent(video *youtube.Activity, category string) Content {
+	return Content{
+		ID:          video.ContentDetails.Upload.VideoId,
+		Title:       video.Snippet.Title,
+		Thumbnail:   video.Snippet.Thumbnails.Medium.Url,
+		Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", video.ContentDetails.Upload.VideoId),
+		IsLive:      false,
+		Position:    0,
+		Category:    category,
+		PublishedAt: video.Snippet.PublishedAt,
+	}
 }
