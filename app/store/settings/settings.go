@@ -23,10 +23,10 @@ const DefaultSettingsID = 1
 func NewRepository(db *database.Client) (*Repository, error) {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS settings (
 		id INTEGER PRIMARY KEY,
-		twitch_access_token TEXT,
-		twitch_refresh_token TEXT,
-		youtube_access_token TEXT,
-		youtube_refresh_token TEXT,
+		twitch_access_token TEXT DEFAULT '',
+		twitch_refresh_token TEXT DEFAULT '',
+		youtube_access_token TEXT DEFAULT '',
+		youtube_refresh_token TEXT DEFAULT '',
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP	
 	);`)
 	if err != nil {

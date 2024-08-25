@@ -61,6 +61,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 			"state-token",
 			oauth2.AccessTypeOffline,
 			oauth2.SetAuthURLParam("prompt", "consent"),
+			oauth2.SetAuthURLParam("redirect_uri", opt.RedirectURI),
 		)
 		log.Printf("Youtube auth URL: %v", authURL)
 	}
