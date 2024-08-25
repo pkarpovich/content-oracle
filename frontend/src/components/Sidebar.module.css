@@ -9,9 +9,20 @@
     position: sticky;
     top: var(--header-height);
     left: 0;
+    transition: width 0.5s ease-in-out;
 
     @media (max-width: 768px) {
-        display: none;
+        width: 0;
+    }
+}
+
+.sidebarOpen {
+    @media (max-width: 768px) {
+        width: 250px;
+
+        .icon {
+            display: flex;
+        }
     }
 }
 
@@ -27,4 +38,29 @@
     width: 100%;
     border: none;
     background-color: transparent;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+        fill: var(--primary-text-color);
+    }
+
+    & > span {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        display: none;
+        align-items: center;
+
+        & > svg {
+            width: 40px;
+            margin-right: 20px;
+        }
+
+        & > span {
+            display: block;
+            font-size: 1.5rem;
+            color: var(--secondary-text-color);
+        }
+    }
 }

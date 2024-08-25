@@ -43,7 +43,7 @@ export const HistoryItem = ({
         };
 
         if (thumbnail) {
-            return <img alt="thumbnail" src={thumbnail} />;
+            return <img alt="thumbnail" className={style.thumbnailImg} src={thumbnail} />;
         }
 
         if (application === Applications.Youtube && !thumbnail) {

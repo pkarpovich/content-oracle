@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import { clsx } from "clsx";
 import { useCallback } from "react";
 
 import { Routes } from "../constants/routes.ts";
@@ -7,7 +8,11 @@ import HomeIcon from "../icons/home.svg";
 import SettingsIcon from "../icons/settings.svg";
 import style from "./Sidebar.module.css";
 
-export const Sidebar = () => {
+type SidebarProps = {
+    isOpen: boolean;
+};
+
+export const Sidebar = ({ isOpen }: SidebarProps) => {
     const navigate = useNavigate();
 
     const handleRouteClick = useCallback(
@@ -20,19 +25,26 @@ export const Sidebar = () => {
     );
 
     return (
-        <aside className={style.sidebarContainer}>
+        <aside
+            className={clsx(style.sidebarContainer, {
+                [style.sidebarOpen]: isOpen,
+            })}
+        >
             <div className={style.innerContainer}>
                 <button className={style.icon} onClick={handleRouteClick(Routes.Root)} type="button">
                     <HomeIcon />
+                    <span>Home</span>
                 </button>
 
                 <button className={style.icon} onClick={handleRouteClick(Routes.History)} type="button">
                     <HistoryIcon />
+                    <span>History</span>
                 </button>
             </div>
             <div className={style.innerContainer}>
                 <button className={style.icon} onClick={handleRouteClick(Routes.Settings)} type="button">
                     <SettingsIcon />
+                    <span>Settings</span>
                 </button>
             </div>
         </aside>
