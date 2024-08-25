@@ -1,10 +1,12 @@
-import { Fragment, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
+import { categoryToHash } from "../../../api/content.ts";
 import { Typography } from "../../../components/Typography.tsx";
 import { generateId } from "../../../utils/generateId.ts";
 import { useCreateActivity } from "../api/useCreateActivity.ts";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
+import style from "./ContentCategoryList.module.css";
 import { ContentList } from "./ContentList.tsx";
 
 export const ContentCategoryList = () => {
@@ -23,8 +25,10 @@ export const ContentCategoryList = () => {
         <>
             {error ? <p>Error: {error.message}</p> : null}
             {Array.from(groupedContent.entries()).map(([category, content]) => (
-                <Fragment key={category}>
-                    <Typography variant="h2">{category}</Typography>
+                <div className={style.container} id={categoryToHash(category)} key={category}>
+                    <Typography className={style.categoryTitle} variant="h2">
+                        {category}
+                    </Typography>
                     <ContentList
                         category={category}
                         content={content}
@@ -32,7 +36,7 @@ export const ContentCategoryList = () => {
                         onCheck={createActivity}
                         onOpenUrl={openContent}
                     />
-                </Fragment>
+                </div>
             ))}
         </>
     );

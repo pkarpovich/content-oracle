@@ -10,6 +10,7 @@ type Props = {
     as?: ElementType;
     children: ReactNode | ReactNode[];
     className?: string;
+    id?: string;
     variant: Variant;
 };
 
@@ -24,11 +25,11 @@ const tags: Record<Variant, ElementType> = {
     title: "h1",
 };
 
-export const Typography = ({ as, children, className, variant }: Props) => {
+export const Typography = ({ as, children, className, id, variant }: Props) => {
     const Tag = as ?? tags[variant];
 
     return (
-        <Tag className={clsx(style.typography, Boolean(className) && className)}>
+        <Tag className={clsx(style.typography, Boolean(className) && className)} id={id}>
             {Children.map(children, (child) => child)}
         </Tag>
     );

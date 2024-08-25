@@ -3,5 +3,5 @@
     flex: 1;
     flex-direction: column;
     overflow-y: auto;
-    padding: 25px;
+    padding: 25px 0;
 }

@@ -17,6 +17,8 @@ export enum Category {
     youTubeSuggestions = "YouTube Suggestions",
 }
 
+export const categoryToHash = (category: Category): string => category.replace(" ", "-").toLowerCase();
+
 export const getAllContent = async (): Promise<Map<Category, Content[]>> => {
     const resp = await fetch(`${BaseURL}/api/content`);
     if (!resp.ok) {
