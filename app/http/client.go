@@ -154,28 +154,24 @@ func (c *Client) youtubeAuthCallbackHandler(w http.ResponseWriter, r *http.Reque
 func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentList, err := c.ContentService.GetAll()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Printf("[ERROR] failed to get all content: %s", err)
 	}
 
 	youtubeHistory, err := c.ContentService.GetYoutubeHistory()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Printf("[ERROR] failed to get youtube history: %s", err)
 	}
 	contentList = append(contentList, youtubeHistory...)
 
 	youtubeSuggestions, err := c.ContentService.GetYoutubeSuggestions()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Printf("[ERROR] failed to get youtube suggestions: %s", err)
 	}
 	contentList = append(contentList, youtubeSuggestions...)
 
 	unsubscribedVideos, err := c.ContentService.GetVideoFromUnsubscribeChannels()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Printf("[ERROR] failed to get unsubscribed videos: %s", err)
 	}
 	contentList = append(contentList, unsubscribedVideos...)
 

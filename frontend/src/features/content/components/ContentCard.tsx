@@ -41,10 +41,15 @@ export const ContentCard = ({ category, id, imageUrl, isLive, onCheck, onOpenUrl
         onCheck({ contentId: id, status: ActivityStatus.completed });
     }, [id, onCheck]);
 
+    const allowCheckAction =
+        category === Category.youtubeHistory ||
+        category === Category.youTubeSuggestions ||
+        category === Category.unsubscribedChannels;
+
     return (
         <div className={styles.card}>
             <div className={styles.actionsRow}>
-                {category === Category.youtubeHistory ? (
+                {allowCheckAction ? (
                     <IconButton onClick={handleCheckButtonClick}>
                         <CheckIcon />
                     </IconButton>

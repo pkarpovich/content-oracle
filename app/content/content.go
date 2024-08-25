@@ -114,6 +114,16 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 
 		var playbackInfo *PlaybackInfo
 		if len(item.Playback) >= 1 {
+			updatedAt, err := time.Parse(time.RFC3339, item.Playback[0].UpdatedAt)
+			if err != nil {
+				log.Printf("[ERROR] failed to parse updated at time: %s", err)
+				continue
+			}
+
+			if time.Now().Sub(updatedAt) > 7*24*time.Hour {
+				continue
+			}
+
 			playbackInfo, err = parsePlayback(item.Playback[0].Position)
 			if err != nil {
 				log.Printf("[ERROR] failed to parse playback info: %s", err)
@@ -349,6 +359,12 @@ func parsePlayback(playbackStr string) (*PlaybackInfo, error) {
 }
 
 func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
+	videoActivity, err := c.activeRepo.GetAll()
+	if err != nil {
+		log.Printf("[ERROR] failed to get video activity: %s", err)
+		return nil, err
+	}
+
 	history, err := c.zimaClient.GetContent(false, YoutubeApplicationName)
 	if err != nil {
 		log.Printf("[ERROR] failed to get youtube history: %s", err)
@@ -415,6 +431,12 @@ func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
 			if alreadyInHistory := slices.ContainsFunc(history, func(item zima.Content) bool {
 				return item.Metadata != nil && item.Metadata.VideoID == video.ContentDetails.Upload.VideoId
 			}); alreadyInHistory {
+				continue
+			}
+
+			if alreadyInActivity := slices.ContainsFunc(videoActivity, func(activity activity.Activity) bool {
+				return activity.ContentID == video.ContentDetails.Upload.VideoId
+			}); alreadyInActivity {
 				continue
 			}
 
