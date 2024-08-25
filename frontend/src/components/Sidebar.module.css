@@ -3,13 +3,11 @@
     flex-direction: column;
     justify-content: space-between;
     width: 40px;
-    height: calc(100vh - 90px);
     padding: 20px 10px;
     box-shadow: 3px 6px 6px hsl(0deg 0% 0% / 0.4);
-    position: sticky;
-    top: var(--header-height);
-    left: 0;
     transition: width 0.5s ease-in-out;
+    position: fixed;
+    height: calc(100vh - 90px);
 
     @media (max-width: 768px) {
         width: 0;
@@ -18,7 +16,7 @@
 
 .sidebarOpen {
     @media (max-width: 768px) {
-        width: 250px;
+        width: var(--sidebar-width-open);
 
         .icon {
             display: flex;

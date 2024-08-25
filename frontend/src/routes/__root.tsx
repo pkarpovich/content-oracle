@@ -1,27 +1,38 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { clsx } from "clsx";
 import { useCallback, useState } from "react";
 
 import { Header } from "../components/Header.tsx";
 import { Sidebar } from "../components/Sidebar.tsx";
 import styles from "./root.module.css";
 
-export const Route = createRootRoute({
-    component: () => {
-        const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const Root = () => {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-        const handleMenuClick = useCallback(() => {
-            setIsSidebarOpen((prevState) => !prevState);
-        }, []);
+    const handleMenuClick = useCallback(() => {
+        setIsSidebarOpen((prevState) => !prevState);
+    }, []);
 
-        return (
-            <div className={styles.rootContainer}>
+    return (
+        <div
+            className={clsx(styles.rootContainer, {
+                [styles.sidebarOpen]: isSidebarOpen,
+            })}
+        >
+            <header className={styles.header}>
                 <Header onMenuClick={handleMenuClick} />
-                <div className={styles.contentContainer}>
-                    <Sidebar isOpen={isSidebarOpen} />
-                    <Outlet />
-                </div>
-                {/*<TanStackRouterDevtools />*/}
-            </div>
-        );
-    },
+            </header>
+            <aside>
+                <Sidebar isOpen={isSidebarOpen} onClose={handleMenuClick} />
+            </aside>
+            <main className={styles.content}>
+                <Outlet />
+            </main>
+            {/*<TanStackRouterDevtools />*/}
+        </div>
+    );
+};
+
+export const Route = createRootRoute({
+    component: Root,
 });

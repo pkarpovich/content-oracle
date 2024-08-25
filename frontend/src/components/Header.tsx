@@ -21,7 +21,7 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
     }, [navigate]);
 
     return (
-        <header className={style.headerContainer}>
+        <div className={style.headerContainer}>
             <button className={style.menu} onClick={onMenuClick} type="button">
                 <MenuIcon />
             </button>
@@ -31,6 +31,6 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
             <div className={style.logo}>
                 <Logo />
             </div>
-        </header>
+        </div>
     );
 };

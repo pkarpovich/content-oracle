@@ -1,10 +1,34 @@
 .rootContainer {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
+    width: 100%;
+    display: grid;
+    grid-template-rows: [header-start] var(--header-height) [header-end content-start] 1fr [content-end];
+    grid-template-columns: [sidebar-start] var(--sidebar-width) [sidebar-end content-start] 1fr [content-end];
+    transition: grid-template-columns 0.5s ease-in-out;
+
+    @media (max-width: 768px) {
+        grid-template-columns: [sidebar-start] 0 [sidebar-end content-start] 1fr [content-end];
+
+        &.sidebarOpen {
+            grid-template-columns: [sidebar-start] var(--sidebar-width-open) [sidebar-end content-start] 1fr [content-end];
+        }
+    }
 }
 
-.contentContainer {
-    display: flex;
-    flex: 1;
+.header {
+    grid-area: header;
+    grid-column: 1 / -1;
+    grid-row: 1;
+}
+
+.sidebar {
+    grid-area: sidebar;
+    grid-row: 2 / -1;
+    grid-column: 1;
+}
+
+.content {
+    grid-area: content;
+    grid-row: 2 / -1;
+    grid-column: 2 / -1;
+    padding: 20px;
 }

@@ -1,5 +1,5 @@
 .headerContainer {
-    position: sticky;
+    position: fixed;
     top: 0;
     z-index: 10;
     box-shadow: 3px 6px 6px hsl(0deg 0% 0% / 0.4);

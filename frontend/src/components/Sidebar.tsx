@@ -10,22 +10,24 @@ import style from "./Sidebar.module.css";
 
 type SidebarProps = {
     isOpen: boolean;
+    onClose: () => void;
 };
 
-export const Sidebar = ({ isOpen }: SidebarProps) => {
+export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     const navigate = useNavigate();
 
     const handleRouteClick = useCallback(
         (to: string) => async () => {
+            onClose();
             await navigate({
                 to,
             });
         },
-        [navigate],
+        [navigate, onClose],
     );
 
     return (
-        <aside
+        <div
             className={clsx(style.sidebarContainer, {
                 [style.sidebarOpen]: isOpen,
             })}
@@ -47,6 +49,6 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
                     <span>Settings</span>
                 </button>
             </div>
-        </aside>
+        </div>
     );
 };

@@ -6,6 +6,8 @@
     --primary-text-color: var(--primary);
     --secondary-text-color: #fff;
     --header-height: 50px;
+    --sidebar-width: 60px;
+    --sidebar-width-open: 250px;
 
     font-family: Roboto, sans-serif;
     line-height: 1.5;
