@@ -4,7 +4,10 @@
     width: 100%;
     height: 100%;
     flex: 1;
-    align-items: center;
+    box-shadow: 3px 6px 6px hsl(0deg 0% 0% / 0.4);
+    background-color: var(--card-bg-color-secondary);
+    padding: 25px;
+    max-width: 1200px;
 }
 
 .subscriptionsContainer {

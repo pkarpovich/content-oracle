@@ -2,6 +2,7 @@
     --primary: oklch(84.71% 0.2 84.93);
     --bg-color: #000000cc;
     --card-bg-color: #2c2c2e;
+    --card-bg-color-secondary: #2f2f31;
     --shadow-color: oklch(84.71% 0.2 84.93);
     --primary-text-color: var(--primary);
     --secondary-text-color: #fff;

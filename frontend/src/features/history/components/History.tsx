@@ -31,7 +31,9 @@ export const History = () => {
         <div className={style.container}>
             {Object.entries(groupedByDate).map(([date, playbacks]) => (
                 <div className={style.dayContainer} key={date}>
-                    <Typography variant="h1">{date}</Typography>
+                    <div>
+                        <Typography variant="h1">{date}</Typography>
+                    </div>
                     {playbacks.map((playback) => {
                         const content = data!.content.get(playback.contentId)!;
 

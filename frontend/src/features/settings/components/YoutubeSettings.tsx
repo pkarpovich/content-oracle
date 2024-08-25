@@ -3,6 +3,7 @@ import { useMemo, useRef } from "react";
 
 import type { YoutubeSubscription } from "../../../api/settings.ts";
 import { Typography } from "../../../components/Typography.tsx";
+import { useMediaQuery } from "../../../hooks/useMediaQuery.ts";
 import { ChannelRow } from "./ChannelRow.tsx";
 import style from "./YoutubeSettings.module.css";
 
@@ -17,10 +18,12 @@ const TotalRanksAmount = 150;
 export const YoutubeSettings = ({ onRankChange, ranking, subscriptions }: Props) => {
     const parentRef = useRef<HTMLDivElement>(null);
 
+    const isDesktop = useMediaQuery("(min-width: 768px)");
+
     const rowVirtualizer = useVirtualizer({
         count: subscriptions.length,
-        estimateSize: () => 100,
-        gap: 10,
+        estimateSize: () => (isDesktop ? 120 : 160),
+        gap: 20,
         getScrollElement: () => parentRef.current,
     });
 
@@ -33,10 +36,10 @@ export const YoutubeSettings = ({ onRankChange, ranking, subscriptions }: Props)
 
     return (
         <div className={style.container}>
-            <Typography variant="h1">Youtube Subscriptions Ranking</Typography>
+            <Typography variant="h2">Youtube Subscriptions Ranking</Typography>
             <div className={style.pointsContainer}>
-                <Typography variant="h2">Total points: {TotalRanksAmount}</Typography>
-                <Typography variant="h2">Remaining points: {remainingRanks}</Typography>
+                <Typography variant="h3">Total points: {TotalRanksAmount}</Typography>
+                <Typography variant="h3">Remaining points: {remainingRanks}</Typography>
             </div>
             <div className={style.subscriptionsContainer} ref={parentRef}>
                 <div
