@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -19,6 +20,7 @@ type Client struct {
 	settingsRepository *settings.Repository
 	tokenSource        oauth2.TokenSource
 	oauthConfig        *oauth2.Config
+	cache              sync.Map
 }
 
 type ClientOptions struct {
@@ -132,6 +134,12 @@ func (c *Client) GetService(ctx context.Context) (*youtube.Service, error) {
 }
 
 func (c *Client) GetUserSubscriptions(service *youtube.Service) ([]*youtube.Subscription, error) {
+	cacheKey := "youtube_subscriptions"
+
+	if items, ok := c.getFromCache(cacheKey); ok {
+		return items.([]*youtube.Subscription), nil
+	}
+
 	ctx := context.Background()
 
 	part := []string{"snippet"}
@@ -148,10 +156,18 @@ func (c *Client) GetUserSubscriptions(service *youtube.Service) ([]*youtube.Subs
 		return nil, err
 	}
 
+	c.storeInCache(cacheKey, channels)
+
 	return channels, nil
 }
 
 func (c *Client) GetChannelVideos(service *youtube.Service, channelId string) ([]*youtube.Activity, error) {
+	cacheKey := "youtube_channel_videos_" + channelId
+
+	if items, ok := c.getFromCache(cacheKey); ok {
+		return items.([]*youtube.Activity), nil
+	}
+
 	ctx := context.Background()
 
 	part := []string{"snippet", "contentDetails"}
@@ -183,6 +199,8 @@ func (c *Client) GetChannelVideos(service *youtube.Service, channelId string) ([
 	if err != nil {
 		return nil, err
 	}
+
+	c.storeInCache(cacheKey, videos)
 
 	return videos, nil
 }
@@ -248,4 +266,31 @@ func (c *Client) GetRanking() ([]youtubeRanking.Ranking, error) {
 
 func (c *Client) UpdateRanking(ranking []youtubeRanking.Ranking) error {
 	return c.rankingRepository.BatchUpdate(ranking)
+}
+
+type CacheItem struct {
+	Items      interface{}
+	Expiration time.Time
+}
+
+func (c *Client) getFromCache(key string) (interface{}, bool) {
+	item, ok := c.cache.Load(key)
+	if !ok {
+		return nil, false
+	}
+
+	cacheItem := item.(CacheItem)
+	if cacheItem.Expiration.Before(time.Now()) {
+		c.cache.Delete(key)
+		return nil, false
+	}
+
+	return cacheItem.Items, true
+}
+
+func (c *Client) storeInCache(key string, value interface{}) {
+	c.cache.Store(key, CacheItem{
+		Items:      value,
+		Expiration: time.Now().Add(1 * time.Hour),
+	})
 }
