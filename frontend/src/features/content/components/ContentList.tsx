@@ -14,6 +14,7 @@ export const ContentList = ({ category, content, onCheck, onOpenUrl }: Props) =>
     <div className={styles.listContainer}>
         {content.map((item) => (
             <ContentCard
+                artist={item.artist}
                 category={category}
                 id={item.id}
                 imageUrl={item.thumbnail}

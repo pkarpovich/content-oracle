@@ -45,6 +45,7 @@ func NewClient(opt *ClientOptions) *Client {
 
 type Content struct {
 	ID          string  `json:"id"`
+	Artist      string  `json:"artist"`
 	Title       string  `json:"title"`
 	Thumbnail   string  `json:"thumbnail"`
 	Url         string  `json:"url"`
@@ -72,6 +73,7 @@ func (c *Client) GetAll() ([]Content, error) {
 		content = append(content, Content{
 			ID:        stream.ID,
 			Title:     stream.Title,
+			Artist:    stream.UserName,
 			Thumbnail: url,
 			Url:       fmt.Sprintf("https://www.twitch.tv/%s", stream.UserLogin),
 			IsLive:    true,
@@ -112,8 +114,10 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 			continue
 		}
 
+		lastPlaybackAt := item.CreatedAt
 		var playbackInfo *PlaybackInfo
 		if len(item.Playback) >= 1 {
+			lastPlaybackAt = item.Playback[0].UpdatedAt
 			updatedAt, err := time.Parse(time.RFC3339, item.Playback[0].UpdatedAt)
 			if err != nil {
 				log.Printf("[ERROR] failed to parse updated at time: %s", err)
@@ -144,15 +148,21 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 		}
 
 		content = append(content, Content{
-			ID:        item.ID,
-			Title:     item.Title,
-			Thumbnail: item.Metadata.PosterLink,
-			Url:       item.Metadata.ContentUrl,
-			IsLive:    false,
-			Position:  playbackPosition,
-			Category:  "YouTube History",
+			ID:          item.ID,
+			Title:       item.Title,
+			Artist:      item.Artist,
+			Thumbnail:   item.Metadata.PosterLink,
+			Url:         item.Metadata.ContentUrl,
+			IsLive:      false,
+			Position:    playbackPosition,
+			Category:    "YouTube History",
+			PublishedAt: lastPlaybackAt,
 		})
 	}
+
+	sort.Slice(content, func(i, j int) bool {
+		return content[i].PublishedAt > content[j].PublishedAt
+	})
 
 	return content, nil
 }
@@ -455,6 +465,7 @@ func convertYoutubeVideoToContent(video *youtube.Activity, category string) Cont
 	return Content{
 		ID:          video.ContentDetails.Upload.VideoId,
 		Title:       video.Snippet.Title,
+		Artist:      video.Snippet.ChannelTitle,
 		Thumbnail:   video.Snippet.Thumbnails.Medium.Url,
 		Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", video.ContentDetails.Upload.VideoId),
 		IsLive:      false,

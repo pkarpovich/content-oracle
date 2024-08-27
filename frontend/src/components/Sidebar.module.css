@@ -2,14 +2,15 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 40px;
-    padding: 20px 10px;
+    width: 50px;
     box-shadow: 3px 6px 6px hsl(0deg 0% 0% / 0.4);
-    transition: width 0.5s ease-in-out;
+    transition: width 0.5s linear;
     position: fixed;
-    height: calc(100vh - 90px);
+    height: 100%;
+    max-height: calc(100svh - var(--header-height));
 
     @media (max-width: 768px) {
+        visibility: hidden;
         width: 0;
     }
 }
@@ -17,10 +18,7 @@
 .sidebarOpen {
     @media (max-width: 768px) {
         width: var(--sidebar-width-open);
-
-        .icon {
-            display: flex;
-        }
+        visibility: visible !important;
     }
 }
 
@@ -28,6 +26,11 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    margin: 5px;
+
+    @media (max-width: 768px) {
+        margin: 15px;
+    }
 }
 
 .icon {
@@ -42,23 +45,29 @@
         fill: var(--primary-text-color);
     }
 
+    & > div {
+        min-width: 30px;
+        width: 30px;
+    }
+
     & > span {
         display: none;
     }
 
     @media (max-width: 768px) {
-        display: none;
+        display: flex;
         align-items: center;
 
-        & > svg {
-            width: 40px;
-            margin-right: 20px;
-        }
-
         & > span {
-            display: block;
+            margin-left: 20px;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+            overflow: hidden;
             font-size: 1.5rem;
             color: var(--secondary-text-color);
+            text-align: start;
         }
     }
 }

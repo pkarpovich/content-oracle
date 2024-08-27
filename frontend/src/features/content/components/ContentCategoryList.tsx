@@ -24,20 +24,22 @@ export const ContentCategoryList = () => {
     return (
         <>
             {error ? <p>Error: {error.message}</p> : null}
-            {Array.from(groupedContent.entries()).map(([category, content]) => (
-                <div className={style.container} id={categoryToHash(category)} key={category}>
-                    <Typography className={style.categoryTitle} variant="h2">
-                        {category}
-                    </Typography>
-                    <ContentList
-                        category={category}
-                        content={content}
-                        key={category}
-                        onCheck={createActivity}
-                        onOpenUrl={openContent}
-                    />
-                </div>
-            ))}
+            <div className={style.container}>
+                {Array.from(groupedContent.entries()).map(([category, content]) => (
+                    <div className={style.itemContainer} id={categoryToHash(category)} key={category}>
+                        <Typography className={style.categoryTitle} variant="h2">
+                            {category}
+                        </Typography>
+                        <ContentList
+                            category={category}
+                            content={content}
+                            key={category}
+                            onCheck={createActivity}
+                            onOpenUrl={openContent}
+                        />
+                    </div>
+                ))}
+            </div>
         </>
     );
 };

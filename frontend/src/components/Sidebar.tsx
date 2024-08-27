@@ -49,7 +49,9 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     onClick={handleRouteClick(Routes.Root, categoryToHash(Category.liveStreams))}
                     type="button"
                 >
-                    <HomeIcon />
+                    <div>
+                        <HomeIcon />
+                    </div>
                     <span>Home</span>
                 </button>
 
@@ -62,7 +64,9 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     onClick={handleRouteClick(Routes.Root, categoryToHash(Category.liveStreams))}
                     type="button"
                 >
-                    <LiveIcon />
+                    <div>
+                        <LiveIcon />
+                    </div>
                     <span>{Category.liveStreams}</span>
                 </button>
 
@@ -75,7 +79,9 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     onClick={handleRouteClick(Routes.Root, categoryToHash(Category.youtubeHistory))}
                     type="button"
                 >
-                    <PreviousIcon />
+                    <div>
+                        <PreviousIcon />
+                    </div>
                     <span>{Category.youtubeHistory}</span>
                 </button>
 
@@ -88,7 +94,9 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     onClick={handleRouteClick(Routes.Root, categoryToHash(Category.youTubeSuggestions))}
                     type="button"
                 >
-                    <LightOnIcon />
+                    <div>
+                        <LightOnIcon />
+                    </div>
                     <span>{Category.youTubeSuggestions}</span>
                 </button>
 
@@ -101,7 +109,9 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     onClick={handleRouteClick(Routes.Root, categoryToHash(Category.unsubscribedChannels))}
                     type="button"
                 >
-                    <UnsubscribeIcon />
+                    <div>
+                        <UnsubscribeIcon />
+                    </div>
                     <span>Unsubscribed Channels</span>
                 </button>
 
@@ -112,7 +122,9 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     onClick={handleRouteClick(Routes.History)}
                     type="button"
                 >
-                    <HistoryIcon />
+                    <div>
+                        <HistoryIcon />
+                    </div>
                     <span>History</span>
                 </button>
             </div>
@@ -122,7 +134,9 @@ export const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                     onClick={handleRouteClick(Routes.Settings)}
                     type="button"
                 >
-                    <SettingsIcon />
+                    <div>
+                        <SettingsIcon />
+                    </div>
                     <span>Settings</span>
                 </button>
             </div>

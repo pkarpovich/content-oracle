@@ -13,6 +13,7 @@ import ShareIcon from "../../../icons/share.svg";
 import styles from "./ContentCard.module.css";
 
 type Props = {
+    artist: string;
     category: Category;
     id: string;
     imageUrl: string;
@@ -24,7 +25,18 @@ type Props = {
     url: string;
 };
 
-export const ContentCard = ({ category, id, imageUrl, isLive, onCheck, onOpenUrl, position, title, url }: Props) => {
+export const ContentCard = ({
+    artist,
+    category,
+    id,
+    imageUrl,
+    isLive,
+    onCheck,
+    onOpenUrl,
+    position,
+    title,
+    url,
+}: Props) => {
     const handleOpenButtonClick = useCallback(() => {
         window.open(url, "_blank");
     }, [url]);
@@ -67,8 +79,11 @@ export const ContentCard = ({ category, id, imageUrl, isLive, onCheck, onOpenUrl
             <img alt={title} className={styles.image} src={imageUrl} />
             <ProgressBar isLive={isLive} progress={position} />
             <div className={styles.content}>
-                <Typography className={styles.title} variant="text">
+                <Typography className={styles.title} title={title} variant="text">
                     {title}
+                </Typography>
+                <Typography className={styles.artist} title={artist} variant="text">
+                    {artist}
                 </Typography>
             </div>
         </div>

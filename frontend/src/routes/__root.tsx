@@ -22,7 +22,7 @@ const Root = () => {
             <header className={styles.header}>
                 <Header onMenuClick={handleMenuClick} />
             </header>
-            <aside>
+            <aside className={styles.sidebar}>
                 <Sidebar isOpen={isSidebarOpen} onClose={handleMenuClick} />
             </aside>
             <main className={styles.content}>

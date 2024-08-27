@@ -1,6 +1,7 @@
 import { BaseURL } from "./base.ts";
 
 export type Content = {
+    artist: string;
     category: Category;
     description: string;
     id: string;
