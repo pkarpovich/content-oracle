@@ -19,7 +19,7 @@ services:
       HTTP_PORT: 8080
     volumes:
       - .db:/.db
-      - ./config/youtube:/config/youtube
+      - .config/youtube:/config/youtube
     expose:
       - 8080
     networks:
