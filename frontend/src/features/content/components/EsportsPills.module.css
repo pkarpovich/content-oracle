@@ -30,6 +30,36 @@
     transform: scale(0.95);
 }
 
+.pill.future {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    border: 2px dashed #ccc;
+}
+
+.pill.live {
+    border: 2px solid #FF4500;
+    box-shadow: 0px 0px 10px rgba(255, 69, 0, 0.8);
+}
+
+.pill.live:after {
+    content: "LIVE";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    background-color: #FF4500;
+    color: white;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 5px;
+    font-weight: bold;
+    animation: blink 5s linear infinite;
+}
+
+@keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.7; }
+}
+
 .dota2 {
     background: linear-gradient(135deg, var(--dota2-color), var(--dota2-color--secondary));
 
@@ -97,6 +127,14 @@
     font-size: 1.4rem;
     font-weight: bold;
     color: white;
+}
+
+.score.winner {
+    font-weight: 800;
+}
+
+.score.loser {
+    opacity: 0.6;
 }
 
 .scoreDivider {

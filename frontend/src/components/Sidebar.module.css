@@ -7,7 +7,7 @@
     transition: width 0.5s linear;
     position: fixed;
     height: 100%;
-    max-height: calc(100svh - var(--header-height));
+    max-height: calc(100dvh - var(--header-height));
 
     @media (max-width: 768px) {
         visibility: hidden;

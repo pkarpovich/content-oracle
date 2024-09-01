@@ -8,6 +8,8 @@ import styles from "./EsportsPills.module.css";
 
 const MatchDateFormat = "dd MMM, h:mm a";
 
+const ZeroScore = "(0-0)";
+
 type Props = {
     matches: Match[];
 };
@@ -31,6 +33,8 @@ export const EsportsPills = ({ matches }: Props) => {
                             className={clsx(styles.pill, {
                                 [styles.cs2]: match.gameType === GameType.cs2,
                                 [styles.dota2]: match.gameType === GameType.dota2,
+                                [styles.future]: match.score === ZeroScore,
+                                [styles.live]: match.isLive,
                             })}
                             key={match.id}
                             onClick={handleClick(match.url)}
@@ -44,9 +48,23 @@ export const EsportsPills = ({ matches }: Props) => {
                                     title={match.team1.name}
                                 />
                             </div>
-                            <span className={styles.score}>{team1Score}</span>
+                            <span
+                                className={clsx(styles.score, {
+                                    [styles.loser]: team1Score < team2Score,
+                                    [styles.winner]: team1Score > team2Score,
+                                })}
+                            >
+                                {team1Score}
+                            </span>
                             <span className={styles.scoreDivider}>vs</span>
-                            <span className={styles.score}>{team2Score}</span>
+                            <span
+                                className={clsx(styles.score, {
+                                    [styles.loser]: team2Score < team1Score,
+                                    [styles.winner]: team2Score > team1Score,
+                                })}
+                            >
+                                {team2Score}
+                            </span>
                             <div className={styles.logoContainer}>
                                 <img
                                     alt={match.team2.name}

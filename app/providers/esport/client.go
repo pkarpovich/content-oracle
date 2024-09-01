@@ -52,7 +52,8 @@ type Match struct {
 }
 
 type GetMatchesRequest struct {
-	Ids []string `json:"ids"`
+	Ids   []string  `json:"ids"`
+	After time.Time `json:"after"`
 }
 
 type GetMatchesResponse struct {
@@ -60,7 +61,8 @@ type GetMatchesResponse struct {
 }
 
 func (c *Client) GetMatches() ([]Match, error) {
-	bodyBytes, err := json.Marshal(GetMatchesRequest{Ids: c.TeamIds})
+	after := time.Now().Add(-time.Hour * 24 * 15)
+	bodyBytes, err := json.Marshal(GetMatchesRequest{Ids: c.TeamIds, After: after})
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +85,36 @@ func (c *Client) GetMatches() ([]Match, error) {
 		return nil, err
 	}
 
-	sort.Slice(response.Data, func(i, j int) bool {
-		return response.Data[i].Time.After(response.Data[j].Time)
-	})
+	sortMatches(response.Data)
 
 	return response.Data, nil
+}
+
+func sortMatches(matches []Match) {
+	today := time.Now().Truncate(24 * time.Hour)
+
+	sort.Slice(matches, func(i, j int) bool {
+		matchTimeI := matches[i].Time.Truncate(24 * time.Hour)
+		matchTimeJ := matches[j].Time.Truncate(24 * time.Hour)
+
+		if matchTimeI.Equal(today) && !matchTimeJ.Equal(today) {
+			return true
+		}
+		if !matchTimeI.Equal(today) && matchTimeJ.Equal(today) {
+			return false
+		}
+
+		if matchTimeI.After(today) && matchTimeJ.Before(today) {
+			return true
+		}
+		if matchTimeI.Before(today) && matchTimeJ.After(today) {
+			return false
+		}
+
+		if matchTimeI.After(today) && matchTimeJ.After(today) {
+			return matches[i].Time.Before(matches[j].Time)
+		}
+
+		return matches[i].Time.After(matches[j].Time)
+	})
 }
