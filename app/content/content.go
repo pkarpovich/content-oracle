@@ -27,6 +27,7 @@ type Client struct {
 	youtubeClient *yt.Client
 	activeRepo    *activity.Repository
 	esportClient  *esport.Client
+	baseUrl       string
 }
 
 type ClientOptions struct {
@@ -35,6 +36,7 @@ type ClientOptions struct {
 	TwitchClient  *twitch.Client
 	ZimaClient    *zima.Client
 	EsportClient  *esport.Client
+	BaseUrl       string
 }
 
 func NewClient(opt *ClientOptions) *Client {
@@ -44,6 +46,7 @@ func NewClient(opt *ClientOptions) *Client {
 		zimaClient:    opt.ZimaClient,
 		activeRepo:    opt.ActivityRepo,
 		esportClient:  opt.EsportClient,
+		baseUrl:       opt.BaseUrl,
 	}
 }
 
@@ -320,7 +323,7 @@ func (c *Client) GetFullHistory() (*FullHistory, error) {
 		}
 
 		if item.Metadata != nil {
-			historyItem.Thumbnail = item.Metadata.PosterLink
+			historyItem.Thumbnail = fmt.Sprintf("%s/api/proxy?url=%s", c.baseUrl, item.Metadata.PosterLink)
 			historyItem.Url = item.Metadata.ContentUrl
 		}
 

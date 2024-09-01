@@ -101,6 +101,7 @@ func run(cfg *config.Config) error {
 		YouTubeClient: youtubeClient,
 		ActivityRepo:  activityRepository,
 		EsportClient:  esportClient,
+		BaseUrl:       cfg.Http.BaseUrl,
 	})
 
 	go http.NewClient(&http.ClientOptions{

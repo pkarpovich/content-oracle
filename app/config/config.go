@@ -23,6 +23,7 @@ type YoutubeConfig struct {
 type HttpConfig struct {
 	Port           int    `env:"HTTP_PORT" env-default:"8080"`
 	BaseStaticPath string `env:"BASE_STATIC_PATH" env-default:"frontend/dist"`
+	BaseUrl        string `env:"BASE_URL" env-default:"http://localhost:8080"`
 }
 
 type ZimaConfig struct {

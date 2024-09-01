@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/cors"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -56,6 +57,7 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux.HandleFunc("GET /api/settings", c.getSettingsHandler)
 	mux.HandleFunc("POST /api/settings", c.saveSettingsHandler)
 	mux.HandleFunc("GET /api/history", c.getHistoryHandler)
+	mux.HandleFunc("GET /api/proxy", c.proxyHandler)
 	mux.HandleFunc("GET /", c.fileHandler)
 
 	server := &http.Server{
@@ -363,6 +365,35 @@ func (c *Client) getHistoryHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(historyList)
 	if err != nil {
 		log.Printf("[ERROR] failed to encode content response: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (c *Client) proxyHandler(w http.ResponseWriter, r *http.Request) {
+	imageUrl := r.URL.Query().Get("url")
+	if imageUrl == "" {
+		http.Error(w, "url not found", http.StatusBadRequest)
+		return
+	}
+
+	resp, err := http.Get(imageUrl)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("[ERROR] failed to close response body: %s", err)
+		}
+	}()
+
+	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+	w.WriteHeader(resp.StatusCode)
+	_, err = io.Copy(w, resp.Body)
+	if err != nil {
+		log.Printf("[ERROR] failed to copy response body: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
