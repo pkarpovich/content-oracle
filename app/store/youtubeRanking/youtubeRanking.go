@@ -46,6 +46,10 @@ func (r *Repository) GetAll() ([]Ranking, error) {
 		rankings = append(rankings, ranking)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return rankings, nil
 }
 

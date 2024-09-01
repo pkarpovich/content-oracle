@@ -188,6 +188,12 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 		return nil, err
 	}
 
+	videoActivity, err := c.activeRepo.GetAll()
+	if err != nil {
+		log.Printf("[ERROR] failed to get video activity: %s", err)
+		return nil, err
+	}
+
 	ranking, err := c.youtubeClient.GetRanking()
 	if err != nil {
 		log.Printf("[ERROR] failed to get youtube ranking: %s", err)
@@ -221,6 +227,12 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 
 			if slices.ContainsFunc(history, func(item zima.Content) bool {
 				return item.Metadata != nil && item.Metadata.VideoID == videoId
+			}) {
+				continue
+			}
+
+			if slices.ContainsFunc(videoActivity, func(activity activity.Activity) bool {
+				return activity.ContentID == videoId
 			}) {
 				continue
 			}
