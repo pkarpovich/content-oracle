@@ -50,8 +50,8 @@ export const ContentCard = ({
     }, [onOpenUrl, url]);
 
     const handleCheckButtonClick = useCallback(() => {
-        onCheck({ contentId: id, status: ActivityStatus.completed });
-    }, [id, onCheck]);
+        onCheck({ category, contentId: id, status: ActivityStatus.completed });
+    }, [category, id, onCheck]);
 
     const allowCheckAction =
         category === Category.youtubeHistory ||

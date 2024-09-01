@@ -1,6 +1,8 @@
 import { BaseURL } from "./base.ts";
+import type { Category } from "./content.ts";
 
 export type Activity = {
+    category: Category;
     contentId: string;
     id?: number;
     status: ActivityStatus;

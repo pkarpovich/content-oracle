@@ -1,8 +1,5 @@
-import { useCallback, useState } from "react";
-
 import { categoryToHash } from "../../../api/content.ts";
 import { Typography } from "../../../components/Typography.tsx";
-import { generateId } from "../../../utils/generateId.ts";
 import { useCreateActivity } from "../api/useCreateActivity.ts";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
@@ -11,16 +8,10 @@ import { ContentList } from "./ContentList.tsx";
 import { EsportsPills } from "./EsportsPills.tsx";
 
 export const ContentCategoryList = () => {
-    const [refetchKey, setRefetchKey] = useState<string>("");
-
-    const { data, error } = useGetAllContent(refetchKey);
+    const { data, error } = useGetAllContent();
     const { mutate: openContent } = useOpenContent();
 
-    const handleSuccessActivityCreation = useCallback(() => {
-        setRefetchKey(generateId());
-    }, []);
-
-    const { mutate: createActivity } = useCreateActivity(handleSuccessActivityCreation);
+    const { mutate: createActivity } = useCreateActivity();
 
     return (
         <>

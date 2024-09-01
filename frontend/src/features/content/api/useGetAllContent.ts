@@ -4,8 +4,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import type { Data } from "../../../api/content.ts";
 import { getAllContent } from "../../../api/content.ts";
 
-export const useGetAllContent = (refetchKey: string): UseSuspenseQueryResult<Data> =>
+export const useGetAllContent = (): UseSuspenseQueryResult<Data> =>
     useSuspenseQuery({
         queryFn: getAllContent,
-        queryKey: ["content", refetchKey],
+        queryKey: ["content"],
     });
