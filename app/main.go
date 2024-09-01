@@ -5,6 +5,7 @@ import (
 	"content-oracle/app/content"
 	"content-oracle/app/database"
 	"content-oracle/app/http"
+	"content-oracle/app/providers/esport"
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
@@ -88,12 +89,18 @@ func run(cfg *config.Config) error {
 	}
 
 	zimaClient := zima.NewClient(cfg.Zima.Url)
+	esportClient := esport.NewClient(&esport.ClientOptions{
+		ApiKey:  cfg.Esport.ApiKey,
+		BaseURL: cfg.Esport.BaseUrl,
+		TeamIds: cfg.Esport.Teams,
+	})
 
 	contentService := content.NewClient(&content.ClientOptions{
 		TwitchClient:  twitchClient,
 		ZimaClient:    zimaClient,
 		YouTubeClient: youtubeClient,
 		ActivityRepo:  activityRepository,
+		EsportClient:  esportClient,
 	})
 
 	go http.NewClient(&http.ClientOptions{

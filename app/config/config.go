@@ -29,11 +29,18 @@ type ZimaConfig struct {
 	Url string `env:"ZIMA_URL"`
 }
 
+type EsportConfig struct {
+	ApiKey  string   `env:"ESPORT_API_KEY"`
+	BaseUrl string   `env:"ESPORT_BASE_URL"`
+	Teams   []string `env:"ESPORT_TEAMS" env-separator:","`
+}
+
 type Config struct {
 	Twitch  TwitchConfig
 	Http    HttpConfig
 	Zima    ZimaConfig
 	Youtube YoutubeConfig
+	Esport  EsportConfig
 }
 
 func Init() (*Config, error) {

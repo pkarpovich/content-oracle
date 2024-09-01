@@ -1,6 +1,7 @@
 package content
 
 import (
+	"content-oracle/app/providers/esport"
 	"content-oracle/app/providers/twitch"
 	yt "content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
@@ -25,6 +26,7 @@ type Client struct {
 	zimaClient    *zima.Client
 	youtubeClient *yt.Client
 	activeRepo    *activity.Repository
+	esportClient  *esport.Client
 }
 
 type ClientOptions struct {
@@ -32,6 +34,7 @@ type ClientOptions struct {
 	ActivityRepo  *activity.Repository
 	TwitchClient  *twitch.Client
 	ZimaClient    *zima.Client
+	EsportClient  *esport.Client
 }
 
 func NewClient(opt *ClientOptions) *Client {
@@ -40,6 +43,7 @@ func NewClient(opt *ClientOptions) *Client {
 		twitchClient:  opt.TwitchClient,
 		zimaClient:    opt.ZimaClient,
 		activeRepo:    opt.ActivityRepo,
+		esportClient:  opt.EsportClient,
 	}
 }
 
@@ -227,6 +231,16 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 	})
 
 	return content, nil
+}
+
+func (c *Client) GetUpcomingEsportEvents() ([]esport.Match, error) {
+	matches, err := c.esportClient.GetMatches()
+	if err != nil {
+		log.Printf("[ERROR] failed to get esport matches: %s", err)
+		return nil, err
+	}
+
+	return matches, nil
 }
 
 type HistoryItem struct {

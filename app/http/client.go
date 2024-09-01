@@ -2,6 +2,7 @@ package http
 
 import (
 	"content-oracle/app/content"
+	"content-oracle/app/providers/esport"
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/store/youtubeRanking"
@@ -151,6 +152,11 @@ func (c *Client) youtubeAuthCallbackHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+type GetAllContentResponse struct {
+	ContentList    []content.Content `json:"contentList"`
+	EsportsMatches []esport.Match    `json:"esportsMatches"`
+}
+
 func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 	contentList, err := c.ContentService.GetAll()
 	if err != nil {
@@ -175,7 +181,12 @@ func (c *Client) getAllContentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	contentList = append(contentList, unsubscribedVideos...)
 
-	err = json.NewEncoder(w).Encode(contentList)
+	esportsMatches, err := c.ContentService.GetUpcomingEsportEvents()
+
+	err = json.NewEncoder(w).Encode(GetAllContentResponse{
+		ContentList:    contentList,
+		EsportsMatches: esportsMatches,
+	})
 	if err != nil {
 		log.Printf("[ERROR] failed to encode content response: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

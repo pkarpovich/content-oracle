@@ -10,6 +10,11 @@
     --sidebar-width: 60px;
     --sidebar-width-open: 350px;
 
+    --dota2-color: #e74c3c;
+    --dota2-color--secondary: #c0392b;
+    --cs2-color: #2980b9;
+    --cs2-color--secondary: #3498db;
+
     font-family: Roboto, sans-serif;
     line-height: 1.5;
     font-weight: 400;

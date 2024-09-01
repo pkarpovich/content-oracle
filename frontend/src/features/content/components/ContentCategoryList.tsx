@@ -8,11 +8,12 @@ import { useGetAllContent } from "../api/useGetAllContent.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
 import style from "./ContentCategoryList.module.css";
 import { ContentList } from "./ContentList.tsx";
+import { EsportsPills } from "./EsportsPills.tsx";
 
 export const ContentCategoryList = () => {
     const [refetchKey, setRefetchKey] = useState<string>("");
 
-    const { data: groupedContent, error } = useGetAllContent(refetchKey);
+    const { data, error } = useGetAllContent(refetchKey);
     const { mutate: openContent } = useOpenContent();
 
     const handleSuccessActivityCreation = useCallback(() => {
@@ -25,7 +26,8 @@ export const ContentCategoryList = () => {
         <>
             {error ? <p>Error: {error.message}</p> : null}
             <div className={style.container}>
-                {Array.from(groupedContent.entries()).map(([category, content]) => (
+                <EsportsPills matches={data.esportsMatches} />
+                {Array.from(data.groupedContent.entries()).map(([category, content]) => (
                     <div className={style.itemContainer} id={categoryToHash(category)} key={category}>
                         <Typography className={style.categoryTitle} variant="h2">
                             {category}
