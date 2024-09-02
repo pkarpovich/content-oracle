@@ -50,9 +50,14 @@ func NewClient(opt *ClientOptions) *Client {
 	}
 }
 
+type Artist struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type Content struct {
 	ID          string  `json:"id"`
-	Artist      string  `json:"artist"`
+	Artist      Artist  `json:"artist"`
 	Title       string  `json:"title"`
 	Thumbnail   string  `json:"thumbnail"`
 	Url         string  `json:"url"`
@@ -78,9 +83,11 @@ func (c *Client) GetAll() ([]Content, error) {
 		url = strings.Replace(url, "{height}", height, 1)
 
 		content = append(content, Content{
-			ID:        stream.ID,
-			Title:     stream.Title,
-			Artist:    stream.UserName,
+			ID:    stream.ID,
+			Title: stream.Title,
+			Artist: Artist{
+				Name: stream.UserName,
+			},
 			Thumbnail: url,
 			Url:       fmt.Sprintf("https://www.twitch.tv/%s", stream.UserLogin),
 			IsLive:    true,
@@ -157,7 +164,7 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 		content = append(content, Content{
 			ID:          item.ID,
 			Title:       item.Title,
-			Artist:      item.Artist,
+			Artist:      Artist{Name: item.Artist},
 			Thumbnail:   item.Metadata.PosterLink,
 			Url:         item.Metadata.ContentUrl,
 			IsLive:      false,
@@ -460,6 +467,12 @@ func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
 			continue
 		}
 
+		if slices.ContainsFunc(videoActivity, func(activity activity.Activity) bool {
+			return activity.ContentID == unsubscribedChannel.ChannelId
+		}) {
+			continue
+		}
+
 		videos, err := c.youtubeClient.GetChannelVideos(youtubeService, unsubscribedChannel.ChannelId)
 		if err != nil {
 			log.Printf("[ERROR] failed to get channel videos: %s", err)
@@ -467,15 +480,15 @@ func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
 		}
 
 		for _, video := range videos {
-			if alreadyInHistory := slices.ContainsFunc(history, func(item zima.Content) bool {
+			if slices.ContainsFunc(history, func(item zima.Content) bool {
 				return item.Metadata != nil && item.Metadata.VideoID == video.ContentDetails.Upload.VideoId
-			}); alreadyInHistory {
+			}) {
 				continue
 			}
 
-			if alreadyInActivity := slices.ContainsFunc(videoActivity, func(activity activity.Activity) bool {
+			if slices.ContainsFunc(videoActivity, func(activity activity.Activity) bool {
 				return activity.ContentID == video.ContentDetails.Upload.VideoId
-			}); alreadyInActivity {
+			}) {
 				continue
 			}
 
@@ -492,9 +505,12 @@ func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
 
 func convertYoutubeVideoToContent(video *youtube.Activity, category string) Content {
 	return Content{
-		ID:          video.ContentDetails.Upload.VideoId,
-		Title:       video.Snippet.Title,
-		Artist:      video.Snippet.ChannelTitle,
+		ID:    video.ContentDetails.Upload.VideoId,
+		Title: video.Snippet.Title,
+		Artist: Artist{
+			ID:   video.Snippet.ChannelId,
+			Name: video.Snippet.ChannelTitle,
+		},
 		Thumbnail:   video.Snippet.Thumbnails.Medium.Url,
 		Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", video.ContentDetails.Upload.VideoId),
 		IsLive:      false,

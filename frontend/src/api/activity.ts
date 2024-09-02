@@ -9,6 +9,7 @@ export type Activity = {
 };
 
 export enum ActivityStatus {
+    blockChannel = "blockChannel",
     completed = "completed",
 }
 
