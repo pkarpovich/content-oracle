@@ -56,6 +56,7 @@ func (c *Client) Start(ctx context.Context, done chan struct{}) {
 	mux.HandleFunc("POST /api/activity", c.createActivityHandler)
 	mux.HandleFunc("GET /api/settings", c.getSettingsHandler)
 	mux.HandleFunc("POST /api/settings", c.saveSettingsHandler)
+	mux.HandleFunc("DELETE /api/settings", c.cleanSettingsHandler)
 	mux.HandleFunc("GET /api/history", c.getHistoryHandler)
 	mux.HandleFunc("GET /api/proxy", c.proxyHandler)
 	mux.HandleFunc("GET /", c.fileHandler)
@@ -291,6 +292,15 @@ func (c *Client) saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err = c.YouTubeService.UpdateRanking(rankings); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (c *Client) cleanSettingsHandler(w http.ResponseWriter, r *http.Request) {
+	if err := c.YouTubeService.CleanAuth(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

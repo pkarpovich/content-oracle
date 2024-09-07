@@ -103,6 +103,13 @@ func (c *Client) HandleAuthCode(code string) error {
 	return nil
 }
 
+func (c *Client) CleanAuth() error {
+	return c.settingsRepository.UpdateYoutubeSettings(&settings.Settings{
+		YoutubeAccessToken:  "",
+		YoutubeRefreshToken: "",
+	})
+}
+
 func (c *Client) GetService(ctx context.Context) (*youtube.Service, error) {
 	token, err := c.tokenSource.Token()
 	if err != nil {

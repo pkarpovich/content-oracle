@@ -4,6 +4,7 @@ import type { Rank } from "../../../api/settings.ts";
 import { Button } from "../../../components/Button.tsx";
 import { useGetSettings } from "../api/useGetSettings.ts";
 import { useUpdateSettings } from "../api/useUpdateSettings.ts";
+import { GeneralSettings } from "./GeneralSettings.tsx";
 import style from "./Settings.module.css";
 import { YoutubeSettings } from "./YoutubeSettings.tsx";
 
@@ -48,6 +49,7 @@ export const Settings = () => {
 
     return (
         <div className={style.container}>
+            <GeneralSettings />
             {isLoading ? <div>Loading...</div> : null}
             {error ? <div>Error: {error.message}</div> : null}
             {settings ? (

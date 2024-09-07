@@ -38,3 +38,13 @@ export const updateSettings = async (settings: Settings): Promise<void> => {
         throw new Error("Failed to update settings");
     }
 };
+
+export const cleanSettings = async (): Promise<void> => {
+    const resp = await fetch(`${BaseURL}/api/settings`, {
+        method: "DELETE",
+    });
+
+    if (!resp.ok) {
+        throw new Error("Failed to clean settings");
+    }
+};
