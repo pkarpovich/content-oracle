@@ -1,13 +1,13 @@
 package twitch
 
 import (
-	"content-oracle/app/store/settings"
+	"content-oracle/app/database"
 	"github.com/nicklaw5/helix/v2"
 	"log"
 )
 
 type Client struct {
-	settingsRepository *settings.Repository
+	settingsRepository *database.SettingsRepository
 	helix              *helix.Client
 	userId             string
 }
@@ -17,7 +17,7 @@ type ClientOptions struct {
 	ClientSecret       string
 	ClientID           string
 	UserId             string
-	SettingsRepository *settings.Repository
+	SettingsRepository *database.SettingsRepository
 }
 
 func NewClient(opt *ClientOptions) (*Client, error) {
@@ -30,7 +30,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 		return nil, err
 	}
 
-	appSettings, err := opt.SettingsRepository.GetSettings()
+	appSettings, err := opt.SettingsRepository.Read()
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *Client) SetAuthToken(code string) error {
 		return err
 	}
 
-	err = c.settingsRepository.UpdateTwitchSettings(&settings.Settings{
+	err = c.settingsRepository.SetTwitchSettings(database.Settings{
 		TwitchAccessToken:  resp.Data.AccessToken,
 		TwitchRefreshToken: resp.Data.RefreshToken,
 	})

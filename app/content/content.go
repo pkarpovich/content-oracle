@@ -1,11 +1,11 @@
 package content
 
 import (
+	"content-oracle/app/database"
 	"content-oracle/app/providers/esport"
 	"content-oracle/app/providers/twitch"
 	yt "content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
-	"content-oracle/app/store/activity"
 	"context"
 	"fmt"
 	"google.golang.org/api/youtube/v3"
@@ -22,31 +22,31 @@ const YoutubeApplicationName = "YouTube (com.google.ios.youtube)"
 const MaxSuggestions = 20
 
 type Client struct {
-	twitchClient  *twitch.Client
-	zimaClient    *zima.Client
-	youtubeClient *yt.Client
-	activeRepo    *activity.Repository
-	esportClient  *esport.Client
-	baseUrl       string
+	activityRepository *database.ActivityRepository
+	twitchClient       *twitch.Client
+	zimaClient         *zima.Client
+	youtubeClient      *yt.Client
+	esportClient       *esport.Client
+	baseUrl            string
 }
 
 type ClientOptions struct {
-	YouTubeClient *yt.Client
-	ActivityRepo  *activity.Repository
-	TwitchClient  *twitch.Client
-	ZimaClient    *zima.Client
-	EsportClient  *esport.Client
-	BaseUrl       string
+	ActivityRepository *database.ActivityRepository
+	YouTubeClient      *yt.Client
+	TwitchClient       *twitch.Client
+	ZimaClient         *zima.Client
+	EsportClient       *esport.Client
+	BaseUrl            string
 }
 
 func NewClient(opt *ClientOptions) *Client {
 	return &Client{
-		youtubeClient: opt.YouTubeClient,
-		twitchClient:  opt.TwitchClient,
-		zimaClient:    opt.ZimaClient,
-		activeRepo:    opt.ActivityRepo,
-		esportClient:  opt.EsportClient,
-		baseUrl:       opt.BaseUrl,
+		activityRepository: opt.ActivityRepository,
+		youtubeClient:      opt.YouTubeClient,
+		twitchClient:       opt.TwitchClient,
+		zimaClient:         opt.ZimaClient,
+		esportClient:       opt.EsportClient,
+		baseUrl:            opt.BaseUrl,
 	}
 }
 
@@ -109,7 +109,7 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 		return nil, err
 	}
 
-	videoActivity, err := c.activeRepo.GetAll()
+	videoActivity, err := c.activityRepository.GetAll()
 	if err != nil {
 		log.Printf("[ERROR] failed to get video activity: %s", err)
 		return nil, err
@@ -122,7 +122,7 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 			continue
 		}
 
-		if itemActivityIndex := slices.IndexFunc(videoActivity, func(activity activity.Activity) bool {
+		if itemActivityIndex := slices.IndexFunc(videoActivity, func(activity database.Activity) bool {
 			return activity.ContentID == item.ID
 		}); videoActivity != nil && itemActivityIndex != -1 && videoActivity[itemActivityIndex].Status == "completed" {
 			continue
@@ -181,8 +181,8 @@ func (c *Client) GetYoutubeHistory() ([]Content, error) {
 	return content, nil
 }
 
-func (c *Client) CreateActivity(contentID string, status string) (*activity.Activity, error) {
-	return c.activeRepo.Create(activity.Activity{
+func (c *Client) CreateActivity(contentID string, status string) (*database.Activity, error) {
+	return c.activityRepository.Create(database.Activity{
 		ContentID: contentID,
 		Status:    status,
 	})
@@ -195,7 +195,7 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 		return nil, err
 	}
 
-	videoActivity, err := c.activeRepo.GetAll()
+	videoActivity, err := c.activityRepository.GetAll()
 	if err != nil {
 		log.Printf("[ERROR] failed to get video activity: %s", err)
 		return nil, err
@@ -238,7 +238,7 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 				continue
 			}
 
-			if slices.ContainsFunc(videoActivity, func(activity activity.Activity) bool {
+			if slices.ContainsFunc(videoActivity, func(activity database.Activity) bool {
 				return activity.ContentID == videoId
 			}) {
 				continue
@@ -405,7 +405,7 @@ func parsePlayback(playbackStr string) (*PlaybackInfo, error) {
 }
 
 func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
-	videoActivity, err := c.activeRepo.GetAll()
+	videoActivity, err := c.activityRepository.GetAll()
 	if err != nil {
 		log.Printf("[ERROR] failed to get video activity: %s", err)
 		return nil, err
@@ -467,7 +467,7 @@ func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
 			continue
 		}
 
-		if slices.ContainsFunc(videoActivity, func(activity activity.Activity) bool {
+		if slices.ContainsFunc(videoActivity, func(activity database.Activity) bool {
 			return activity.ContentID == unsubscribedChannel.ChannelId
 		}) {
 			continue
@@ -486,7 +486,7 @@ func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
 				continue
 			}
 
-			if slices.ContainsFunc(videoActivity, func(activity activity.Activity) bool {
+			if slices.ContainsFunc(videoActivity, func(activity database.Activity) bool {
 				return activity.ContentID == video.ContentDetails.Upload.VideoId
 			}) {
 				continue

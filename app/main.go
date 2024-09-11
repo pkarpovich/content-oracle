@@ -9,9 +9,7 @@ import (
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
-	"content-oracle/app/store/activity"
-	"content-oracle/app/store/settings"
-	"content-oracle/app/store/youtubeRanking"
+	"content-oracle/app/youtubeSync"
 	"context"
 	"log"
 	"os"
@@ -39,25 +37,25 @@ func run(cfg *config.Config) error {
 
 	done := make(chan struct{})
 
-	db, err := database.NewClient("content-oracle.db")
+	db, err := database.NewSqliteDB("content-oracle.db")
 	if err != nil {
 		log.Printf("[ERROR] Error creating database client: %s", err)
 		return err
 	}
 
-	settingsRepository, err := settings.NewRepository(db)
+	settingsRepository, err := database.NewSettingsRepository(db)
 	if err != nil {
 		log.Printf("[ERROR] Error creating settings repository: %s", err)
 		return err
 	}
 
-	youtubeRankingRepository, err := youtubeRanking.NewRepository(db)
+	youTubeRepository, err := database.NewYoutubeRepository(db)
 	if err != nil {
-		log.Printf("[ERROR] Error creating YouTube ranking repository: %s", err)
+		log.Printf("[ERROR] Error creating YouTube repository: %s", err)
 		return err
 	}
 
-	activityRepository, err := activity.NewRepository(db)
+	activityRepository, err := database.NewActivityRepository(db)
 	if err != nil {
 		log.Printf("[ERROR] Error creating activity repository: %s", err)
 		return err
@@ -81,7 +79,7 @@ func run(cfg *config.Config) error {
 		RedirectURI:        cfg.Youtube.RedirectURI,
 		ConfigPath:         cfg.Youtube.ConfigPath,
 		SettingsRepository: settingsRepository,
-		RankingRepository:  youtubeRankingRepository,
+		YouTubeRepository:  youTubeRepository,
 	})
 	if err != nil {
 		log.Printf("[ERROR] Error creating YouTube client: %s", err)
@@ -96,13 +94,21 @@ func run(cfg *config.Config) error {
 	})
 
 	contentService := content.NewClient(&content.ClientOptions{
-		TwitchClient:  twitchClient,
-		ZimaClient:    zimaClient,
-		YouTubeClient: youtubeClient,
-		ActivityRepo:  activityRepository,
-		EsportClient:  esportClient,
-		BaseUrl:       cfg.Http.BaseUrl,
+		ActivityRepository: activityRepository,
+		TwitchClient:       twitchClient,
+		ZimaClient:         zimaClient,
+		YouTubeClient:      youtubeClient,
+		EsportClient:       esportClient,
+		BaseUrl:            cfg.Http.BaseUrl,
 	})
+
+	ys := youtubeSync.NewClient(youtubeSync.ClientOptions{
+		YoutubeRepository: youTubeRepository,
+		YoutubeClient:     youtubeClient,
+		ZimaClient:        zimaClient,
+	})
+
+	go ys.Sync(context.Background())
 
 	go http.NewClient(&http.ClientOptions{
 		ContentService: contentService,

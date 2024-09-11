@@ -1,66 +1,10 @@
 package database
 
 import (
-	"database/sql"
-	"fmt"
+	"github.com/jmoiron/sqlx"
 	_ "modernc.org/sqlite"
-	"os"
 )
 
-type Client struct {
-	db *sql.DB
-}
-
-func NewClient(filename string) (*Client, error) {
-	db, err := openDB(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Client{db: db}, nil
-}
-
-func createFolderIfNotExists(folder string) error {
-	if _, err := os.Stat(folder); os.IsNotExist(err) {
-		return os.Mkdir(folder, os.ModePerm)
-	}
-
-	return nil
-}
-
-func openDB(filename string) (*sql.DB, error) {
-	dbFolder := ".db"
-	if err := createFolderIfNotExists(dbFolder); err != nil {
-		return nil, err
-	}
-
-	dbPath := fmt.Sprintf("%s/%s", dbFolder, filename)
-	db, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		return nil, err
-	}
-
-	db.SetMaxOpenConns(1)
-
-	return db, nil
-}
-
-func (c *Client) Close() error {
-	return c.db.Close()
-}
-
-func (c *Client) Exec(query string, args ...any) (sql.Result, error) {
-	return c.db.Exec(query, args...)
-}
-
-func (c *Client) Query(query string, args ...any) (*sql.Rows, error) {
-	return c.db.Query(query, args...)
-}
-
-func (c *Client) QueryRow(query string, args ...any) *sql.Row {
-	return c.db.QueryRow(query, args...)
-}
-
-func (c *Client) Begin() (*sql.Tx, error) {
-	return c.db.Begin()
+func NewSqliteDB(file string) (*sqlx.DB, error) {
+	return sqlx.Connect("sqlite", file)
 }

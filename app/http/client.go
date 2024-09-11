@@ -2,10 +2,10 @@ package http
 
 import (
 	"content-oracle/app/content"
+	"content-oracle/app/database"
 	"content-oracle/app/providers/esport"
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
-	"content-oracle/app/store/youtubeRanking"
 	"context"
 	"encoding/json"
 	"errors"
@@ -221,8 +221,8 @@ type YoutubeSubscription struct {
 }
 
 type SettingsResponse struct {
-	Subscriptions []YoutubeSubscription    `json:"subscriptions"`
-	Ranking       []youtubeRanking.Ranking `json:"ranking"`
+	Subscriptions []YoutubeSubscription     `json:"subscriptions"`
+	Ranking       []database.YouTubeRanking `json:"ranking"`
 }
 
 func (c *Client) getSettingsHandler(w http.ResponseWriter, r *http.Request) {
@@ -283,9 +283,9 @@ func (c *Client) saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var rankings []youtubeRanking.Ranking
+	var rankings []database.YouTubeRanking
 	for _, rank := range req.Ranking {
-		rankings = append(rankings, youtubeRanking.Ranking{
+		rankings = append(rankings, database.YouTubeRanking{
 			ID:   rank.ID,
 			Rank: rank.Rank,
 		})

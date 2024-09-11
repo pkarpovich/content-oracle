@@ -1,8 +1,7 @@
 package youtube
 
 import (
-	"content-oracle/app/store/settings"
-	"content-oracle/app/store/youtubeRanking"
+	"content-oracle/app/database"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -16,8 +15,8 @@ import (
 )
 
 type Client struct {
-	rankingRepository  *youtubeRanking.Repository
-	settingsRepository *settings.Repository
+	settingsRepository *database.SettingsRepository
+	youTubeRepository  *database.YouTubeRepository
 	tokenSource        oauth2.TokenSource
 	oauthConfig        *oauth2.Config
 	cache              sync.Map
@@ -28,8 +27,8 @@ type ClientOptions struct {
 	ClientSecret       string
 	RedirectURI        string
 	ConfigPath         string
-	SettingsRepository *settings.Repository
-	RankingRepository  *youtubeRanking.Repository
+	SettingsRepository *database.SettingsRepository
+	YouTubeRepository  *database.YouTubeRepository
 }
 
 func NewClient(opt *ClientOptions) (*Client, error) {
@@ -45,7 +44,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 		return nil, err
 	}
 
-	appSettings, err := opt.SettingsRepository.GetSettings()
+	appSettings, err := opt.SettingsRepository.Read()
 	if err != nil {
 		log.Printf("[ERROR] Unable to get youtube settings: %v", err)
 		return nil, err
@@ -76,7 +75,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 
 	return &Client{
 		settingsRepository: opt.SettingsRepository,
-		rankingRepository:  opt.RankingRepository,
+		youTubeRepository:  opt.YouTubeRepository,
 		tokenSource:        tokenSource,
 		oauthConfig:        config,
 	}, nil
@@ -91,7 +90,7 @@ func (c *Client) HandleAuthCode(code string) error {
 	}
 
 	c.tokenSource = c.oauthConfig.TokenSource(ctx, token)
-	err = c.settingsRepository.UpdateYoutubeSettings(&settings.Settings{
+	err = c.settingsRepository.SetTwitchSettings(database.Settings{
 		YoutubeAccessToken:  token.AccessToken,
 		YoutubeRefreshToken: token.RefreshToken,
 	})
@@ -104,7 +103,7 @@ func (c *Client) HandleAuthCode(code string) error {
 }
 
 func (c *Client) CleanAuth() error {
-	return c.settingsRepository.UpdateYoutubeSettings(&settings.Settings{
+	return c.settingsRepository.SetYoutubeSettings(database.Settings{
 		YoutubeAccessToken:  "",
 		YoutubeRefreshToken: "",
 	})
@@ -123,7 +122,7 @@ func (c *Client) GetService(ctx context.Context) (*youtube.Service, error) {
 		return nil, err
 	}
 
-	err = c.settingsRepository.UpdateYoutubeSettings(&settings.Settings{
+	err = c.settingsRepository.SetYoutubeSettings(database.Settings{
 		YoutubeAccessToken:  newToken.AccessToken,
 		YoutubeRefreshToken: newToken.RefreshToken,
 	})
@@ -290,12 +289,12 @@ func parseISO8601Duration(duration string) string {
 	return duration
 }
 
-func (c *Client) GetRanking() ([]youtubeRanking.Ranking, error) {
-	return c.rankingRepository.GetAll()
+func (c *Client) GetRanking() ([]database.YouTubeRanking, error) {
+	return c.youTubeRepository.GetAllRanking()
 }
 
-func (c *Client) UpdateRanking(ranking []youtubeRanking.Ranking) error {
-	return c.rankingRepository.BatchUpdate(ranking)
+func (c *Client) UpdateRanking(ranking []database.YouTubeRanking) error {
+	return c.youTubeRepository.BatchUpdateRanking(ranking)
 }
 
 type CacheItem struct {
