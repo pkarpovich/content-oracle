@@ -1,8 +1,11 @@
 package database
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/jmoiron/sqlx"
 	"log"
+	"strings"
 )
 
 type YouTubeRepository struct {
@@ -25,7 +28,8 @@ const YouTubeVideoSchema = `
 		thumbnail TEXT,
 		url TEXT,
 		published_at TEXT,
-		length TEXT,                     
+		length TEXT,
+		sync_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                     
         FOREIGN KEY (channel_id) REFERENCES youtube_channel(id)    	
 	)
 `
@@ -50,6 +54,7 @@ type YouTubeVideo struct {
 	Thumbnail   string `json:"thumbnail" db:"thumbnail"`
 	URL         string `json:"url" db:"url"`
 	PublishedAt string `json:"publishedAt" db:"published_at"`
+	SyncAt      string `json:"syncAt" db:"sync_at"`
 	Length      string `json:"length" db:"length"`
 }
 
@@ -86,8 +91,12 @@ func (y *YouTubeRepository) Close() error {
 
 func (y *YouTubeRepository) GetChannelByTitle(title string) (*YouTubeChannel, error) {
 	var channel YouTubeChannel
-	err := y.db.Get(&channel, "SELECT * FROM youtube_channel WHERE title = ?", title)
+	err := y.db.Get(&channel, "SELECT * FROM youtube_channel WHERE title = ?", strings.TrimSpace(title))
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
 		log.Printf("[ERROR] Error getting channel by title: %s", err)
 		return nil, err
 	}
@@ -95,20 +104,20 @@ func (y *YouTubeRepository) GetChannelByTitle(title string) (*YouTubeChannel, er
 	return &channel, nil
 }
 
-func (y *YouTubeRepository) CreateChannel(channel YouTubeChannel) error {
+func (y *YouTubeRepository) CreateChannel(channel *YouTubeChannel) (*YouTubeChannel, error) {
 	query := `INSERT INTO youtube_channel (id, title, name) VALUES (?, ?, ?)`
 	_, err := y.db.Exec(query, channel.ID, channel.Title, channel.Name)
 	if err != nil {
 		log.Printf("[ERROR] Error inserting channel: %s", err)
-		return err
+		return nil, err
 	}
 
-	return nil
+	return channel, nil
 }
 
 func (y *YouTubeRepository) CreateVideo(video YouTubeVideo) error {
-	query := `INSERT INTO youtube_video (id, title, channel_id, thumbnail, url, published_at, length) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	_, err := y.db.Exec(query, video.ID, video.Title, video.ChannelID, video.Thumbnail, video.URL, video.PublishedAt, video.Length)
+	query := `INSERT INTO youtube_video (id, title, channel_id, thumbnail, url, published_at, length, sync_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	_, err := y.db.Exec(query, video.ID, video.Title, video.ChannelID, video.Thumbnail, video.URL, video.PublishedAt, video.Length, video.SyncAt)
 	if err != nil {
 		log.Printf("[ERROR] Error inserting video: %s", err)
 		return err

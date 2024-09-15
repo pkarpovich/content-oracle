@@ -90,7 +90,7 @@ func (c *Client) HandleAuthCode(code string) error {
 	}
 
 	c.tokenSource = c.oauthConfig.TokenSource(ctx, token)
-	err = c.settingsRepository.SetTwitchSettings(database.Settings{
+	err = c.settingsRepository.SetYoutubeSettings(database.Settings{
 		YoutubeAccessToken:  token.AccessToken,
 		YoutubeRefreshToken: token.RefreshToken,
 	})
@@ -210,6 +210,39 @@ func (c *Client) GetChannelVideos(service *youtube.Service, channelId string) ([
 	c.storeInCache(cacheKey, videos)
 
 	return videos, nil
+}
+
+func (c *Client) GetChannelByVideoId(service *youtube.Service, videoId string) (*youtube.Channel, error) {
+	cacheKey := "youtube_channel_ids_" + videoId
+
+	if item, ok := c.getFromCache(cacheKey); ok {
+		return item.(*youtube.Channel), nil
+	}
+
+	videoCall := service.Videos.List([]string{"snippet"}).Id(videoId).MaxResults(1)
+	videoResponse, err := videoCall.Do()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(videoResponse.Items) == 0 {
+		return nil, nil
+	}
+
+	channelID := videoResponse.Items[0].Snippet.ChannelId
+
+	channelCall := service.Channels.List([]string{"snippet"}).Id(channelID).MaxResults(1)
+	channelResponse, err := channelCall.Do()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(channelResponse.Items) == 0 {
+		return nil, nil
+	}
+
+	c.storeInCache(cacheKey, channelResponse.Items[0])
+	return channelResponse.Items[0], nil
 }
 
 func (c *Client) GetChannelByName(service *youtube.Service, name string) (*youtube.SearchResultSnippet, error) {

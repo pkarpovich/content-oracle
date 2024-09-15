@@ -9,7 +9,7 @@ import (
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
-	"content-oracle/app/youtubeSync"
+	"content-oracle/app/sync"
 	"context"
 	"log"
 	"os"
@@ -102,13 +102,13 @@ func run(cfg *config.Config) error {
 		BaseUrl:            cfg.Http.BaseUrl,
 	})
 
-	ys := youtubeSync.NewClient(youtubeSync.ClientOptions{
+	syncYoutubeProvider := sync.NewYouTubeProvider(sync.YouTubeProviderOptions{
 		YoutubeRepository: youTubeRepository,
 		YoutubeClient:     youtubeClient,
 		ZimaClient:        zimaClient,
 	})
 
-	go ys.Sync(context.Background())
+	go syncYoutubeProvider.Do(context.Background())
 
 	go http.NewClient(&http.ClientOptions{
 		ContentService: contentService,
