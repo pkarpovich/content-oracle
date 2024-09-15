@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"log"
 	"strings"
+	"time"
 )
 
 type YouTubeRepository struct {
@@ -28,7 +29,7 @@ const YouTubeVideoSchema = `
 		thumbnail TEXT,
 		url TEXT,
 		published_at TEXT,
-		length TEXT,
+		is_shorts BOOLEAN DEFAULT FALSE,
 		sync_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                     
         FOREIGN KEY (channel_id) REFERENCES youtube_channel(id)    	
 	)
@@ -55,7 +56,7 @@ type YouTubeVideo struct {
 	URL         string `json:"url" db:"url"`
 	PublishedAt string `json:"publishedAt" db:"published_at"`
 	SyncAt      string `json:"syncAt" db:"sync_at"`
-	Length      string `json:"length" db:"length"`
+	IsShorts    bool   `json:"isShorts" db:"is_shorts"`
 }
 
 type YouTubeRanking struct {
@@ -116,8 +117,8 @@ func (y *YouTubeRepository) CreateChannel(channel *YouTubeChannel) (*YouTubeChan
 }
 
 func (y *YouTubeRepository) CreateVideo(video YouTubeVideo) error {
-	query := `INSERT INTO youtube_video (id, title, channel_id, thumbnail, url, published_at, length, sync_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := y.db.Exec(query, video.ID, video.Title, video.ChannelID, video.Thumbnail, video.URL, video.PublishedAt, video.Length, video.SyncAt)
+	query := `INSERT INTO youtube_video (id, title, channel_id, thumbnail, url, published_at, is_shorts) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	_, err := y.db.Exec(query, video.ID, video.Title, video.ChannelID, video.Thumbnail, video.URL, video.PublishedAt, video.IsShorts)
 	if err != nil {
 		log.Printf("[ERROR] Error inserting video: %s", err)
 		return err
@@ -130,11 +131,31 @@ func (y *YouTubeRepository) GetVideoByID(id string) (*YouTubeVideo, error) {
 	var video YouTubeVideo
 	err := y.db.Get(&video, "SELECT * FROM youtube_video WHERE id = ?", id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
 		log.Printf("[ERROR] Error getting video by id: %s", err)
 		return nil, err
 	}
 
 	return &video, nil
+}
+
+func (y *YouTubeRepository) GetChannelLastSyncAt(channelID string) (time.Time, error) {
+	var syncAt time.Time
+	query := "SELECT sync_at FROM youtube_video WHERE channel_id = ? ORDER BY sync_at DESC LIMIT 1"
+	err := y.db.Get(&syncAt, query, channelID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return syncAt, nil
+		}
+
+		log.Printf("[ERROR] Error getting channel last sync at: %s", err)
+		return syncAt, err
+	}
+
+	return syncAt, nil
 }
 
 func (y *YouTubeRepository) GetAllRanking() ([]YouTubeRanking, error) {

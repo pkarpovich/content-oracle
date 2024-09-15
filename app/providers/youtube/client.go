@@ -31,6 +31,8 @@ type ClientOptions struct {
 	YouTubeRepository  *database.YouTubeRepository
 }
 
+type Service = youtube.Service
+
 func NewClient(opt *ClientOptions) (*Client, error) {
 	b, err := os.ReadFile(opt.ConfigPath)
 	if err != nil {
@@ -109,7 +111,7 @@ func (c *Client) CleanAuth() error {
 	})
 }
 
-func (c *Client) GetService(ctx context.Context) (*youtube.Service, error) {
+func (c *Client) GetService(ctx context.Context) (*Service, error) {
 	token, err := c.tokenSource.Token()
 	if err != nil {
 		log.Printf("[ERROR] Unable to retrieve token: %v", err)
@@ -168,8 +170,13 @@ func (c *Client) GetUserSubscriptions(service *youtube.Service) ([]*youtube.Subs
 	return channels, nil
 }
 
-func (c *Client) GetChannelVideos(service *youtube.Service, channelId string) ([]*youtube.Activity, error) {
+func (c *Client) GetChannelVideos(service *youtube.Service, channelId string, lastSyncAt *time.Time) ([]*youtube.Activity, error) {
 	cacheKey := "youtube_channel_videos_" + channelId
+
+	if lastSyncAt == nil {
+		defaultTime := time.Now().Add(-7 * 24 * time.Hour)
+		lastSyncAt = &defaultTime
+	}
 
 	if items, ok := c.getFromCache(cacheKey); ok {
 		return items.([]*youtube.Activity), nil
@@ -180,7 +187,7 @@ func (c *Client) GetChannelVideos(service *youtube.Service, channelId string) ([
 	part := []string{"snippet", "contentDetails"}
 	call := service.Activities.List(part)
 	call.ChannelId(channelId)
-	call.PublishedAfter(time.Now().Add(time.Duration(-7) * time.Hour * 24).Format(time.RFC3339))
+	call.PublishedAfter(lastSyncAt.Format(time.RFC3339))
 
 	var videos = make([]*youtube.Activity, 0)
 
@@ -195,16 +202,11 @@ func (c *Client) GetChannelVideos(service *youtube.Service, channelId string) ([
 
 		return nil
 	}); err != nil {
-		return nil, err
+		return videos, err
 	}
 
 	if len(videos) == 0 {
-		return nil, nil
-	}
-
-	videos, err := c.filterShortVideos(ctx, service, videos)
-	if err != nil {
-		return nil, err
+		return videos, nil
 	}
 
 	c.storeInCache(cacheKey, videos)
@@ -267,49 +269,29 @@ func (c *Client) GetChannelByName(service *youtube.Service, name string) (*youtu
 	return response.Items[0].Snippet, nil
 }
 
-func (c *Client) filterShortVideos(ctx context.Context, service *youtube.Service, videos []*youtube.Activity) ([]*youtube.Activity, error) {
-	var filteredVideos = make([]*youtube.Activity, 0)
+func (c *Client) IsShortVideo(service *youtube.Service, video *youtube.Activity) (bool, error) {
+	call := service.Videos.List([]string{"contentDetails"}).Id(video.Id)
 
-	var videoIds = make([]string, 0)
-	for _, video := range videos {
-		videoIds = append(videoIds, video.ContentDetails.Upload.VideoId)
+	response, err := call.Do()
+	if err != nil {
+		return false, err
 	}
 
-	call := service.Videos.List([]string{"contentDetails"}).Id(videoIds...)
-
-	var videoDetails = make([]*youtube.Video, 0)
-	if err := call.Pages(ctx, func(page *youtube.VideoListResponse) error {
-		videoDetails = append(videoDetails, page.Items...)
-
-		return nil
-	}); err != nil {
-		return filteredVideos, err
+	if len(response.Items) == 0 {
+		return false, nil
 	}
 
-	for _, video := range videoDetails {
-		var originalVideo *youtube.Activity
-		for _, v := range videos {
-			if v.ContentDetails.Upload.VideoId == video.Id {
-				originalVideo = v
-				break
-			}
-		}
-		if originalVideo == nil {
-			continue
-		}
-
-		duration, err := time.ParseDuration(parseISO8601Duration(video.ContentDetails.Duration))
-		if err != nil {
-			log.Printf("[ERROR] Failed to parse duration: %v", err)
-			continue
-		}
-
-		if duration > time.Minute {
-			filteredVideos = append(filteredVideos, originalVideo)
-		}
+	duration, err := time.ParseDuration(parseISO8601Duration(response.Items[0].ContentDetails.Duration))
+	if err != nil {
+		log.Printf("[ERROR] Failed to parse duration: %v", err)
+		return false, err
 	}
 
-	return filteredVideos, nil
+	if duration > time.Minute {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func parseISO8601Duration(duration string) string {

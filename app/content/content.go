@@ -220,7 +220,7 @@ func (c *Client) GetYoutubeSuggestions() ([]Content, error) {
 			break
 		}
 
-		videos, err := c.youtubeClient.GetChannelVideos(youtubeService, rank.ID)
+		videos, err := c.youtubeClient.GetChannelVideos(youtubeService, rank.ID, nil)
 		if err != nil {
 			log.Printf("[ERROR] failed to get channel videos: %s", err)
 			continue
@@ -473,7 +473,7 @@ func (c *Client) GetVideoFromUnsubscribeChannels() ([]Content, error) {
 			continue
 		}
 
-		videos, err := c.youtubeClient.GetChannelVideos(youtubeService, unsubscribedChannel.ChannelId)
+		videos, err := c.youtubeClient.GetChannelVideos(youtubeService, unsubscribedChannel.ChannelId, nil)
 		if err != nil {
 			log.Printf("[ERROR] failed to get channel videos: %s", err)
 			continue

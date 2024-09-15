@@ -5,6 +5,7 @@ import (
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
 	"context"
+	"fmt"
 	"log"
 	"slices"
 	"strings"
@@ -33,17 +34,69 @@ func NewYouTubeProvider(options YouTubeProviderOptions) *YouTubeProvider {
 }
 
 func (c *YouTubeProvider) Do(ctx context.Context) error {
-	channels, err := c.prepareChannelsList(ctx)
+	youtubeService, err := c.youtubeClient.GetService(ctx)
+	if err != nil {
+		log.Printf("[ERROR] failed to get youtube service: %s", err)
+		return err
+	}
+
+	channels, err := c.prepareChannelsList(ctx, youtubeService)
 	if err != nil {
 		return err
 	}
 
 	log.Printf("[INFO] Found %d channels to sync", len(channels))
 
+	for _, channelID := range channels {
+		channelLastSyncAt, err := c.youtubeRepository.GetChannelLastSyncAt(channelID)
+
+		channelVideos, err := c.youtubeClient.GetChannelVideos(youtubeService, channelID, &channelLastSyncAt)
+		if err != nil {
+			log.Printf("[ERROR] failed to get channel videos: %s", err)
+			continue
+		}
+
+		for _, channelVideo := range channelVideos {
+			id := channelVideo.ContentDetails.Upload.VideoId
+			video, err := c.youtubeRepository.GetVideoByID(id)
+			if err != nil {
+				log.Printf("[ERROR] Error getting video by id: %s", err)
+				continue
+			}
+
+			if video != nil {
+				continue
+			}
+			log.Printf("[INFO] Video does not exist: %s", id)
+
+			isShorts, err := c.youtubeClient.IsShortVideo(youtubeService, channelVideo)
+			if err != nil {
+				log.Printf("[ERROR] Error checking if video is short: %s", err)
+				continue
+			}
+
+			url := fmt.Sprintf("https://www.youtube.com/watch?v=%s", id)
+			err = c.youtubeRepository.CreateVideo(database.YouTubeVideo{
+				Title:       channelVideo.Snippet.Title,
+				ChannelID:   channelVideo.Snippet.ChannelId,
+				Thumbnail:   channelVideo.Snippet.Thumbnails.Medium.Url,
+				PublishedAt: channelVideo.Snippet.PublishedAt,
+				IsShorts:    isShorts,
+				URL:         url,
+				ID:          id,
+			})
+			if err != nil {
+				log.Printf("[ERROR] Error creating video: %s", err)
+			}
+		}
+	}
+
+	log.Printf("[INFO] Finished syncing YouTube")
+
 	return nil
 }
 
-func (c *YouTubeProvider) prepareChannelsList(ctx context.Context) ([]string, error) {
+func (c *YouTubeProvider) prepareChannelsList(ctx context.Context, youtubeService *youtube.Service) ([]string, error) {
 	allChannels := make([]string, 0)
 
 	rankingChannels, err := c.processRankingChannels()
@@ -53,7 +106,7 @@ func (c *YouTubeProvider) prepareChannelsList(ctx context.Context) ([]string, er
 
 	allChannels = append(allChannels, rankingChannels...)
 
-	historyChannels, err := c.processHistoryContent(ctx)
+	historyChannels, err := c.processHistoryContent(ctx, youtubeService)
 	if err != nil {
 		return allChannels, err
 	}
@@ -82,13 +135,7 @@ func (c *YouTubeProvider) processRankingChannels() ([]string, error) {
 	return rankingChannels, nil
 }
 
-func (c *YouTubeProvider) processHistoryContent(ctx context.Context) ([]string, error) {
-	youtubeService, err := c.youtubeClient.GetService(ctx)
-	if err != nil {
-		log.Printf("[ERROR] failed to get youtube service: %s", err)
-		return nil, err
-	}
-
+func (c *YouTubeProvider) processHistoryContent(ctx context.Context, youtubeService *youtube.Service) ([]string, error) {
 	historyChannels := make([]string, 0)
 
 	historyContent, err := c.zimaClient.GetContent(false, YoutubeApplicationName)
