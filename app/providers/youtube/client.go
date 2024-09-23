@@ -310,11 +310,31 @@ func (c *Client) IsUserSubscribed(service *youtube.Service, channelId string) (b
 }
 
 func parseISO8601Duration(duration string) string {
-	duration = strings.ToLower(duration)
-	duration = strings.Replace(duration, "pt", "", 1)
-	duration = strings.Replace(duration, "h", "h", 1)
-	duration = strings.Replace(duration, "m", "m", 1)
-	duration = strings.Replace(duration, "s", "s", 1)
+	duration = strings.ToUpper(duration)
+	if duration == "P0D" {
+		return "0s"
+	}
+
+	duration = strings.Replace(duration, "PT", "", 1)
+
+	hours := strings.Split(duration, "H")
+	if len(hours) > 1 {
+		duration = strings.Replace(duration, "H", "h", 1)
+	}
+
+	minutes := strings.Split(duration, "M")
+	if len(minutes) > 1 {
+		duration = strings.Replace(duration, "M", "m", 1)
+	}
+
+	seconds := strings.Split(duration, "S")
+	if len(seconds) > 1 {
+		duration = strings.Replace(duration, "S", "s", 1)
+	}
+
+	if !strings.Contains(duration, "h") && !strings.Contains(duration, "m") && !strings.Contains(duration, "s") {
+		return "0s"
+	}
 
 	return duration
 }

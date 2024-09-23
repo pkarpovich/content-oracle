@@ -88,7 +88,7 @@ func (y *YouTubeUnsubscribeChannels) GetAll() ([]Content, error) {
 				Thumbnail:   video.Thumbnail,
 				Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", video.ID),
 				Category:    "Unsubscribed Channels",
-				PublishedAt: video.PublishedAt,
+				PublishedAt: video.PublishedAt.Local().String(),
 				IsLive:      false,
 				Position:    0,
 			})

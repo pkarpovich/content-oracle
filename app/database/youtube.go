@@ -30,7 +30,7 @@ const YouTubeVideoSchema = `
 		channel_id TEXT,
 		thumbnail TEXT,
 		url TEXT,
-		published_at TEXT,
+		published_at TIMESTAMP,
 		is_shorts BOOLEAN DEFAULT FALSE,
 		sync_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                     
         FOREIGN KEY (channel_id) REFERENCES youtube_channel(id)    	
@@ -53,14 +53,14 @@ type YouTubeChannel struct {
 }
 
 type YouTubeVideo struct {
-	ID          string `json:"id" db:"id"`
-	Title       string `json:"title" db:"title"`
-	ChannelID   string `json:"channelId" db:"channel_id"`
-	Thumbnail   string `json:"thumbnail" db:"thumbnail"`
-	URL         string `json:"url" db:"url"`
-	PublishedAt string `json:"publishedAt" db:"published_at"`
-	SyncAt      string `json:"syncAt" db:"sync_at"`
-	IsShorts    bool   `json:"isShorts" db:"is_shorts"`
+	ID          string    `json:"id" db:"id"`
+	Title       string    `json:"title" db:"title"`
+	ChannelID   string    `json:"channelId" db:"channel_id"`
+	Thumbnail   string    `json:"thumbnail" db:"thumbnail"`
+	URL         string    `json:"url" db:"url"`
+	PublishedAt time.Time `json:"publishedAt" db:"published_at"`
+	SyncAt      string    `json:"syncAt" db:"sync_at"`
+	IsShorts    bool      `json:"isShorts" db:"is_shorts"`
 }
 
 type YouTubeRanking struct {
@@ -180,10 +180,10 @@ func (y *YouTubeRepository) GetChannelVideos(channelID string, publishedAfter ti
 	return videos, nil
 }
 
-func (y *YouTubeRepository) GetChannelLastSyncAt(channelID string) (*time.Time, error) {
-	var syncAt time.Time
-	query := "SELECT sync_at FROM youtube_video WHERE channel_id = ? ORDER BY sync_at DESC LIMIT 1"
-	err := y.db.Get(&syncAt, query, channelID)
+func (y *YouTubeRepository) GetChannelLastPublishedAt(channelID string) (*time.Time, error) {
+	var publishedAt time.Time
+	query := "SELECT published_at FROM youtube_video WHERE channel_id = ? ORDER BY published_at DESC LIMIT 1"
+	err := y.db.Get(&publishedAt, query, channelID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -193,7 +193,7 @@ func (y *YouTubeRepository) GetChannelLastSyncAt(channelID string) (*time.Time, 
 		return nil, err
 	}
 
-	return &syncAt, nil
+	return &publishedAt, nil
 }
 
 func (y *YouTubeRepository) GetAllRanking() ([]YouTubeRanking, error) {

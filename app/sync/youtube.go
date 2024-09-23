@@ -9,6 +9,7 @@ import (
 	"log"
 	"slices"
 	"strings"
+	"time"
 )
 
 const YoutubeApplicationName = "YouTube (com.google.ios.youtube)"
@@ -48,13 +49,19 @@ func (c *YouTubeProvider) Do(ctx context.Context) error {
 	log.Printf("[INFO] Found %d channels to sync", len(channels))
 
 	for _, channelID := range channels {
-		channelLastSyncAt, err := c.youtubeRepository.GetChannelLastSyncAt(channelID)
+		channelLastPublishedAt, err := c.youtubeRepository.GetChannelLastPublishedAt(channelID)
 		if err != nil {
 			log.Printf("[ERROR] failed to get channel last sync at: %s", err)
 			continue
 		}
 
-		channelVideos, err := c.youtubeClient.GetChannelVideos(youtubeService, channelID, channelLastSyncAt)
+		// Add a minute to the last published at time to avoid getting the same video again
+		if channelLastPublishedAt != nil && !channelLastPublishedAt.IsZero() {
+			updatedTime := channelLastPublishedAt.Add(time.Minute)
+			*channelLastPublishedAt = updatedTime
+		}
+
+		channelVideos, err := c.youtubeClient.GetChannelVideos(youtubeService, channelID, channelLastPublishedAt)
 		if err != nil {
 			log.Printf("[ERROR] failed to get channel videos: %s", err)
 			continue
@@ -80,11 +87,17 @@ func (c *YouTubeProvider) Do(ctx context.Context) error {
 			}
 
 			url := fmt.Sprintf("https://www.youtube.com/watch?v=%s", id)
+			publishedAt, err := time.Parse(time.RFC3339, channelVideo.Snippet.PublishedAt)
+			if err != nil {
+				log.Printf("[ERROR] Error parsing published at: %s", err)
+				continue
+			}
+
 			err = c.youtubeRepository.CreateVideo(database.YouTubeVideo{
 				Title:       channelVideo.Snippet.Title,
 				ChannelID:   channelVideo.Snippet.ChannelId,
 				Thumbnail:   channelVideo.Snippet.Thumbnails.Medium.Url,
-				PublishedAt: channelVideo.Snippet.PublishedAt,
+				PublishedAt: publishedAt,
 				IsShorts:    isShorts,
 				URL:         url,
 				ID:          id,

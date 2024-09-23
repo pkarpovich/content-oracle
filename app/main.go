@@ -9,6 +9,7 @@ import (
 	"content-oracle/app/providers/twitch"
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
+	"content-oracle/app/scheduler"
 	"content-oracle/app/sync"
 	"content-oracle/app/user"
 	"context"
@@ -135,7 +136,14 @@ func run(cfg *config.Config) error {
 	userActivity := user.NewActivity(activityRepository)
 	userHistory := user.NewHistory(zimaClient, cfg.Zima.Url)
 
-	go syncYoutubeProvider.Do(context.Background())
+	schedulerClient := scheduler.NewClient()
+	err = schedulerClient.Start(syncYoutubeProvider.Do, context.Background())
+	if err != nil {
+		log.Printf("[ERROR] Error starting scheduler client: %s", err)
+	}
+
+	_, nextRun := schedulerClient.NextRun()
+	log.Printf("[INFO] Scheduler client started. Next run at %s", nextRun.Local())
 
 	go http.NewServer(&http.ClientOptions{
 		TwitchClient:         twitchClient,

@@ -76,6 +76,7 @@ func (y *YouTubeSubscription) GetAll() ([]Content, error) {
 		})
 
 		for _, video := range videos {
+			// TODO: fix artist info
 			content = append(content, Content{
 				ID:          video.ID,
 				Artist:      Artist{},
@@ -83,7 +84,7 @@ func (y *YouTubeSubscription) GetAll() ([]Content, error) {
 				Thumbnail:   video.Thumbnail,
 				Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", video.ID),
 				Category:    "YouTube Suggestions",
-				PublishedAt: video.PublishedAt,
+				PublishedAt: video.PublishedAt.Local().String(),
 				IsLive:      false,
 				Position:    0,
 			})
