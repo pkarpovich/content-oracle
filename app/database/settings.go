@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/jmoiron/sqlx"
 	"time"
 )
@@ -40,10 +42,20 @@ func NewSettingsRepository(db *sqlx.DB) (*SettingsRepository, error) {
 	return &SettingsRepository{db: db}, nil
 }
 
+func (s *SettingsRepository) Init() error {
+	_, err := s.db.Exec("INSERT INTO settings (id) VALUES (?)", DefaultSettingsID)
+
+	return err
+}
+
 func (s *SettingsRepository) Read() (*Settings, error) {
 	var settings Settings
 
 	if err := s.db.Get(&settings, "SELECT * FROM settings WHERE id = ?", DefaultSettingsID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 

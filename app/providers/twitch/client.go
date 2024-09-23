@@ -35,6 +35,18 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 		return nil, err
 	}
 
+	if appSettings == nil {
+		err := opt.SettingsRepository.Init()
+		if err != nil {
+			return nil, err
+		}
+
+		appSettings, err = opt.SettingsRepository.Read()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	if appSettings != nil && appSettings.TwitchAccessToken != "" {
 		client.SetUserAccessToken(appSettings.TwitchAccessToken)
 		client.SetRefreshToken(appSettings.TwitchRefreshToken)
