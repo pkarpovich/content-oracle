@@ -3,11 +3,13 @@ module content-oracle
 go 1.22
 
 require (
+	github.com/go-pkgz/syncs v1.3.2
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/nicklaw5/helix/v2 v2.30.0
 	github.com/rs/cors v1.11.0
+	github.com/samber/lo v1.47.0
 	golang.org/x/net v0.27.0
 	golang.org/x/oauth2 v0.22.0
 	google.golang.org/api v0.192.0

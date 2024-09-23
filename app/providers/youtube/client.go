@@ -270,7 +270,7 @@ func (c *Client) GetChannelByName(service *youtube.Service, name string) (*youtu
 }
 
 func (c *Client) IsShortVideo(service *youtube.Service, video *youtube.Activity) (bool, error) {
-	call := service.Videos.List([]string{"contentDetails"}).Id(video.Id)
+	call := service.Videos.List([]string{"contentDetails"}).Id(video.ContentDetails.Upload.VideoId)
 
 	response, err := call.Do()
 	if err != nil {
@@ -294,6 +294,21 @@ func (c *Client) IsShortVideo(service *youtube.Service, video *youtube.Activity)
 	return true, nil
 }
 
+func (c *Client) IsUserSubscribed(service *youtube.Service, channelId string) (bool, error) {
+	subscriptions, err := c.GetUserSubscriptions(service)
+	if err != nil {
+		return false, err
+	}
+
+	for _, subscription := range subscriptions {
+		if subscription.Snippet.ResourceId.ChannelId == channelId {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
 func parseISO8601Duration(duration string) string {
 	duration = strings.ToLower(duration)
 	duration = strings.Replace(duration, "pt", "", 1)
@@ -302,14 +317,6 @@ func parseISO8601Duration(duration string) string {
 	duration = strings.Replace(duration, "s", "s", 1)
 
 	return duration
-}
-
-func (c *Client) GetRanking() ([]database.YouTubeRanking, error) {
-	return c.youTubeRepository.GetAllRanking()
-}
-
-func (c *Client) UpdateRanking(ranking []database.YouTubeRanking) error {
-	return c.youTubeRepository.BatchUpdateRanking(ranking)
 }
 
 type CacheItem struct {

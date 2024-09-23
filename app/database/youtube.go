@@ -17,7 +17,9 @@ const YouTubeChannelSchema = `
 	CREATE TABLE IF NOT EXISTS youtube_channel (
 		id TEXT PRIMARY KEY,
 		title TEXT,
-		name TEXT
+		name TEXT,
+		preview_url TEXT,
+	    is_subscribed BOOLEAN DEFAULT TRUE                                       
 	)
 `
 
@@ -43,9 +45,11 @@ const YouTubeRankingSchema = `
 `
 
 type YouTubeChannel struct {
-	ID    string `json:"id" db:"id"`
-	Title string `json:"title" db:"title"`
-	Name  string `json:"name" db:"name"`
+	ID           string `json:"id" db:"id"`
+	Title        string `json:"title" db:"title"`
+	Name         string `json:"name" db:"name"`
+	PreviewURL   string `json:"previewUrl" db:"preview_url"`
+	IsSubscribed bool   `json:"isSubscribed" db:"is_subscribed"`
 }
 
 type YouTubeVideo struct {
@@ -105,11 +109,32 @@ func (y *YouTubeRepository) GetChannelByTitle(title string) (*YouTubeChannel, er
 	return &channel, nil
 }
 
-func (y *YouTubeRepository) CreateChannel(channel *YouTubeChannel) (*YouTubeChannel, error) {
-	query := `INSERT INTO youtube_channel (id, title, name) VALUES (?, ?, ?)`
-	_, err := y.db.Exec(query, channel.ID, channel.Title, channel.Name)
+func (y *YouTubeRepository) GetAllUnsubscribedChannels() ([]YouTubeChannel, error) {
+	channels := make([]YouTubeChannel, 0)
+	err := y.db.Select(&channels, "SELECT * FROM youtube_channel WHERE is_subscribed = FALSE")
 	if err != nil {
-		log.Printf("[ERROR] Error inserting channel: %s", err)
+		log.Printf("[ERROR] Error getting all unsubscribed channels: %s", err)
+		return nil, err
+	}
+
+	return channels, nil
+}
+
+func (y *YouTubeRepository) GetAllSubscribedChannels() ([]YouTubeChannel, error) {
+	channels := make([]YouTubeChannel, 0)
+	err := y.db.Select(&channels, "SELECT * FROM youtube_channel WHERE is_subscribed = TRUE")
+	if err != nil {
+		log.Printf("[ERROR] Error getting all subscribed channels: %s", err)
+		return nil, err
+	}
+
+	return channels, nil
+}
+
+func (y *YouTubeRepository) CreateChannel(channel *YouTubeChannel) (*YouTubeChannel, error) {
+	query := `INSERT INTO youtube_channel (id, title, name, is_subscribed, preview_url) VALUES (?, ?, ?, ?, ?)`
+	_, err := y.db.Exec(query, channel.ID, channel.Title, channel.Name, channel.IsSubscribed, channel.PreviewURL)
+	if err != nil {
 		return nil, err
 	}
 
@@ -142,20 +167,33 @@ func (y *YouTubeRepository) GetVideoByID(id string) (*YouTubeVideo, error) {
 	return &video, nil
 }
 
-func (y *YouTubeRepository) GetChannelLastSyncAt(channelID string) (time.Time, error) {
+func (y *YouTubeRepository) GetChannelVideos(channelID string, publishedAfter time.Time) ([]YouTubeVideo, error) {
+	videos := make([]YouTubeVideo, 0)
+	query := "SELECT * FROM youtube_video WHERE channel_id = ? AND published_at > ?"
+
+	err := y.db.Select(&videos, query, channelID, publishedAfter)
+	if err != nil {
+		log.Printf("[ERROR] Error getting channel videos: %s", err)
+		return nil, err
+	}
+
+	return videos, nil
+}
+
+func (y *YouTubeRepository) GetChannelLastSyncAt(channelID string) (*time.Time, error) {
 	var syncAt time.Time
 	query := "SELECT sync_at FROM youtube_video WHERE channel_id = ? ORDER BY sync_at DESC LIMIT 1"
 	err := y.db.Get(&syncAt, query, channelID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return syncAt, nil
+			return nil, nil
 		}
 
 		log.Printf("[ERROR] Error getting channel last sync at: %s", err)
-		return syncAt, err
+		return nil, err
 	}
 
-	return syncAt, nil
+	return &syncAt, nil
 }
 
 func (y *YouTubeRepository) GetAllRanking() ([]YouTubeRanking, error) {

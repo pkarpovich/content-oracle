@@ -10,6 +10,7 @@ import (
 	"content-oracle/app/providers/youtube"
 	"content-oracle/app/providers/zima"
 	"content-oracle/app/sync"
+	"content-oracle/app/user"
 	"context"
 	"log"
 	"os"
@@ -87,20 +88,6 @@ func run(cfg *config.Config) error {
 	}
 
 	zimaClient := zima.NewClient(cfg.Zima.Url)
-	esportClient := esport.NewClient(&esport.ClientOptions{
-		ApiKey:  cfg.Esport.ApiKey,
-		BaseURL: cfg.Esport.BaseUrl,
-		TeamIds: cfg.Esport.Teams,
-	})
-
-	contentService := content.NewClient(&content.ClientOptions{
-		ActivityRepository: activityRepository,
-		TwitchClient:       twitchClient,
-		ZimaClient:         zimaClient,
-		YouTubeClient:      youtubeClient,
-		EsportClient:       esportClient,
-		BaseUrl:            cfg.Http.BaseUrl,
-	})
 
 	syncYoutubeProvider := sync.NewYouTubeProvider(sync.YouTubeProviderOptions{
 		YoutubeRepository: youTubeRepository,
@@ -108,14 +95,59 @@ func run(cfg *config.Config) error {
 		ZimaClient:        zimaClient,
 	})
 
+	twitchContentProvider := content.NewTwitch(content.TwitchOptions{
+		TwitchClient: twitchClient,
+	})
+
+	youtubeHistoryContentProvider := content.NewYouTubeHistory(content.YouTubeHistoryOptions{
+		ActivityRepository: activityRepository,
+		ZimaClient:         zimaClient,
+	})
+
+	youtubeSubscriptionContentProvider := content.NewYouTubeSubscription(content.YouTubeSubscriptionOptions{
+		ActivityRepository: activityRepository,
+		YoutubeRepository:  youTubeRepository,
+		ZimaClient:         zimaClient,
+	})
+
+	youtubeUnsubscribeChannelsContentProvider := content.NewYouTubeUnsubscribeChannels(content.YouTubeUnsubscribeChannelsOptions{
+		ActivityRepository: activityRepository,
+		YoutubeRepository:  youTubeRepository,
+		ZimaClient:         zimaClient,
+	})
+
+	contentMultiProvider := content.MultiProvider{
+		twitchContentProvider,
+		youtubeHistoryContentProvider,
+		youtubeSubscriptionContentProvider,
+		youtubeUnsubscribeChannelsContentProvider,
+	}
+
+	esportClient := esport.NewClient(&esport.ClientOptions{
+		ApiKey:  cfg.Esport.ApiKey,
+		BaseURL: cfg.Esport.BaseUrl,
+		TeamIds: cfg.Esport.Teams,
+	})
+
+	esportEventsProvider := content.NewESportEvents(esportClient)
+	esportMultiProvider := content.MultiESportProvider{esportEventsProvider}
+
+	userActivity := user.NewActivity(activityRepository)
+	userHistory := user.NewHistory(zimaClient, cfg.Zima.Url)
+
 	go syncYoutubeProvider.Do(context.Background())
 
-	go http.NewClient(&http.ClientOptions{
-		ContentService: contentService,
-		TwitchClient:   twitchClient,
-		YouTubeService: youtubeClient,
-		BaseStaticPath: cfg.Http.BaseStaticPath,
-		Port:           cfg.Http.Port,
+	go http.NewServer(&http.ClientOptions{
+		TwitchClient:         twitchClient,
+		YouTubeService:       youtubeClient,
+		ZimaClient:           zimaClient,
+		YouTubeRepository:    youTubeRepository,
+		UserActivity:         userActivity,
+		UserHistory:          userHistory,
+		ContentMultiProvider: contentMultiProvider,
+		ESportMultiProvider:  esportMultiProvider,
+		BaseStaticPath:       cfg.Http.BaseStaticPath,
+		Port:                 cfg.Http.Port,
 	}).Start(ctx, done)
 
 	sigChan := make(chan os.Signal, 1)

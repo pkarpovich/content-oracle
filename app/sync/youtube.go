@@ -49,8 +49,12 @@ func (c *YouTubeProvider) Do(ctx context.Context) error {
 
 	for _, channelID := range channels {
 		channelLastSyncAt, err := c.youtubeRepository.GetChannelLastSyncAt(channelID)
+		if err != nil {
+			log.Printf("[ERROR] failed to get channel last sync at: %s", err)
+			continue
+		}
 
-		channelVideos, err := c.youtubeClient.GetChannelVideos(youtubeService, channelID, &channelLastSyncAt)
+		channelVideos, err := c.youtubeClient.GetChannelVideos(youtubeService, channelID, channelLastSyncAt)
 		if err != nil {
 			log.Printf("[ERROR] failed to get channel videos: %s", err)
 			continue
@@ -120,7 +124,7 @@ func (c *YouTubeProvider) prepareChannelsList(ctx context.Context, youtubeServic
 func (c *YouTubeProvider) processRankingChannels() ([]string, error) {
 	rankingChannels := make([]string, 0)
 
-	ranking, err := c.youtubeClient.GetRanking()
+	ranking, err := c.youtubeRepository.GetAllRanking()
 	if err != nil {
 		log.Printf("[ERROR] failed to get ranking: %s", err)
 		return rankingChannels, err
@@ -145,7 +149,7 @@ func (c *YouTubeProvider) processHistoryContent(ctx context.Context, youtubeServ
 	}
 
 	for _, content := range historyContent {
-		if content.Artist == "" {
+		if content.Artist == "" || content.Artist == "Unknown" {
 			continue
 		}
 
@@ -166,10 +170,17 @@ func (c *YouTubeProvider) processHistoryContent(ctx context.Context, youtubeServ
 				continue
 			}
 
+			isSubscribed, err := c.youtubeClient.IsUserSubscribed(youtubeService, contentResp.Id)
+			if err != nil {
+				log.Printf("[ERROR] Error checking if user is subscribed: %s", err)
+			}
+
 			channel, err = c.youtubeRepository.CreateChannel(&database.YouTubeChannel{
-				ID:    contentResp.Id,
-				Title: strings.TrimSpace(contentResp.Snippet.Title),
-				Name:  contentResp.Snippet.CustomUrl,
+				ID:           contentResp.Id,
+				Title:        strings.TrimSpace(contentResp.Snippet.Title),
+				Name:         contentResp.Snippet.CustomUrl,
+				PreviewURL:   contentResp.Snippet.Thumbnails.Medium.Url,
+				IsSubscribed: isSubscribed,
 			})
 			if err != nil {
 				log.Printf("[ERROR] Error creating channel: %s %s", contentResp.Snippet.Title, err)
