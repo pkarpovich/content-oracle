@@ -64,7 +64,7 @@ func (s *SettingsRepository) Read() (*Settings, error) {
 
 func (s *SettingsRepository) SetTwitchSettings(settings Settings) error {
 	updateTime := time.Now().Format("2006-01-02 15:04:05")
-	query := `UPDATE settings SET twitch_access_token = ?, twitch_refresh_token = ? WHERE id = ?`
+	query := `UPDATE settings SET twitch_access_token = ?, twitch_refresh_token = ?, updated_at = ? WHERE id = ?`
 
 	_, err := s.db.Exec(query, settings.TwitchAccessToken, settings.TwitchRefreshToken, updateTime, DefaultSettingsID)
 
