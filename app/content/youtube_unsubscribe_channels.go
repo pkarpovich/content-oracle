@@ -53,7 +53,7 @@ func (y *YouTubeUnsubscribeChannels) GetAll() ([]Content, error) {
 
 	unsubscribedChannels = lo.Filter(unsubscribedChannels, func(channel database.YouTubeChannel, _ int) bool {
 		return lo.ContainsBy(videoActivity, func(activity database.Activity) bool {
-			return activity.ContentID == channel.ID
+			return activity.ContentID != channel.ID
 		})
 	})
 
