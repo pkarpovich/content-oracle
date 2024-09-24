@@ -53,14 +53,15 @@ type YouTubeChannel struct {
 }
 
 type YouTubeVideo struct {
-	ID          string    `json:"id" db:"id"`
-	Title       string    `json:"title" db:"title"`
-	ChannelID   string    `json:"channelId" db:"channel_id"`
-	Thumbnail   string    `json:"thumbnail" db:"thumbnail"`
-	URL         string    `json:"url" db:"url"`
-	PublishedAt time.Time `json:"publishedAt" db:"published_at"`
-	SyncAt      string    `json:"syncAt" db:"sync_at"`
-	IsShorts    bool      `json:"isShorts" db:"is_shorts"`
+	ID          string         `json:"id" db:"id"`
+	Title       string         `json:"title" db:"title"`
+	Channel     YouTubeChannel `json:"channel" db:"channel"`
+	ChannelID   string         `json:"channelId" db:"channel_id"`
+	Thumbnail   string         `json:"thumbnail" db:"thumbnail"`
+	URL         string         `json:"url" db:"url"`
+	PublishedAt time.Time      `json:"publishedAt" db:"published_at"`
+	SyncAt      string         `json:"syncAt" db:"sync_at"`
+	IsShorts    bool           `json:"isShorts" db:"is_shorts"`
 }
 
 type YouTubeRanking struct {
@@ -111,7 +112,17 @@ func (y *YouTubeRepository) GetChannelByTitle(title string) (*YouTubeChannel, er
 
 func (y *YouTubeRepository) GetAllUnsubscribedChannels() ([]YouTubeChannel, error) {
 	channels := make([]YouTubeChannel, 0)
-	err := y.db.Select(&channels, "SELECT * FROM youtube_channel WHERE is_subscribed = FALSE")
+	err := y.db.Select(&channels, `
+		SELECT
+			c.id as id,
+			c.title as title,
+			c.name as name,
+			c.preview_url as preview_url,
+			c.is_subscribed as is_subscribed
+		FROM youtube_channel c
+			LEFT JOIN blocked_channels bc ON c.id = bc.channel_id
+		WHERE is_subscribed = FALSE AND bc.channel_id IS NULL
+	`)
 	if err != nil {
 		log.Printf("[ERROR] Error getting all unsubscribed channels: %s", err)
 		return nil, err
@@ -169,7 +180,30 @@ func (y *YouTubeRepository) GetVideoByID(id string) (*YouTubeVideo, error) {
 
 func (y *YouTubeRepository) GetChannelVideos(channelID string, publishedAfter time.Time) ([]YouTubeVideo, error) {
 	videos := make([]YouTubeVideo, 0)
-	query := "SELECT * FROM youtube_video WHERE channel_id = ? AND published_at > ?"
+	query := `  SELECT 
+      					v.id as id,
+      					v.title as title,
+      					v.thumbnail as thumbnail,
+      					v.channel_id as channel_id,
+      					v.url as url,
+      					v.published_at as published_at,
+      					v.is_shorts as is_shorts,
+      					v.sync_at as sync_at,
+      					c.id as "channel.id",
+      					c.title as "channel.title",
+      					c.name as "channel.name",
+      					c.preview_url as "channel.preview_url",
+      					c.is_subscribed as "channel.is_subscribed"
+				FROM youtube_video v
+					INNER JOIN youtube_channel c ON v.channel_id = c.id
+					LEFT JOIN blocked_channels bc ON c.id = bc.channel_id
+        			LEFT JOIN blocked_videos bv ON v.id = bv.video_id
+				WHERE v.channel_id = ? 
+					AND v.published_at > ? 
+					AND v.is_shorts = FALSE
+					AND bc.channel_id IS NULL
+					AND bv.video_id IS NULL
+	`
 
 	err := y.db.Select(&videos, query, channelID, publishedAfter)
 	if err != nil {

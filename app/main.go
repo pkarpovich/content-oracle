@@ -57,9 +57,15 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
-	activityRepository, err := database.NewActivityRepository(db)
+	blockedChannelRepository, err := database.NewBlockedChannelRepository(db)
 	if err != nil {
-		log.Printf("[ERROR] Error creating activity repository: %s", err)
+		log.Printf("[ERROR] Error creating blocked channel repository: %s", err)
+		return err
+	}
+
+	blockedVideoRepository, err := database.NewBlockedVideoRepository(db)
+	if err != nil {
+		log.Printf("[ERROR] Error creating blocked video repository: %s", err)
 		return err
 	}
 
@@ -101,20 +107,18 @@ func run(cfg *config.Config) error {
 	})
 
 	youtubeHistoryContentProvider := content.NewYouTubeHistory(content.YouTubeHistoryOptions{
-		ActivityRepository: activityRepository,
-		ZimaClient:         zimaClient,
+		BlockedVideoRepository: blockedVideoRepository,
+		ZimaClient:             zimaClient,
 	})
 
 	youtubeSubscriptionContentProvider := content.NewYouTubeSubscription(content.YouTubeSubscriptionOptions{
-		ActivityRepository: activityRepository,
-		YoutubeRepository:  youTubeRepository,
-		ZimaClient:         zimaClient,
+		YoutubeRepository: youTubeRepository,
+		ZimaClient:        zimaClient,
 	})
 
 	youtubeUnsubscribeChannelsContentProvider := content.NewYouTubeUnsubscribeChannels(content.YouTubeUnsubscribeChannelsOptions{
-		ActivityRepository: activityRepository,
-		YoutubeRepository:  youTubeRepository,
-		ZimaClient:         zimaClient,
+		YoutubeRepository: youTubeRepository,
+		ZimaClient:        zimaClient,
 	})
 
 	contentMultiProvider := content.MultiProvider{
@@ -133,7 +137,7 @@ func run(cfg *config.Config) error {
 	esportEventsProvider := content.NewESportEvents(esportClient)
 	esportMultiProvider := content.MultiESportProvider{esportEventsProvider}
 
-	userActivity := user.NewActivity(activityRepository)
+	userActivity := user.NewActivity(blockedVideoRepository, blockedChannelRepository)
 	userHistory := user.NewHistory(zimaClient, cfg.Zima.Url)
 
 	schedulerClient := scheduler.NewClient()

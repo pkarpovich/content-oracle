@@ -52,11 +52,11 @@ export const ContentCard = ({
     }, [onOpenUrl, url]);
 
     const handleCheckButtonClick = useCallback(() => {
-        onCheck({ category, contentId: id, status: ActivityStatus.completed });
+        onCheck({ category, status: ActivityStatus.completed, videoId: id });
     }, [category, id, onCheck]);
 
     const handleBoringButtonClick = useCallback(() => {
-        onCheck({ category, contentId: artist.id, status: ActivityStatus.blockChannel });
+        onCheck({ category, channelId: artist.id, status: ActivityStatus.blockChannel });
     }, [artist.id, category, onCheck]);
 
     const allowCheckAction =

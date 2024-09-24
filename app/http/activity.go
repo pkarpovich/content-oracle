@@ -7,13 +7,15 @@ import (
 )
 
 type CreateActivityRequest struct {
-	ContentID string `json:"contentId"`
+	ChannelID string `json:"channelId"`
+	VideoID   string `json:"videoId"`
 	Status    string `json:"status"`
 }
 
 type CreateActivityResponse struct {
 	ID        int    `json:"id"`
-	ContentID string `json:"contentId"`
+	ChannelID string `json:"channelId"`
+	VideoID   string `json:"videoId"`
 	Status    string `json:"status"`
 }
 
@@ -25,20 +27,47 @@ func (c *Server) createActivityHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	activity, err := c.UserActivity.Create(req.ContentID, req.Status)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if req.ChannelID == "" && req.VideoID != "" {
+		blockedVideo, err := c.UserActivity.BlockVideo(req.VideoID, req.Status)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = json.NewEncoder(w).Encode(CreateActivityResponse{
+			ID:      blockedVideo.ID,
+			VideoID: blockedVideo.VideoID,
+			Status:  blockedVideo.Status,
+		})
+		if err != nil {
+			log.Printf("[ERROR] failed to encode activity response: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(CreateActivityResponse{
-		ID:        activity.ID,
-		ContentID: activity.ContentID,
-		Status:    activity.Status,
-	})
-	if err != nil {
-		log.Printf("[ERROR] failed to encode activity response: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if req.ChannelID != "" && req.VideoID == "" {
+		blockedChannel, err := c.UserActivity.BlockChannel(req.ChannelID, req.Status)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = json.NewEncoder(w).Encode(CreateActivityResponse{
+			ID:        blockedChannel.ID,
+			ChannelID: blockedChannel.ChannelID,
+			Status:    blockedChannel.Status,
+		})
+		if err != nil {
+			log.Printf("[ERROR] failed to encode activity response: %s", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		return
 	}
+
+	http.Error(w, "invalid request", http.StatusBadRequest)
 }

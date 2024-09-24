@@ -4,9 +4,9 @@ import (
 	"content-oracle/app/database"
 	"content-oracle/app/providers/zima"
 	"fmt"
+	"github.com/samber/lo"
 	"log"
 	"regexp"
-	"slices"
 	"sort"
 	"strconv"
 	"time"
@@ -15,19 +15,19 @@ import (
 const YoutubeApplicationName = "YouTube (com.google.ios.youtube)"
 
 type YouTubeHistory struct {
-	activityRepository *database.ActivityRepository
-	zimaClient         *zima.Client
+	blockedVideoRepository *database.BlockedVideoRepository
+	zimaClient             *zima.Client
 }
 
 type YouTubeHistoryOptions struct {
-	ActivityRepository *database.ActivityRepository
-	ZimaClient         *zima.Client
+	BlockedVideoRepository *database.BlockedVideoRepository
+	ZimaClient             *zima.Client
 }
 
 func NewYouTubeHistory(opt YouTubeHistoryOptions) *YouTubeHistory {
 	return &YouTubeHistory{
-		activityRepository: opt.ActivityRepository,
-		zimaClient:         opt.ZimaClient,
+		blockedVideoRepository: opt.BlockedVideoRepository,
+		zimaClient:             opt.ZimaClient,
 	}
 }
 
@@ -38,7 +38,7 @@ func (y *YouTubeHistory) GetAll() ([]Content, error) {
 		return nil, err
 	}
 
-	videoActivity, err := y.activityRepository.GetAll()
+	blockedVideos, err := y.blockedVideoRepository.GetAll()
 	if err != nil {
 		log.Printf("[ERROR] failed to get video activity: %s", err)
 		return nil, err
@@ -51,9 +51,9 @@ func (y *YouTubeHistory) GetAll() ([]Content, error) {
 			continue
 		}
 
-		if itemActivityIndex := slices.IndexFunc(videoActivity, func(activity database.Activity) bool {
-			return activity.ContentID == item.ID
-		}); videoActivity != nil && itemActivityIndex != -1 && videoActivity[itemActivityIndex].Status == "completed" {
+		if lo.ContainsBy(blockedVideos, func(video database.BlockedVideo) bool {
+			return video.VideoID == item.ID
+		}) {
 			continue
 		}
 

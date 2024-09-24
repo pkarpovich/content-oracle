@@ -3,9 +3,10 @@ import type { Category } from "./content.ts";
 
 export type Activity = {
     category: Category;
-    contentId: string;
+    channelId?: string;
     id?: number;
     status: ActivityStatus;
+    videoId?: string;
 };
 
 export enum ActivityStatus {

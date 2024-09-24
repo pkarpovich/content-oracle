@@ -11,32 +11,23 @@ import (
 )
 
 type YouTubeUnsubscribeChannels struct {
-	activityRepository *database.ActivityRepository
-	youtubeRepository  *database.YouTubeRepository
-	zimaClient         *zima.Client
+	youtubeRepository *database.YouTubeRepository
+	zimaClient        *zima.Client
 }
 
 type YouTubeUnsubscribeChannelsOptions struct {
-	ActivityRepository *database.ActivityRepository
-	YoutubeRepository  *database.YouTubeRepository
-	ZimaClient         *zima.Client
+	YoutubeRepository *database.YouTubeRepository
+	ZimaClient        *zima.Client
 }
 
 func NewYouTubeUnsubscribeChannels(opt YouTubeUnsubscribeChannelsOptions) *YouTubeUnsubscribeChannels {
 	return &YouTubeUnsubscribeChannels{
-		activityRepository: opt.ActivityRepository,
-		youtubeRepository:  opt.YoutubeRepository,
-		zimaClient:         opt.ZimaClient,
+		youtubeRepository: opt.YoutubeRepository,
+		zimaClient:        opt.ZimaClient,
 	}
 }
 
 func (y *YouTubeUnsubscribeChannels) GetAll() ([]Content, error) {
-	videoActivity, err := y.activityRepository.GetAll()
-	if err != nil {
-		log.Printf("[ERROR] failed to get video activity: %s", err)
-		return nil, err
-	}
-
 	history, err := y.zimaClient.GetContent(false, YoutubeApplicationName)
 	if err != nil {
 		log.Printf("[ERROR] failed to get youtube history: %s", err)
@@ -50,12 +41,6 @@ func (y *YouTubeUnsubscribeChannels) GetAll() ([]Content, error) {
 		log.Printf("[ERROR] failed to get unsubscribed channels: %s", err)
 		return nil, err
 	}
-
-	unsubscribedChannels = lo.Filter(unsubscribedChannels, func(channel database.YouTubeChannel, _ int) bool {
-		return lo.ContainsBy(videoActivity, func(activity database.Activity) bool {
-			return activity.ContentID != channel.ID
-		})
-	})
 
 	for _, channel := range unsubscribedChannels {
 		if len(content) >= MaxSuggestions {
@@ -74,16 +59,13 @@ func (y *YouTubeUnsubscribeChannels) GetAll() ([]Content, error) {
 			})
 		})
 
-		videos = lo.Filter(videos, func(video database.YouTubeVideo, _ int) bool {
-			return !lo.ContainsBy(videoActivity, func(activity database.Activity) bool {
-				return activity.ContentID == video.ID
-			})
-		})
-
 		for _, video := range videos {
 			content = append(content, Content{
-				ID:          video.ID,
-				Artist:      Artist{},
+				ID: video.ID,
+				Artist: Artist{
+					Name: video.Channel.Title,
+					ID:   video.Channel.ID,
+				},
 				Title:       video.Title,
 				Thumbnail:   video.Thumbnail,
 				Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", video.ID),

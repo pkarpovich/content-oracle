@@ -12,22 +12,19 @@ import (
 )
 
 type YouTubeSubscription struct {
-	activityRepository *database.ActivityRepository
-	youtubeRepository  *database.YouTubeRepository
-	zimaClient         *zima.Client
+	youtubeRepository *database.YouTubeRepository
+	zimaClient        *zima.Client
 }
 
 type YouTubeSubscriptionOptions struct {
-	ActivityRepository *database.ActivityRepository
-	YoutubeRepository  *database.YouTubeRepository
-	ZimaClient         *zima.Client
+	YoutubeRepository *database.YouTubeRepository
+	ZimaClient        *zima.Client
 }
 
 func NewYouTubeSubscription(opt YouTubeSubscriptionOptions) *YouTubeSubscription {
 	return &YouTubeSubscription{
-		activityRepository: opt.ActivityRepository,
-		youtubeRepository:  opt.YoutubeRepository,
-		zimaClient:         opt.ZimaClient,
+		youtubeRepository: opt.YoutubeRepository,
+		zimaClient:        opt.ZimaClient,
 	}
 }
 
@@ -35,12 +32,6 @@ func (y *YouTubeSubscription) GetAll() ([]Content, error) {
 	history, err := y.zimaClient.GetContent(false, YoutubeApplicationName)
 	if err != nil {
 		log.Printf("[ERROR] failed to get youtube history: %s", err)
-		return nil, err
-	}
-
-	videoActivity, err := y.activityRepository.GetAll()
-	if err != nil {
-		log.Printf("[ERROR] failed to get video activity: %s", err)
 		return nil, err
 	}
 
@@ -69,17 +60,13 @@ func (y *YouTubeSubscription) GetAll() ([]Content, error) {
 			})
 		})
 
-		videos = lo.Filter(videos, func(video database.YouTubeVideo, _ int) bool {
-			return !slices.ContainsFunc(videoActivity, func(activity database.Activity) bool {
-				return activity.ContentID == video.ID
-			})
-		})
-
 		for _, video := range videos {
-			// TODO: fix artist info
 			content = append(content, Content{
-				ID:          video.ID,
-				Artist:      Artist{},
+				ID: video.ID,
+				Artist: Artist{
+					Name: video.Channel.Title,
+					ID:   video.Channel.ID,
+				},
 				Title:       video.Title,
 				Thumbnail:   video.Thumbnail,
 				Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", video.ID),

@@ -18,7 +18,7 @@ export const useCreateActivity = (): UseMutationResult<Activity, Error, Activity
                 case ActivityStatus.completed: {
                     content?.groupedContent.set(
                         activity.category,
-                        content.groupedContent.get(activity.category)!.filter((item) => item.id !== activity.contentId),
+                        content.groupedContent.get(activity.category)!.filter((item) => item.id !== activity.videoId),
                     );
 
                     break;
@@ -29,7 +29,7 @@ export const useCreateActivity = (): UseMutationResult<Activity, Error, Activity
                         activity.category,
                         content.groupedContent
                             .get(activity.category)!
-                            .filter((item) => item.artist.id !== activity.contentId),
+                            .filter((item) => item.artist.id !== activity.channelId),
                     );
 
                     break;

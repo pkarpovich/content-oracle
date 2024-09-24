@@ -3,18 +3,30 @@ package user
 import "content-oracle/app/database"
 
 type Activity struct {
-	activityRepository *database.ActivityRepository
+	blockedVideoRepository   *database.BlockedVideoRepository
+	blockedChannelRepository *database.BlockedChannelRepository
 }
 
-func NewActivity(activityRepository *database.ActivityRepository) *Activity {
+func NewActivity(
+	blockedVideoRepository *database.BlockedVideoRepository,
+	blockedChannelRepository *database.BlockedChannelRepository,
+) *Activity {
 	return &Activity{
-		activityRepository: activityRepository,
+		blockedChannelRepository: blockedChannelRepository,
+		blockedVideoRepository:   blockedVideoRepository,
 	}
 }
 
-func (s *Activity) Create(contentID, status string) (*database.Activity, error) {
-	return s.activityRepository.Create(database.Activity{
-		ContentID: contentID,
+func (s *Activity) BlockChannel(channelID, status string) (*database.BlockedChannel, error) {
+	return s.blockedChannelRepository.Create(database.BlockedChannel{
+		ChannelID: channelID,
 		Status:    status,
+	})
+}
+
+func (s *Activity) BlockVideo(videoID, status string) (*database.BlockedVideo, error) {
+	return s.blockedVideoRepository.Create(database.BlockedVideo{
+		VideoID: videoID,
+		Status:  status,
 	})
 }
