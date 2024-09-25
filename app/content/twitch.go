@@ -20,7 +20,7 @@ func NewTwitch(opt TwitchOptions) *Twitch {
 	}
 }
 
-func (c *Twitch) GetAll() ([]Content, error) {
+func (c *Twitch) GetAll(_ []string) ([]Content, error) {
 	resp, err := c.client.GetLiveStreams()
 	if err != nil {
 		return nil, err

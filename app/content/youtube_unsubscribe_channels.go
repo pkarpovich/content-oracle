@@ -2,9 +2,7 @@ package content
 
 import (
 	"content-oracle/app/database"
-	"content-oracle/app/providers/zima"
 	"fmt"
-	"github.com/samber/lo"
 	"log"
 	"sort"
 	"time"
@@ -12,28 +10,19 @@ import (
 
 type YouTubeUnsubscribeChannels struct {
 	youtubeRepository *database.YouTubeRepository
-	zimaClient        *zima.Client
 }
 
 type YouTubeUnsubscribeChannelsOptions struct {
 	YoutubeRepository *database.YouTubeRepository
-	ZimaClient        *zima.Client
 }
 
 func NewYouTubeUnsubscribeChannels(opt YouTubeUnsubscribeChannelsOptions) *YouTubeUnsubscribeChannels {
 	return &YouTubeUnsubscribeChannels{
 		youtubeRepository: opt.YoutubeRepository,
-		zimaClient:        opt.ZimaClient,
 	}
 }
 
-func (y *YouTubeUnsubscribeChannels) GetAll() ([]Content, error) {
-	history, err := y.zimaClient.GetContent(false, YoutubeApplicationName)
-	if err != nil {
-		log.Printf("[ERROR] failed to get youtube history: %s", err)
-		return nil, err
-	}
-
+func (y *YouTubeUnsubscribeChannels) GetAll(ignoredVideoIDs []string) ([]Content, error) {
 	content := make([]Content, 0)
 
 	unsubscribedChannels, err := y.youtubeRepository.GetAllUnsubscribedChannels()
@@ -47,17 +36,11 @@ func (y *YouTubeUnsubscribeChannels) GetAll() ([]Content, error) {
 			break
 		}
 
-		videos, err := y.youtubeRepository.GetChannelVideos(channel.ID, time.Now().AddDate(0, 0, -7))
+		videos, err := y.youtubeRepository.GetChannelVideos(channel.ID, time.Now().AddDate(0, 0, -7), ignoredVideoIDs)
 		if err != nil {
 			log.Printf("[ERROR] failed to get channel videos: %s", err)
 			continue
 		}
-
-		videos = lo.Filter(videos, func(video database.YouTubeVideo, _ int) bool {
-			return !lo.ContainsBy(history, func(item zima.Content) bool {
-				return item.Metadata != nil && item.Metadata.VideoID == video.ID
-			})
-		})
 
 		for _, video := range videos {
 			content = append(content, Content{

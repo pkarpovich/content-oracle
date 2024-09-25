@@ -1,9 +1,12 @@
 package content
 
 import (
+	"content-oracle/app/database"
 	"content-oracle/app/providers/esport"
+	"content-oracle/app/providers/zima"
 	"context"
 	"github.com/go-pkgz/syncs"
+	"github.com/samber/lo"
 	"log"
 )
 
@@ -27,19 +30,44 @@ type Content struct {
 }
 
 type Provider interface {
-	GetAll() ([]Content, error)
+	GetAll(ignoredVideoIDs []string) ([]Content, error)
 }
 
-type MultiProvider []Provider
+type MultiProvider struct {
+	youtubeHistoryProvider *YouTubeHistory
+	providers              []Provider
+}
+
+func NewMultiProvider(zimaClient *zima.Client, blockedVideoRepository *database.BlockedVideoRepository, providers ...Provider) MultiProvider {
+	youtubeHistoryProvider := NewYouTubeHistory(YouTubeHistoryOptions{
+		BlockedVideoRepository: blockedVideoRepository,
+		ZimaClient:             zimaClient,
+	})
+
+	return MultiProvider{
+		youtubeHistoryProvider: youtubeHistoryProvider,
+		providers:              providers,
+	}
+}
 
 func (mp MultiProvider) GetAll() ([]Content, error) {
+	allContent := make([]Content, 0)
+	historyContent, err := mp.youtubeHistoryProvider.GetAll()
+	if err != nil {
+		log.Printf("[ERROR] failed to get content from youtube history: %s", err)
+		return nil, err
+	}
+
+	ignoredVideoIDs := lo.Map(historyContent, func(item Content, _ int) string {
+		return item.ID
+	})
+
+	allContent = append(allContent, historyContent...)
 	wg := syncs.NewSizedGroup(4)
 
-	var allContent []Content
-
-	for _, provider := range mp {
+	for _, provider := range mp.providers {
 		wg.Go(func(ctx context.Context) {
-			content, err := provider.GetAll()
+			content, err := provider.GetAll(ignoredVideoIDs)
 			if err != nil {
 				log.Printf("[ERROR] failed to get content from provider: %s", err)
 				return

@@ -106,27 +106,21 @@ func run(cfg *config.Config) error {
 		TwitchClient: twitchClient,
 	})
 
-	youtubeHistoryContentProvider := content.NewYouTubeHistory(content.YouTubeHistoryOptions{
-		BlockedVideoRepository: blockedVideoRepository,
-		ZimaClient:             zimaClient,
-	})
-
 	youtubeSubscriptionContentProvider := content.NewYouTubeSubscription(content.YouTubeSubscriptionOptions{
 		YoutubeRepository: youTubeRepository,
-		ZimaClient:        zimaClient,
 	})
 
 	youtubeUnsubscribeChannelsContentProvider := content.NewYouTubeUnsubscribeChannels(content.YouTubeUnsubscribeChannelsOptions{
 		YoutubeRepository: youTubeRepository,
-		ZimaClient:        zimaClient,
 	})
 
-	contentMultiProvider := content.MultiProvider{
+	contentMultiProvider := content.NewMultiProvider(
+		zimaClient,
+		blockedVideoRepository,
 		twitchContentProvider,
-		youtubeHistoryContentProvider,
 		youtubeSubscriptionContentProvider,
 		youtubeUnsubscribeChannelsContentProvider,
-	}
+	)
 
 	esportClient := esport.NewClient(&esport.ClientOptions{
 		ApiKey:  cfg.Esport.ApiKey,

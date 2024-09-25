@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"strings"
@@ -178,7 +179,7 @@ func (y *YouTubeRepository) GetVideoByID(id string) (*YouTubeVideo, error) {
 	return &video, nil
 }
 
-func (y *YouTubeRepository) GetChannelVideos(channelID string, publishedAfter time.Time) ([]YouTubeVideo, error) {
+func (y *YouTubeRepository) GetChannelVideos(channelID string, publishedAfter time.Time, ignoredVideoIDs []string) ([]YouTubeVideo, error) {
 	videos := make([]YouTubeVideo, 0)
 	query := `  SELECT 
       					v.id as id,
@@ -205,7 +206,21 @@ func (y *YouTubeRepository) GetChannelVideos(channelID string, publishedAfter ti
 					AND bv.video_id IS NULL
 	`
 
-	err := y.db.Select(&videos, query, channelID, publishedAfter)
+	if len(ignoredVideoIDs) > 0 {
+		placeholders := make([]string, len(ignoredVideoIDs))
+		for i := range ignoredVideoIDs {
+			placeholders[i] = "?"
+		}
+
+		query += fmt.Sprintf(" AND v.id NOT IN (%s)", strings.Join(placeholders, ","))
+	}
+
+	args := []interface{}{channelID, publishedAfter}
+	for _, id := range ignoredVideoIDs {
+		args = append(args, id)
+	}
+
+	err := y.db.Select(&videos, query, args...)
 	if err != nil {
 		log.Printf("[ERROR] Error getting channel videos: %s", err)
 		return nil, err

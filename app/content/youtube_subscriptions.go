@@ -2,39 +2,27 @@ package content
 
 import (
 	"content-oracle/app/database"
-	"content-oracle/app/providers/zima"
 	"fmt"
-	"github.com/samber/lo"
 	"log"
-	"slices"
 	"sort"
 	"time"
 )
 
 type YouTubeSubscription struct {
 	youtubeRepository *database.YouTubeRepository
-	zimaClient        *zima.Client
 }
 
 type YouTubeSubscriptionOptions struct {
 	YoutubeRepository *database.YouTubeRepository
-	ZimaClient        *zima.Client
 }
 
 func NewYouTubeSubscription(opt YouTubeSubscriptionOptions) *YouTubeSubscription {
 	return &YouTubeSubscription{
 		youtubeRepository: opt.YoutubeRepository,
-		zimaClient:        opt.ZimaClient,
 	}
 }
 
-func (y *YouTubeSubscription) GetAll() ([]Content, error) {
-	history, err := y.zimaClient.GetContent(false, YoutubeApplicationName)
-	if err != nil {
-		log.Printf("[ERROR] failed to get youtube history: %s", err)
-		return nil, err
-	}
-
+func (y *YouTubeSubscription) GetAll(ignoredVideoIDs []string) ([]Content, error) {
 	ranking, err := y.youtubeRepository.GetAllRanking()
 	if err != nil {
 		log.Printf("[ERROR] failed to get youtube ranking: %s", err)
@@ -48,17 +36,11 @@ func (y *YouTubeSubscription) GetAll() ([]Content, error) {
 			break
 		}
 
-		videos, err := y.youtubeRepository.GetChannelVideos(rank.ID, time.Now().AddDate(0, 0, -7))
+		videos, err := y.youtubeRepository.GetChannelVideos(rank.ID, time.Now().AddDate(0, 0, -7), ignoredVideoIDs)
 		if err != nil {
 			log.Printf("[ERROR] failed to get channel videos: %s", err)
 			continue
 		}
-
-		videos = lo.Filter(videos, func(video database.YouTubeVideo, _ int) bool {
-			return !slices.ContainsFunc(history, func(item zima.Content) bool {
-				return item.Metadata != nil && item.Metadata.VideoID == video.ID
-			})
-		})
 
 		for _, video := range videos {
 			content = append(content, Content{
