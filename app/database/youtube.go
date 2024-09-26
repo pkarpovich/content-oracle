@@ -229,6 +229,67 @@ func (y *YouTubeRepository) GetChannelVideos(channelID string, publishedAfter ti
 	return videos, nil
 }
 
+const MaxVideosFromChannel = 3
+const TotalAmountOfVideos = 20
+
+func (y *YouTubeRepository) GetTopRankedChannelVideos(publishedAfter time.Time, ignoredVideoIDs []string) ([]YouTubeVideo, error) {
+	videos := make([]YouTubeVideo, 0)
+
+	placeholders := make([]string, len(ignoredVideoIDs))
+	for i := range ignoredVideoIDs {
+		placeholders[i] = "?"
+	}
+
+	query := fmt.Sprintf(`
+		SELECT q.id                    as id,
+			   q.title                 as title,
+			   q.thumbnail             as thumbnail,
+			   q.url                   as url,
+			   q.published_at          as published_at,
+			   q.is_shorts             as is_shorts,
+			   q.sync_at               as sync_at,
+			   q.channel_id            as "channel.id",
+			   q.channel_title         as "channel.title",
+			   q.channel_name          as "channel.name",
+			   q.channel_preview_url   as "channel.preview_url",
+			   q.channel_is_subscribed as "channel.is_subscribed"
+		FROM (SELECT *,
+					 c.id                                                               as "channel_id",
+					 c.title                                                            as "channel_title",
+					 c.name                                                             as "channel_name",
+					 c.preview_url                                                      as "channel_preview_url",
+					 c.is_subscribed                                                    as "channel_is_subscribed",
+					 ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v.published_at DESC) as row_num
+			  FROM youtube_video v
+					   INNER JOIN youtube_ranking r ON v.channel_id = r.id
+					   INNER JOIN youtube_channel c ON v.channel_id = c.id
+					   LEFT JOIN blocked_channels bc ON c.id = bc.channel_id
+					   LEFT JOIN blocked_videos bv ON v.id = bv.video_id
+			  WHERE v.is_shorts = FALSE
+			    AND v.published_at > ?
+				AND bc.channel_id IS NULL
+				AND bv.video_id IS NULL
+			  	AND v.id NOT IN (%s)) q
+		WHERE row_num <= ?
+		ORDER BY q.rank DESC, published_at DESC
+		LIMIT ?;
+	`, strings.Join(placeholders, ","))
+
+	args := []interface{}{publishedAfter}
+	for _, id := range ignoredVideoIDs {
+		args = append(args, id)
+	}
+	args = append(args, MaxVideosFromChannel, TotalAmountOfVideos)
+
+	err := y.db.Select(&videos, query, args...)
+	if err != nil {
+		log.Printf("[ERROR] Error getting top ranked channel videos: %s", err)
+		return videos, err
+	}
+
+	return videos, nil
+}
+
 func (y *YouTubeRepository) GetChannelLastPublishedAt(channelID string) (*time.Time, error) {
 	var publishedAt time.Time
 	query := "SELECT published_at FROM youtube_video WHERE channel_id = ? ORDER BY published_at DESC LIMIT 1"

@@ -75,28 +75,23 @@ func (y *YouTubeHistory) GetAll() ([]Content, error) {
 			if err != nil {
 				log.Printf("[ERROR] failed to parse playback info: %s", err)
 			}
-
-			if playbackInfo != nil {
-				remainingTime := playbackInfo.TotalTime - playbackInfo.StartTime
-
-				if remainingTime < 300 {
-					continue
-				}
-			}
 		}
 
 		var playbackPosition float64
+		var remaning int
 		if playbackInfo != nil {
 			playbackPosition = playbackInfo.Percentage
+			remaning = playbackInfo.TotalTime - playbackInfo.StartTime
 		}
 
 		content = append(content, Content{
-			ID:          item.ID,
+			ID:          item.Metadata.VideoID,
 			Title:       item.Title,
 			Artist:      Artist{Name: item.Artist},
 			Thumbnail:   item.Metadata.PosterLink,
 			Url:         item.Metadata.ContentUrl,
 			IsLive:      false,
+			Remaining:   remaning,
 			Position:    playbackPosition,
 			Category:    "YouTube History",
 			PublishedAt: lastPlaybackAt,

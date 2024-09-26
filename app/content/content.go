@@ -11,6 +11,7 @@ import (
 )
 
 const MaxSuggestions = 20
+const RemainingTimeThreshold = 300
 
 type Artist struct {
 	ID   string `json:"id"`
@@ -25,6 +26,7 @@ type Content struct {
 	Url         string  `json:"url"`
 	IsLive      bool    `json:"isLive"`
 	Position    float64 `json:"position"`
+	Remaining   int     `json:"_"`
 	Category    string  `json:"category"`
 	PublishedAt string  `json:"publishedAt"`
 }
@@ -60,6 +62,10 @@ func (mp MultiProvider) GetAll() ([]Content, error) {
 
 	ignoredVideoIDs := lo.Map(historyContent, func(item Content, _ int) string {
 		return item.ID
+	})
+
+	historyContent = lo.Filter(historyContent, func(item Content, _ int) bool {
+		return item.Remaining > RemainingTimeThreshold
 	})
 
 	allContent = append(allContent, historyContent...)
