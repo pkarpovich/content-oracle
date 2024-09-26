@@ -241,24 +241,31 @@ func (y *YouTubeRepository) GetTopRankedChannelVideos(publishedAfter time.Time, 
 	}
 
 	query := fmt.Sprintf(`
-		SELECT q.id                    as id,
-			   q.title                 as title,
-			   q.thumbnail             as thumbnail,
-			   q.url                   as url,
-			   q.published_at          as published_at,
-			   q.is_shorts             as is_shorts,
-			   q.sync_at               as sync_at,
+		SELECT q.video_id              as id,
+			   q.video_title           as title,
+			   q.video_thumbnail       as thumbnail,
+			   q.vidoe_url             as url,
+			   q.vidoe_published_at    as published_at,
+			   q.vidoe_is_shorts       as is_shorts,
+			   q.vidoe_sync_at         as sync_at,
 			   q.channel_id            as "channel.id",
 			   q.channel_title         as "channel.title",
 			   q.channel_name          as "channel.name",
 			   q.channel_preview_url   as "channel.preview_url",
 			   q.channel_is_subscribed as "channel.is_subscribed"
-		FROM (SELECT *,
+		FROM (SELECT v.id                                                               as "video_id",
+					 v.title                                                            as "video_title",
+					 v.thumbnail                                                        as "video_thumbnail",
+					 v.url                                                              as "vidoe_url",
+					 v.published_at                                                     as "vidoe_published_at",
+					 v.is_shorts                                                        as "vidoe_is_shorts",
+					 v.sync_at                                                          as "vidoe_sync_at",
 					 c.id                                                               as "channel_id",
 					 c.title                                                            as "channel_title",
 					 c.name                                                             as "channel_name",
 					 c.preview_url                                                      as "channel_preview_url",
 					 c.is_subscribed                                                    as "channel_is_subscribed",
+					 r.rank                                                             as rank,
 					 ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v.published_at DESC) as row_num
 			  FROM youtube_video v
 					   INNER JOIN youtube_ranking r ON v.channel_id = r.id
@@ -272,6 +279,70 @@ func (y *YouTubeRepository) GetTopRankedChannelVideos(publishedAfter time.Time, 
 			  	AND v.id NOT IN (%s)) q
 		WHERE row_num <= ?
 		ORDER BY q.rank DESC, published_at DESC
+		LIMIT ?;
+	`, strings.Join(placeholders, ","))
+
+	args := []interface{}{publishedAfter}
+	for _, id := range ignoredVideoIDs {
+		args = append(args, id)
+	}
+	args = append(args, MaxVideosFromChannel, TotalAmountOfVideos)
+
+	err := y.db.Select(&videos, query, args...)
+	if err != nil {
+		log.Printf("[ERROR] Error getting top ranked channel videos: %s", err)
+		return videos, err
+	}
+
+	return videos, nil
+}
+
+func (y *YouTubeRepository) GetLastVideosFromUnsubscribedChannels(publishedAfter time.Time, ignoredVideoIDs []string) ([]YouTubeVideo, error) {
+	videos := make([]YouTubeVideo, 0)
+
+	placeholders := make([]string, len(ignoredVideoIDs))
+	for i := range ignoredVideoIDs {
+		placeholders[i] = "?"
+	}
+
+	query := fmt.Sprintf(`
+		SELECT q.video_id              as id,
+			   q.video_title           as title,
+			   q.video_thumbnail       as thumbnail,
+			   q.vidoe_url             as url,
+			   q.vidoe_published_at    as published_at,
+			   q.vidoe_is_shorts       as is_shorts,
+			   q.vidoe_sync_at         as sync_at,
+			   q.channel_id            as "channel.id",
+			   q.channel_title         as "channel.title",
+			   q.channel_name          as "channel.name",
+			   q.channel_preview_url   as "channel.preview_url",
+			   q.channel_is_subscribed as "channel.is_subscribed"
+		FROM (SELECT v.id                                                               as "video_id",
+					 v.title                                                            as "video_title",
+					 v.thumbnail                                                        as "video_thumbnail",
+					 v.url                                                              as "vidoe_url",
+					 v.published_at                                                     as "vidoe_published_at",
+					 v.is_shorts                                                        as "vidoe_is_shorts",
+					 v.sync_at                                                          as "vidoe_sync_at",
+					 c.id                                                               as "channel_id",
+					 c.title                                                            as "channel_title",
+					 c.name                                                             as "channel_name",
+					 c.preview_url                                                      as "channel_preview_url",
+					 c.is_subscribed                                                    as "channel_is_subscribed",
+					 ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v.published_at DESC) as row_num
+			  FROM youtube_channel c
+					   INNER JOIN youtube_video v ON c.id = v.channel_id
+					   LEFT JOIN blocked_channels bc ON c.id = bc.channel_id
+					   LEFT JOIN blocked_videos bv ON v.id = bv.video_id
+			  WHERE c.is_subscribed = FALSE
+			    AND v.published_at > ?
+				AND v.is_shorts = FALSE
+				AND bc.channel_id IS NULL
+				AND bv.video_id IS NULL
+			  	AND v.id NOT IN (%s)) q
+		WHERE row_num <= ?
+		ORDER BY published_at DESC
 		LIMIT ?;
 	`, strings.Join(placeholders, ","))
 

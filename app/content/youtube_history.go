@@ -52,7 +52,7 @@ func (y *YouTubeHistory) GetAll() ([]Content, error) {
 		}
 
 		if lo.ContainsBy(blockedVideos, func(video database.BlockedVideo) bool {
-			return video.VideoID == item.ID
+			return video.VideoID == item.Metadata.VideoID
 		}) {
 			continue
 		}

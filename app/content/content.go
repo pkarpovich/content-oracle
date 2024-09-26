@@ -5,6 +5,7 @@ import (
 	"content-oracle/app/providers/esport"
 	"content-oracle/app/providers/zima"
 	"context"
+	"fmt"
 	"github.com/go-pkgz/syncs"
 	"github.com/samber/lo"
 	"log"
@@ -114,4 +115,21 @@ func (mp MultiESportProvider) GetAll() ([]esport.Match, error) {
 	wg.Wait()
 
 	return allMatches, nil
+}
+
+func YoutubeVideoToContent(v database.YouTubeVideo, category string) Content {
+	return Content{
+		ID: v.ID,
+		Artist: Artist{
+			Name: v.Channel.Title,
+			ID:   v.Channel.ID,
+		},
+		Title:       v.Title,
+		Thumbnail:   v.Thumbnail,
+		Url:         fmt.Sprintf("https://www.youtube.com/watch?v=%s", v.ID),
+		Category:    category,
+		PublishedAt: v.PublishedAt.Local().String(),
+		IsLive:      false,
+		Position:    0,
+	}
 }
