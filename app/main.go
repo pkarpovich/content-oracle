@@ -69,6 +69,12 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
+	youtubeWatchlistRepository, err := database.NewYouTubeWatchlistRepository(db)
+	if err != nil {
+		log.Printf("[ERROR] Error creating YouTube watchlist repository: %s", err)
+		return err
+	}
+
 	twitchClient, err := twitch.NewClient(&twitch.ClientOptions{
 		SettingsRepository: settingsRepository,
 		RedirectURI:        cfg.Twitch.RedirectURI,
@@ -114,10 +120,13 @@ func run(cfg *config.Config) error {
 		YoutubeRepository: youTubeRepository,
 	})
 
+	youtubeWatchlistContentProvider := content.NewYouTubeWatchlist(youTubeRepository)
+
 	contentMultiProvider := content.NewMultiProvider(
 		zimaClient,
 		blockedVideoRepository,
 		twitchContentProvider,
+		youtubeWatchlistContentProvider,
 		youtubeSubscriptionContentProvider,
 		youtubeUnsubscribeChannelsContentProvider,
 	)
@@ -133,6 +142,11 @@ func run(cfg *config.Config) error {
 
 	userActivity := user.NewActivity(blockedVideoRepository, blockedChannelRepository)
 	userHistory := user.NewHistory(zimaClient, cfg.Http.BaseUrl)
+	userWatchlist := user.NewWatchlist(user.WatchlistOptions{
+		YouTubeWatchlistRepository: youtubeWatchlistRepository,
+		YouTubeRepository:          youTubeRepository,
+		YouTubeClient:              youtubeClient,
+	})
 
 	schedulerClient := scheduler.NewClient()
 	err = schedulerClient.Start(syncYoutubeProvider.Do, context.Background())
@@ -150,6 +164,7 @@ func run(cfg *config.Config) error {
 		YouTubeRepository:    youTubeRepository,
 		UserActivity:         userActivity,
 		UserHistory:          userHistory,
+		UserWatchlist:        userWatchlist,
 		ContentMultiProvider: contentMultiProvider,
 		ESportMultiProvider:  esportMultiProvider,
 		BaseStaticPath:       cfg.Http.BaseStaticPath,

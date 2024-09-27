@@ -309,6 +309,28 @@ func (c *Client) IsUserSubscribed(service *youtube.Service, channelId string) (b
 	return false, nil
 }
 
+func (c *Client) GetVideoDetails(service *youtube.Service, videoId string) (*youtube.Video, error) {
+	cacheKey := "youtube_video_" + videoId
+
+	if item, ok := c.getFromCache(cacheKey); ok {
+		return item.(*youtube.Video), nil
+	}
+
+	call := service.Videos.List([]string{"snippet", "contentDetails"}).Id(videoId)
+
+	response, err := call.Do()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(response.Items) == 0 {
+		return nil, nil
+	}
+
+	c.storeInCache(cacheKey, response.Items[0])
+	return response.Items[0], nil
+}
+
 func parseISO8601Duration(duration string) string {
 	duration = strings.ToUpper(duration)
 	if duration == "P0D" {

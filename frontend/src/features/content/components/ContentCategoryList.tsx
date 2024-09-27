@@ -12,6 +12,7 @@ import { EsportsPills } from "./EsportsPills.tsx";
 const CustomCategoryOrder = [
     Category.liveStreams,
     Category.youtubeHistory,
+    Category.youTubeWatchlist,
     Category.youTubeSuggestions,
     Category.unsubscribedChannels,
 ];

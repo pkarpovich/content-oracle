@@ -22,6 +22,7 @@ export enum Category {
     unsubscribedChannels = "Unsubscribed Channels",
     youtubeHistory = "YouTube History",
     youTubeSuggestions = "YouTube Suggestions",
+    youTubeWatchlist = "YouTube Watchlist",
 }
 
 export const categoryToHash = (category: Category): string => category.replace(" ", "-").toLowerCase();

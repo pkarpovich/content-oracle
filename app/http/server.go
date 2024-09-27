@@ -26,6 +26,7 @@ type Server struct {
 	YouTubeRepository    *database.YouTubeRepository
 	UserActivity         *user.Activity
 	UserHistory          *user.History
+	UserWatchlist        *user.Watchlist
 	BaseStaticPath       string
 	Port                 int
 	ContentMultiProvider content.MultiProvider
@@ -39,6 +40,7 @@ type ClientOptions struct {
 	YouTubeRepository    *database.YouTubeRepository
 	UserActivity         *user.Activity
 	UserHistory          *user.History
+	UserWatchlist        *user.Watchlist
 	ContentMultiProvider content.MultiProvider
 	ESportMultiProvider  content.MultiESportProvider
 	BaseStaticPath       string
@@ -51,6 +53,7 @@ func NewServer(opt *ClientOptions) *Server {
 		TwitchClient:         opt.TwitchClient,
 		ZimaClient:           opt.ZimaClient,
 		YouTubeRepository:    opt.YouTubeRepository,
+		UserWatchlist:        opt.UserWatchlist,
 		UserActivity:         opt.UserActivity,
 		UserHistory:          opt.UserHistory,
 		ContentMultiProvider: opt.ContentMultiProvider,
@@ -108,6 +111,8 @@ func (c *Server) routes(router *http.ServeMux) *http.ServeMux {
 	router.HandleFunc("POST /api/settings/subscriptions", c.initChannelsHandler)
 
 	router.HandleFunc("GET /api/history", c.getHistoryHandler)
+
+	router.HandleFunc("POST /api/watchlist/youtube", c.addWatchlistItemHandler)
 
 	router.HandleFunc("GET /api/health", c.healthHandler)
 	router.HandleFunc("GET /api/proxy", c.proxyHandler)

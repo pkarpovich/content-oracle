@@ -136,7 +136,7 @@ func (y *YouTubeRepository) GetAllSubscribedChannels() ([]YouTubeChannel, error)
 }
 
 func (y *YouTubeRepository) CreateChannel(channel *YouTubeChannel) (*YouTubeChannel, error) {
-	query := `INSERT INTO youtube_channel (id, title, name, is_subscribed, preview_url) VALUES (?, ?, ?, ?, ?)`
+	query := `INSERT INTO youtube_channel (id, title, is_subscribed, preview_url) VALUES (?, ?, ?, ?)`
 	_, err := y.db.Exec(query, channel.ID, channel.Title, channel.IsSubscribed, channel.PreviewURL)
 	if err != nil {
 		return nil, err
@@ -338,6 +338,51 @@ func (y *YouTubeRepository) GetLastVideosFromUnsubscribedChannels(publishedAfter
 		args = append(args, id)
 	}
 	args = append(args, MaxVideosFromChannel, TotalAmountOfVideos)
+
+	err := y.db.Select(&videos, query, args...)
+	if err != nil {
+		log.Printf("[ERROR] Error getting top ranked channel videos: %s", err)
+		return videos, err
+	}
+
+	return videos, nil
+}
+
+func (y *YouTubeRepository) GetWatchlistVideos(ignoredVideoIDs []string) ([]YouTubeVideo, error) {
+	videos := make([]YouTubeVideo, 0)
+
+	placeholders := make([]string, len(ignoredVideoIDs))
+	for i := range ignoredVideoIDs {
+		placeholders[i] = "?"
+	}
+
+	query := fmt.Sprintf(`
+		SELECT v.id            as id,
+			   v.title         as title,
+			   v.thumbnail     as thumbnail,
+			   v.url           as url,
+			   v.published_at  as published_at,
+			   v.is_shorts     as is_shorts,
+			   v.sync_at       as sync_at,
+			   c.id            as "channel.id",
+			   c.title         as "channel.title",
+			   c.preview_url   as "channel.preview_url",
+			   c.is_subscribed as "channel.is_subscribed"
+		FROM youtube_video v
+				 INNER JOIN youtube_channel c ON v.channel_id = c.id
+				 LEFT JOIN youtube_watchlist yw on v.id = yw.video_id
+				 LEFT JOIN blocked_channels bc ON c.id = bc.channel_id
+				 LEFT JOIN blocked_videos bv ON v.id = bv.video_id
+		WHERE yw.id IS NOT NULL
+		  AND bc.channel_id IS NULL
+		  AND bv.video_id IS NULL
+		  AND v.id NOT IN (%s)
+	`, strings.Join(placeholders, ","))
+
+	args := make([]interface{}, 0)
+	for _, id := range ignoredVideoIDs {
+		args = append(args, id)
+	}
 
 	err := y.db.Select(&videos, query, args...)
 	if err != nil {
