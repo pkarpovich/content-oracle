@@ -2,10 +2,13 @@ package http
 
 import (
 	"content-oracle/app/database"
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"sort"
+	"strings"
 )
 
 type YoutubeSubscription struct {
@@ -43,7 +46,7 @@ func (c *Server) getSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	for _, sub := range subscriptions {
 		subscriptionsResponse = append(subscriptionsResponse, YoutubeSubscription{
 			ChannelId:  sub.ID,
-			Name:       sub.Name,
+			Name:       sub.Title,
 			PreviewURL: sub.PreviewURL,
 			Rank:       rankingMap[sub.ID],
 			URL:        fmt.Sprintf("https://www.youtube.com/channel/%s", sub.ID),
@@ -96,4 +99,43 @@ func (c *Server) cleanSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (c *Server) initChannelsHandler(w http.ResponseWriter, r *http.Request) {
+	service, err := c.YouTubeService.GetService(context.Background())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	userSubscriptions, err := c.YouTubeService.GetUserSubscriptions(service)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	for _, sub := range userSubscriptions {
+		channelID := sub.Snippet.ResourceId.ChannelId
+		channel, err := c.YouTubeRepository.GetChannelByID(channelID)
+		if err != nil {
+			log.Printf("[ERROR] failed to get channel by title: %s", err)
+			continue
+		}
+
+		if channel != nil {
+			continue
+		}
+
+		title := strings.TrimSpace(sub.Snippet.Title)
+		channel, err = c.YouTubeRepository.CreateChannel(&database.YouTubeChannel{
+			ID:           channelID,
+			Title:        title,
+			PreviewURL:   sub.Snippet.Thumbnails.Medium.Url,
+			IsSubscribed: true,
+		})
+		if err != nil {
+			log.Printf("[ERROR] Error creating channel: %s %s", sub.Snippet.Title, err)
+			continue
+		}
+	}
 }

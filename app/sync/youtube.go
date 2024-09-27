@@ -191,7 +191,6 @@ func (c *YouTubeProvider) processHistoryContent(ctx context.Context, youtubeServ
 			channel, err = c.youtubeRepository.CreateChannel(&database.YouTubeChannel{
 				ID:           contentResp.Id,
 				Title:        strings.TrimSpace(contentResp.Snippet.Title),
-				Name:         contentResp.Snippet.CustomUrl,
 				PreviewURL:   contentResp.Snippet.Thumbnails.Medium.Url,
 				IsSubscribed: isSubscribed,
 			})

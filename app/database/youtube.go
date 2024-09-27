@@ -18,7 +18,6 @@ const YouTubeChannelSchema = `
 	CREATE TABLE IF NOT EXISTS youtube_channel (
 		id TEXT PRIMARY KEY,
 		title TEXT,
-		name TEXT,
 		preview_url TEXT,
 	    is_subscribed BOOLEAN DEFAULT TRUE                                       
 	)
@@ -48,7 +47,6 @@ const YouTubeRankingSchema = `
 type YouTubeChannel struct {
 	ID           string `json:"id" db:"id"`
 	Title        string `json:"title" db:"title"`
-	Name         string `json:"name" db:"name"`
 	PreviewURL   string `json:"previewUrl" db:"preview_url"`
 	IsSubscribed bool   `json:"isSubscribed" db:"is_subscribed"`
 }
@@ -111,25 +109,19 @@ func (y *YouTubeRepository) GetChannelByTitle(title string) (*YouTubeChannel, er
 	return &channel, nil
 }
 
-func (y *YouTubeRepository) GetAllUnsubscribedChannels() ([]YouTubeChannel, error) {
-	channels := make([]YouTubeChannel, 0)
-	err := y.db.Select(&channels, `
-		SELECT
-			c.id as id,
-			c.title as title,
-			c.name as name,
-			c.preview_url as preview_url,
-			c.is_subscribed as is_subscribed
-		FROM youtube_channel c
-			LEFT JOIN blocked_channels bc ON c.id = bc.channel_id
-		WHERE is_subscribed = FALSE AND bc.channel_id IS NULL
-	`)
+func (y *YouTubeRepository) GetChannelByID(id string) (*YouTubeChannel, error) {
+	var channel YouTubeChannel
+	err := y.db.Get(&channel, "SELECT * FROM youtube_channel WHERE id = ?", id)
 	if err != nil {
-		log.Printf("[ERROR] Error getting all unsubscribed channels: %s", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+
+		log.Printf("[ERROR] Error getting channel by id: %s", err)
 		return nil, err
 	}
 
-	return channels, nil
+	return &channel, nil
 }
 
 func (y *YouTubeRepository) GetAllSubscribedChannels() ([]YouTubeChannel, error) {
@@ -145,7 +137,7 @@ func (y *YouTubeRepository) GetAllSubscribedChannels() ([]YouTubeChannel, error)
 
 func (y *YouTubeRepository) CreateChannel(channel *YouTubeChannel) (*YouTubeChannel, error) {
 	query := `INSERT INTO youtube_channel (id, title, name, is_subscribed, preview_url) VALUES (?, ?, ?, ?, ?)`
-	_, err := y.db.Exec(query, channel.ID, channel.Title, channel.Name, channel.IsSubscribed, channel.PreviewURL)
+	_, err := y.db.Exec(query, channel.ID, channel.Title, channel.IsSubscribed, channel.PreviewURL)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +184,6 @@ func (y *YouTubeRepository) GetChannelVideos(channelID string, publishedAfter ti
       					v.sync_at as sync_at,
       					c.id as "channel.id",
       					c.title as "channel.title",
-      					c.name as "channel.name",
       					c.preview_url as "channel.preview_url",
       					c.is_subscribed as "channel.is_subscribed"
 				FROM youtube_video v
@@ -250,7 +241,6 @@ func (y *YouTubeRepository) GetTopRankedChannelVideos(publishedAfter time.Time, 
 			   q.vidoe_sync_at         as sync_at,
 			   q.channel_id            as "channel.id",
 			   q.channel_title         as "channel.title",
-			   q.channel_name          as "channel.name",
 			   q.channel_preview_url   as "channel.preview_url",
 			   q.channel_is_subscribed as "channel.is_subscribed"
 		FROM (SELECT v.id                                                               as "video_id",
@@ -262,7 +252,6 @@ func (y *YouTubeRepository) GetTopRankedChannelVideos(publishedAfter time.Time, 
 					 v.sync_at                                                          as "vidoe_sync_at",
 					 c.id                                                               as "channel_id",
 					 c.title                                                            as "channel_title",
-					 c.name                                                             as "channel_name",
 					 c.preview_url                                                      as "channel_preview_url",
 					 c.is_subscribed                                                    as "channel_is_subscribed",
 					 r.rank                                                             as rank,
@@ -315,7 +304,6 @@ func (y *YouTubeRepository) GetLastVideosFromUnsubscribedChannels(publishedAfter
 			   q.vidoe_sync_at         as sync_at,
 			   q.channel_id            as "channel.id",
 			   q.channel_title         as "channel.title",
-			   q.channel_name          as "channel.name",
 			   q.channel_preview_url   as "channel.preview_url",
 			   q.channel_is_subscribed as "channel.is_subscribed"
 		FROM (SELECT v.id                                                               as "video_id",
@@ -327,7 +315,6 @@ func (y *YouTubeRepository) GetLastVideosFromUnsubscribedChannels(publishedAfter
 					 v.sync_at                                                          as "vidoe_sync_at",
 					 c.id                                                               as "channel_id",
 					 c.title                                                            as "channel_title",
-					 c.name                                                             as "channel_name",
 					 c.preview_url                                                      as "channel_preview_url",
 					 c.is_subscribed                                                    as "channel_is_subscribed",
 					 ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY v.published_at DESC) as row_num
