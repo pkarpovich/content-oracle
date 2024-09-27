@@ -132,7 +132,7 @@ func run(cfg *config.Config) error {
 	esportMultiProvider := content.MultiESportProvider{esportEventsProvider}
 
 	userActivity := user.NewActivity(blockedVideoRepository, blockedChannelRepository)
-	userHistory := user.NewHistory(zimaClient, cfg.Zima.Url)
+	userHistory := user.NewHistory(zimaClient, cfg.Http.BaseUrl)
 
 	schedulerClient := scheduler.NewClient()
 	err = schedulerClient.Start(syncYoutubeProvider.Do, context.Background())
