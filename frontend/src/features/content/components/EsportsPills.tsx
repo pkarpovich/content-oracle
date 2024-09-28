@@ -3,6 +3,8 @@ import { useCallback } from "react";
 
 import type { Match } from "../../../api/content.ts";
 import { GameType } from "../../../api/content.ts";
+import CsIcon from "../../../icons/cs2.svg?url";
+import DotaIcon from "../../../icons/dota2.svg?url";
 import { formatDate } from "../../../utils/date.ts";
 import styles from "./EsportsPills.module.css";
 
@@ -26,6 +28,7 @@ export const EsportsPills = ({ matches }: Props) => {
         <div className={styles.container}>
             <div className={styles.pillsContainer}>
                 {matches.map((match) => {
+                    const FallbackIcon = match.gameType === GameType.cs2 ? CsIcon : DotaIcon;
                     const team1Score = parseScore(match.score)[0];
                     const team2Score = parseScore(match.score)[1];
                     return (
@@ -44,7 +47,7 @@ export const EsportsPills = ({ matches }: Props) => {
                                 <img
                                     alt={match.team1.name}
                                     className={styles.teamLogo}
-                                    src={match.team1.logo}
+                                    src={match.team1.logo || FallbackIcon}
                                     title={match.team1.name}
                                 />
                             </div>
@@ -69,7 +72,7 @@ export const EsportsPills = ({ matches }: Props) => {
                                 <img
                                     alt={match.team2.name}
                                     className={styles.teamLogo}
-                                    src={match.team2.logo}
+                                    src={match.team2.logo || FallbackIcon}
                                     title={match.team2.name}
                                 />
                             </div>
