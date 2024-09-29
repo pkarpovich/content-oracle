@@ -1,6 +1,9 @@
+import "react-toastify/dist/ReactToastify.min.css";
+
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { useCallback, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 import { Header } from "../components/Header.tsx";
 import { Sidebar } from "../components/Sidebar.tsx";
@@ -28,6 +31,7 @@ const Root = () => {
             <main className={styles.content}>
                 <Outlet />
             </main>
+            <ToastContainer />
             {/*<TanStackRouterDevtools />*/}
         </div>
     );

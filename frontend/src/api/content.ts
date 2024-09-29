@@ -89,7 +89,9 @@ export const openContent = async (url: string): Promise<void> => {
     });
 
     if (!resp.ok) {
-        throw new Error("Failed to open content");
+        const errorText = await resp.text();
+
+        throw new Error(errorText || "Failed to open content");
     }
 };
 
@@ -101,6 +103,8 @@ export const addToWatchlist = async (url: string): Promise<void> => {
     });
 
     if (!resp.ok) {
-        throw new Error("Failed to add to watchlist");
+        const errorText = await resp.text();
+
+        throw new Error(errorText || "Failed to add to watchlist");
     }
 };
