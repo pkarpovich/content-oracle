@@ -92,3 +92,15 @@ export const openContent = async (url: string): Promise<void> => {
         throw new Error("Failed to open content");
     }
 };
+
+export const addToWatchlist = async (url: string): Promise<void> => {
+    const resp = await fetch(`${BaseURL}/api/watchlist/youtube`, {
+        body: JSON.stringify({ youtubeUrl: url }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+    });
+
+    if (!resp.ok) {
+        throw new Error("Failed to add to watchlist");
+    }
+};

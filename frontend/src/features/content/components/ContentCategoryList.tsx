@@ -2,12 +2,16 @@ import { useMemo } from "react";
 
 import { Category, categoryToHash } from "../../../api/content.ts";
 import { Typography } from "../../../components/Typography.tsx";
+import { usePopup } from "../../../hooks/usePopup.ts";
 import { useCreateActivity } from "../api/useCreateActivity.ts";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
+import { ActionButton } from "./ActionButton.tsx";
+import { AddToWatchlistPopup } from "./AddToWatchlistPopup.tsx";
 import style from "./ContentCategoryList.module.css";
 import { ContentList } from "./ContentList.tsx";
 import { EsportsPills } from "./EsportsPills.tsx";
+import { SendToTvPopupPopup } from "./SendToTvPopup.tsx";
 
 const CustomCategoryOrder = [
     Category.liveStreams,
@@ -18,6 +22,8 @@ const CustomCategoryOrder = [
 ];
 
 export const ContentCategoryList = () => {
+    const { close: closeWatchlistPopup, isOpen: isWatchlistPopupOpen, open: openWatchlistPopup } = usePopup();
+    const { close: closeSendToTvPopup, isOpen: isSendToTvPopupOpen, open: openSendToTvPopup } = usePopup();
     const { data, error } = useGetAllContent();
     const { mutate: openContent } = useOpenContent();
 
@@ -43,6 +49,9 @@ export const ContentCategoryList = () => {
 
     return (
         <>
+            <ActionButton onAddToWatchlist={openWatchlistPopup} onSendToTv={openSendToTvPopup} />
+            <AddToWatchlistPopup isOpen={isWatchlistPopupOpen} onClose={closeWatchlistPopup} />
+            <SendToTvPopupPopup isOpen={isSendToTvPopupOpen} onClose={closeSendToTvPopup} />
             {error ? <p>Error: {error.message}</p> : null}
             <div className={style.container}>
                 <EsportsPills matches={data.esportsMatches} />

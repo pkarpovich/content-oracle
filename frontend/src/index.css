@@ -1,5 +1,7 @@
 :root {
     --primary: oklch(84.71% 0.2 84.93);
+    --primary-dark: oklch(0.794 0.171 71.188);
+    --primary-disabled: oklch(84.71% 0.2 84.93 / 0.5);
     --bg-color: #000000cc;
     --card-bg-color: #2c2c2e;
     --card-bg-color-secondary: #2f2f31;

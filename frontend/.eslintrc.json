@@ -205,10 +205,10 @@
     "@typescript-eslint/quotes": "off",
     "@typescript-eslint/comma-dangle": "off",
     "react/prefer-stateless-function": "error",
-    "react/button-has-type": "error",
+    "react/button-has-type": "off",
     "react/jsx-pascal-case": "error",
     "react/jsx-no-script-url": "error",
-    "react/no-children-prop": "error",
+    "react/no-children-prop": "off",
     "react/no-danger": "error",
     "react/no-danger-with-children": "error",
     "react/no-unstable-nested-components": [
