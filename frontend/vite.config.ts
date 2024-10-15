@@ -27,7 +27,7 @@ export default defineConfig({
             workbox: {
                 cleanupOutdatedCaches: true,
                 navigateFallback: "/index.html",
-                navigateFallbackDenylist: [/^\/auth\//],
+                navigateFallbackDenylist: [/^\/auth\//, /^\/api\//],
             },
         }),
     ],

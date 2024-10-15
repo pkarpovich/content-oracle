@@ -20,6 +20,7 @@ type Client struct {
 	tokenSource        oauth2.TokenSource
 	oauthConfig        *oauth2.Config
 	cache              sync.Map
+	options            *ClientOptions
 }
 
 type ClientOptions struct {
@@ -80,6 +81,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 		youTubeRepository:  opt.YouTubeRepository,
 		tokenSource:        tokenSource,
 		oauthConfig:        config,
+		options:            opt,
 	}, nil
 }
 
@@ -329,6 +331,27 @@ func (c *Client) GetVideoDetails(service *youtube.Service, videoId string) (*you
 
 	c.storeInCache(cacheKey, response.Items[0])
 	return response.Items[0], nil
+}
+
+func (c *Client) GetAuthURL() (string, error) {
+	b, err := os.ReadFile(c.options.ConfigPath)
+	if err != nil {
+		log.Printf("[ERROR] Unable to read client secret file: %v", err)
+		return "", err
+	}
+
+	config, err := google.ConfigFromJSON(b, youtube.YoutubeReadonlyScope)
+	if err != nil {
+		log.Printf("[ERROR] Unable to parse client secret file to config: %v", err)
+		return "", err
+	}
+
+	return config.AuthCodeURL(
+		"state-token",
+		oauth2.AccessTypeOffline,
+		oauth2.SetAuthURLParam("prompt", "consent"),
+		oauth2.SetAuthURLParam("redirect_uri", c.options.RedirectURI),
+	), nil
 }
 
 func parseISO8601Duration(duration string) string {

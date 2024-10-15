@@ -1,8 +1,6 @@
 package http
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -18,17 +16,7 @@ func (c *Server) twitchAuthCallbackHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(struct {
-		Status string `json:"status"`
-	}{
-		Status: "ok",
-	})
-	if err != nil {
-		log.Printf("[ERROR] failed to encode auth response: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
 func (c *Server) youtubeAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,15 +31,5 @@ func (c *Server) youtubeAuthCallbackHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(struct {
-		Status string `json:"status"`
-	}{
-		Status: "ok",
-	})
-	if err != nil {
-		log.Printf("[ERROR] failed to encode auth response: %s", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }

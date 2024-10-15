@@ -101,6 +101,22 @@ func (c *Server) cleanSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (c *Server) authYoutubeClientHandler(w http.ResponseWriter, r *http.Request) {
+	url, err := c.YouTubeService.GetAuthURL()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+func (c *Server) authTwitchClientHandler(w http.ResponseWriter, r *http.Request) {
+	url := c.TwitchClient.GetAuthURL()
+
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
 func (c *Server) initChannelsHandler(w http.ResponseWriter, r *http.Request) {
 	service, err := c.YouTubeService.GetService(context.Background())
 	if err != nil {

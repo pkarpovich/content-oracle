@@ -109,6 +109,8 @@ func (c *Server) routes(router *http.ServeMux) *http.ServeMux {
 	router.HandleFunc("POST /api/settings", c.saveSettingsHandler)
 	router.HandleFunc("DELETE /api/settings", c.cleanSettingsHandler)
 	router.HandleFunc("POST /api/settings/subscriptions", c.initChannelsHandler)
+	router.HandleFunc("GET /api/settings/auth/youtube", c.authYoutubeClientHandler)
+	router.HandleFunc("GET /api/settings/auth/twitch", c.authTwitchClientHandler)
 
 	router.HandleFunc("GET /api/history", c.getHistoryHandler)
 

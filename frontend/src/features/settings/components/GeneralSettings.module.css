@@ -9,3 +9,8 @@
     padding: 25px;
     max-width: 1200px;
 }
+
+.buttonsContainer {
+    display: flex;
+    gap: 20px;
+}

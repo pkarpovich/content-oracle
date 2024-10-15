@@ -97,3 +97,10 @@ func (c *Client) SetAuthToken(code string) error {
 
 	return nil
 }
+
+func (c *Client) GetAuthURL() string {
+	return c.helix.GetAuthorizationURL(&helix.AuthorizationURLParams{
+		ResponseType: "code",
+		Scopes:       []string{"user:read:follows"},
+	})
+}
