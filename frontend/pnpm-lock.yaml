@@ -35,6 +35,9 @@ importers:
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
+      pulltorefreshjs:
+        specifier: ^0.1.22
+        version: 0.1.22
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -57,6 +60,9 @@ importers:
       '@tanstack/router-plugin':
         specifier: ^1.47.0
         version: 1.47.0(vite@5.4.0(terser@5.34.1))
+      '@types/pulltorefreshjs':
+        specifier: ^0.1.7
+        version: 0.1.7
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
@@ -1305,6 +1311,9 @@ packages:
 
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
+
+  '@types/pulltorefreshjs@0.1.7':
+    resolution: {integrity: sha512-Y0g/yfuycIvpvUmP97n5NE2+HDAOwfREGVERjhMWw2Y0ODh5wvbflcQ5gXPZ+ihgoq+BQZjA1DL8apw2wAsJXA==}
 
   '@types/react-dom@18.3.0':
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
@@ -2602,6 +2611,9 @@ packages:
 
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
+
+  pulltorefreshjs@0.1.22:
+    resolution: {integrity: sha512-haxNVEHnS4NCQA7NeG7TSV69z4uqy/N7nfPRuc4dPWe8H6ygUrMjdNeohE+6v0lVVX/ukSjbLYwPUGUYtFKfvQ==}
 
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
@@ -4459,6 +4471,8 @@ snapshots:
 
   '@types/prop-types@15.7.12': {}
 
+  '@types/pulltorefreshjs@0.1.7': {}
+
   '@types/react-dom@18.3.0':
     dependencies:
       '@types/react': 18.3.3
@@ -5925,6 +5939,8 @@ snapshots:
       loose-envify: 1.4.0
       object-assign: 4.1.1
       react-is: 16.13.1
+
+  pulltorefreshjs@0.1.22: {}
 
   punycode@2.3.1: {}
 
