@@ -13,14 +13,20 @@ export default defineConfig({
         VitePWA({
             registerType: "autoUpdate",
             manifest: {
+                display: "standalone",
                 name: "Content Oracle",
                 short_name: "Content Oracle",
-                theme_color: "#2c2c2e",
-                background_color: "#2c2c2e",
+                theme_color: "#ffbf00",
+                background_color: "#2d5a73",
                 icons: [
                     {
                         type: "image/icon",
                         src: "/favicon.ico",
+                    },
+                    {
+                        src: "/apple-touch-icon.png",
+                        sizes: "180x180",
+                        type: "image/png",
                     },
                 ],
             },
