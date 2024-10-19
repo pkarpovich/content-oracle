@@ -302,7 +302,8 @@
         "ignoreContent": "https",
         "tolerance": 4.2
       }
-    ]
+    ],
+    "import/no-unresolved": ["error", { "ignore": ["\\.svg\\?url"] }]
   },
   "overrides": [
     {

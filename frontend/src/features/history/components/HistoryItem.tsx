@@ -34,19 +34,19 @@ export const HistoryItem = ({
 }: HistoryItemProps) => {
     const Thumbnail = useMemo<ReactNode>(() => {
         const applicationIcons: Record<string, ReactNode> = {
-            [Applications.Infuse]: <PlexIcon />,
-            [Applications.Kinopub]: <KinopubIcon />,
-            [Applications.Netflix]: <NetflixIcon />,
-            [Applications.Podcasts]: <PodcastIcon />,
-            [Applications.Twitch]: <TwitchIcon />,
-            [Applications.Viaplay]: <ViaplayIcon />,
+            [Applications.infuse]: <PlexIcon />,
+            [Applications.kinopub]: <KinopubIcon />,
+            [Applications.netflix]: <NetflixIcon />,
+            [Applications.podcasts]: <PodcastIcon />,
+            [Applications.twitch]: <TwitchIcon />,
+            [Applications.viaplay]: <ViaplayIcon />,
         };
 
         if (thumbnail) {
             return <img alt="thumbnail" className={style.thumbnailImg} src={thumbnail} />;
         }
 
-        if (application === Applications.Youtube && !thumbnail) {
+        if (application === Applications.youtube && !thumbnail) {
             return <YoutubeIcon />;
         }
 

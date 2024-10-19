@@ -17,7 +17,7 @@ export const History = () => {
         data!.playback.forEach((playback) => {
             const playbackDate = formatDate(playback.startTime);
 
-            if (!groupedByDate[playbackDate]) {
+            if (!Array.isArray(groupedByDate[playbackDate])) {
                 groupedByDate[playbackDate] = [];
             }
 

@@ -15,21 +15,21 @@ export const useCreateActivity = (): UseMutationResult<Activity, Error, Activity
             const content = queryClient.getQueryData<Data>(["content"]);
 
             switch (activity.status) {
-                case ActivityStatus.completed: {
-                    content?.groupedContent.set(
-                        activity.category,
-                        content.groupedContent.get(activity.category)!.filter((item) => item.id !== activity.videoId),
-                    );
-
-                    break;
-                }
-
                 case ActivityStatus.blockChannel: {
                     content?.groupedContent.set(
                         activity.category,
                         content.groupedContent
                             .get(activity.category)!
                             .filter((item) => item.artist.id !== activity.channelId),
+                    );
+
+                    break;
+                }
+
+                case ActivityStatus.completed: {
+                    content?.groupedContent.set(
+                        activity.category,
+                        content.groupedContent.get(activity.category)!.filter((item) => item.id !== activity.videoId),
                     );
 
                     break;

@@ -1,13 +1,13 @@
 import { BaseURL } from "./base.ts";
 
 export enum Applications {
-    Infuse = "Infuse (com.firecore.infuse)",
-    Kinopub = "MicroIPTV (octavian.microiptv)",
-    Netflix = "Netflix (com.netflix.Netflix)",
-    Podcasts = "Overcast (com.apple.TVAirPlay)",
-    Twitch = "VLC (org.videolan.vlc-ios)",
-    Viaplay = "Viaplay (se.harbourfront.viasatondemand)",
-    Youtube = "YouTube (com.google.ios.youtube)",
+    infuse = "Infuse (com.firecore.infuse)",
+    kinopub = "MicroIPTV (octavian.microiptv)",
+    netflix = "Netflix (com.netflix.Netflix)",
+    podcasts = "Overcast (com.apple.TVAirPlay)",
+    twitch = "VLC (org.videolan.vlc-ios)",
+    viaplay = "Viaplay (se.harbourfront.viasatondemand)",
+    youtube = "YouTube (com.google.ios.youtube)",
 }
 
 export type HistoryItem = {
