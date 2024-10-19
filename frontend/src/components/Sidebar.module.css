@@ -45,8 +45,7 @@
         fill: var(--primary-text-color);
     }
 
-    & > div {
-        min-width: 30px;
+    & > svg {
         width: 30px;
     }
 

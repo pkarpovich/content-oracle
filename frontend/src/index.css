@@ -1,3 +1,5 @@
+@import 'node_modules/ress/dist/ress.min.css';
+
 :root {
     --primary: oklch(84.71% 0.2 84.93);
     --primary-dark: oklch(0.794 0.171 71.188);
