@@ -13,6 +13,7 @@ import (
 )
 
 const YoutubeApplicationName = "YouTube (com.google.ios.youtube)"
+const RemainingTimeThreshold = 300
 
 type YouTubeHistory struct {
 	blockedVideoRepository *database.BlockedVideoRepository
@@ -31,17 +32,26 @@ func NewYouTubeHistory(opt YouTubeHistoryOptions) *YouTubeHistory {
 	}
 }
 
-func (y *YouTubeHistory) GetAll() ([]Content, error) {
+func (y *YouTubeHistory) GetAll() ([]Content, []string, error) {
+	allHistoryIds := make([]string, 0)
 	history, err := y.zimaClient.GetContent(false, YoutubeApplicationName)
 	if err != nil {
 		log.Printf("[ERROR] failed to get youtube history: %s", err)
-		return nil, err
+		return nil, allHistoryIds, err
+	}
+
+	for _, item := range history {
+		if item.Metadata == nil {
+			continue
+		}
+
+		allHistoryIds = append(allHistoryIds, item.Metadata.VideoID)
 	}
 
 	blockedVideos, err := y.blockedVideoRepository.GetAll()
 	if err != nil {
 		log.Printf("[ERROR] failed to get video activity: %s", err)
-		return nil, err
+		return nil, allHistoryIds, err
 	}
 
 	var content []Content
@@ -78,10 +88,10 @@ func (y *YouTubeHistory) GetAll() ([]Content, error) {
 		}
 
 		var playbackPosition float64
-		var remaning int
+		var remaining int
 		if playbackInfo != nil {
 			playbackPosition = playbackInfo.Percentage
-			remaning = playbackInfo.TotalTime - playbackInfo.StartTime
+			remaining = playbackInfo.TotalTime - playbackInfo.StartTime
 		}
 
 		content = append(content, Content{
@@ -91,7 +101,7 @@ func (y *YouTubeHistory) GetAll() ([]Content, error) {
 			Thumbnail:   item.Metadata.PosterLink,
 			Url:         item.Metadata.ContentUrl,
 			IsLive:      false,
-			Remaining:   remaning,
+			Remaining:   remaining,
 			Position:    playbackPosition,
 			Category:    "YouTube History",
 			PublishedAt: lastPlaybackAt,
@@ -102,7 +112,11 @@ func (y *YouTubeHistory) GetAll() ([]Content, error) {
 		return content[i].PublishedAt > content[j].PublishedAt
 	})
 
-	return content, nil
+	content = lo.Filter(content, func(item Content, _ int) bool {
+		return item.Remaining > RemainingTimeThreshold
+	})
+
+	return content, allHistoryIds, nil
 }
 
 type PlaybackInfo struct {

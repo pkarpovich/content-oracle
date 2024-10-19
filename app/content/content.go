@@ -7,12 +7,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-pkgz/syncs"
-	"github.com/samber/lo"
 	"log"
 )
 
 const MaxSuggestions = 20
-const RemainingTimeThreshold = 300
 
 type Artist struct {
 	ID   string `json:"id"`
@@ -55,19 +53,11 @@ func NewMultiProvider(zimaClient *zima.Client, blockedVideoRepository *database.
 
 func (mp MultiProvider) GetAll() ([]Content, error) {
 	allContent := make([]Content, 0)
-	historyContent, err := mp.youtubeHistoryProvider.GetAll()
+	historyContent, ignoredVideoIDs, err := mp.youtubeHistoryProvider.GetAll()
 	if err != nil {
 		log.Printf("[ERROR] failed to get content from youtube history: %s", err)
 		return nil, err
 	}
-
-	ignoredVideoIDs := lo.Map(historyContent, func(item Content, _ int) string {
-		return item.ID
-	})
-
-	historyContent = lo.Filter(historyContent, func(item Content, _ int) bool {
-		return item.Remaining > RemainingTimeThreshold
-	})
 
 	allContent = append(allContent, historyContent...)
 	wg := syncs.NewSizedGroup(4)
