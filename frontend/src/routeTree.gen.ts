@@ -23,16 +23,19 @@ const IndexLazyImport = createFileRoute('/')()
 // Create/Update Routes
 
 const SettingsLazyRoute = SettingsLazyImport.update({
+  id: '/settings',
   path: '/settings',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/settings.lazy').then((d) => d.Route))
 
 const HistoryLazyRoute = HistoryLazyImport.update({
+  id: '/history',
   path: '/history',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/history.lazy').then((d) => d.Route))
 
 const IndexLazyRoute = IndexLazyImport.update({
+  id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
@@ -67,11 +70,49 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren({
-  IndexLazyRoute,
-  HistoryLazyRoute,
-  SettingsLazyRoute,
-})
+export interface FileRoutesByFullPath {
+  '/': typeof IndexLazyRoute
+  '/history': typeof HistoryLazyRoute
+  '/settings': typeof SettingsLazyRoute
+}
+
+export interface FileRoutesByTo {
+  '/': typeof IndexLazyRoute
+  '/history': typeof HistoryLazyRoute
+  '/settings': typeof SettingsLazyRoute
+}
+
+export interface FileRoutesById {
+  __root__: typeof rootRoute
+  '/': typeof IndexLazyRoute
+  '/history': typeof HistoryLazyRoute
+  '/settings': typeof SettingsLazyRoute
+}
+
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/history' | '/settings'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/history' | '/settings'
+  id: '__root__' | '/' | '/history' | '/settings'
+  fileRoutesById: FileRoutesById
+}
+
+export interface RootRouteChildren {
+  IndexLazyRoute: typeof IndexLazyRoute
+  HistoryLazyRoute: typeof HistoryLazyRoute
+  SettingsLazyRoute: typeof SettingsLazyRoute
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexLazyRoute: IndexLazyRoute,
+  HistoryLazyRoute: HistoryLazyRoute,
+  SettingsLazyRoute: SettingsLazyRoute,
+}
+
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* prettier-ignore-end */
 

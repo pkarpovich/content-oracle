@@ -1,4 +1,4 @@
-@import 'node_modules/ress/dist/ress.min.css';
+@import 'ress/ress.css';
 
 :root {
     --primary: oklch(84.71% 0.2 84.93);
