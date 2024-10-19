@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
+import PullToRefresh from "react-simple-pull-to-refresh";
 
 import { Routes } from "../constants/routes.ts";
 import MenuIcon from "../icons/menu.svg";
@@ -20,17 +21,23 @@ export const Header = ({ onMenuClick }: HeaderProps) => {
         });
     }, [navigate]);
 
+    const handleRefresh = useCallback(async () => {
+        window.location.reload();
+    }, []);
+
     return (
-        <div className={style.headerContainer}>
-            <button className={style.menu} onClick={onMenuClick} type="button">
-                <MenuIcon />
-            </button>
-            <button className={style.appName} onClick={handleRouteClick} type="button">
-                <Typography variant="h2">Content Oracle</Typography>
-            </button>
-            <div className={style.logo}>
-                <Logo />
+        <PullToRefresh onRefresh={handleRefresh}>
+            <div className={style.headerContainer}>
+                <button className={style.menu} onClick={onMenuClick} type="button">
+                    <MenuIcon />
+                </button>
+                <button className={style.appName} onClick={handleRouteClick} type="button">
+                    <Typography variant="h2">Content Oracle</Typography>
+                </button>
+                <div className={style.logo}>
+                    <Logo />
+                </div>
             </div>
-        </div>
+        </PullToRefresh>
     );
 };

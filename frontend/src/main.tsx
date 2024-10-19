@@ -2,22 +2,11 @@ import "./index.css";
 
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import PullToRefresh from "pulltorefreshjs";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { toast } from "react-toastify";
 
 import { routeTree } from "./routeTree.gen.ts";
-
-const standalone = window.matchMedia("(display-mode: standalone)").matches;
-
-if (standalone) {
-    PullToRefresh.init({
-        onRefresh: () => {
-            window.location.reload();
-        },
-    });
-}
 
 const router = createRouter({ routeTree });
 export const queryClient = new QueryClient({
