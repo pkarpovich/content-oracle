@@ -1,4 +1,4 @@
-package youtube
+package providers
 
 import (
 	"content-oracle/app/database"
@@ -14,16 +14,16 @@ import (
 	"time"
 )
 
-type Client struct {
+type Youtube struct {
 	settingsRepository *database.SettingsRepository
 	youTubeRepository  *database.YouTubeRepository
 	tokenSource        oauth2.TokenSource
 	oauthConfig        *oauth2.Config
 	cache              sync.Map
-	options            *ClientOptions
+	options            *YoutubeOptions
 }
 
-type ClientOptions struct {
+type YoutubeOptions struct {
 	ClientID           string
 	ClientSecret       string
 	RedirectURI        string
@@ -34,7 +34,7 @@ type ClientOptions struct {
 
 type Service = youtube.Service
 
-func NewClient(opt *ClientOptions) (*Client, error) {
+func NewYoutube(opt *YoutubeOptions) (*Youtube, error) {
 	b, err := os.ReadFile(opt.ConfigPath)
 	if err != nil {
 		log.Printf("[ERROR] Unable to read client secret file: %v", err)
@@ -76,7 +76,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 	}
 	tokenSource := config.TokenSource(context.Background(), token)
 
-	return &Client{
+	return &Youtube{
 		settingsRepository: opt.SettingsRepository,
 		youTubeRepository:  opt.YouTubeRepository,
 		tokenSource:        tokenSource,
@@ -85,7 +85,7 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) HandleAuthCode(code string) error {
+func (c *Youtube) HandleAuthCode(code string) error {
 	ctx := context.Background()
 	token, err := c.oauthConfig.Exchange(ctx, code)
 	if err != nil {
@@ -106,14 +106,14 @@ func (c *Client) HandleAuthCode(code string) error {
 	return nil
 }
 
-func (c *Client) CleanAuth() error {
+func (c *Youtube) CleanAuth() error {
 	return c.settingsRepository.SetYoutubeSettings(database.Settings{
 		YoutubeAccessToken:  "",
 		YoutubeRefreshToken: "",
 	})
 }
 
-func (c *Client) GetService(ctx context.Context) (*Service, error) {
+func (c *Youtube) GetService(ctx context.Context) (*Service, error) {
 	token, err := c.tokenSource.Token()
 	if err != nil {
 		log.Printf("[ERROR] Unable to retrieve token: %v", err)
@@ -144,7 +144,7 @@ func (c *Client) GetService(ctx context.Context) (*Service, error) {
 	return service, nil
 }
 
-func (c *Client) GetUserSubscriptions(service *youtube.Service) ([]*youtube.Subscription, error) {
+func (c *Youtube) GetUserSubscriptions(service *youtube.Service) ([]*youtube.Subscription, error) {
 	cacheKey := "youtube_subscriptions"
 
 	if items, ok := c.getFromCache(cacheKey); ok {
@@ -172,7 +172,7 @@ func (c *Client) GetUserSubscriptions(service *youtube.Service) ([]*youtube.Subs
 	return channels, nil
 }
 
-func (c *Client) GetChannelVideos(service *youtube.Service, channelId string, lastSyncAt *time.Time) ([]*youtube.Activity, error) {
+func (c *Youtube) GetChannelVideos(service *youtube.Service, channelId string, lastSyncAt *time.Time) ([]*youtube.Activity, error) {
 	cacheKey := "youtube_channel_videos_" + channelId
 
 	if lastSyncAt == nil {
@@ -216,7 +216,7 @@ func (c *Client) GetChannelVideos(service *youtube.Service, channelId string, la
 	return videos, nil
 }
 
-func (c *Client) GetChannelByVideoId(service *youtube.Service, videoId string) (*youtube.Channel, error) {
+func (c *Youtube) GetChannelByVideoId(service *youtube.Service, videoId string) (*youtube.Channel, error) {
 	cacheKey := "youtube_channel_ids_" + videoId
 
 	if item, ok := c.getFromCache(cacheKey); ok {
@@ -249,7 +249,7 @@ func (c *Client) GetChannelByVideoId(service *youtube.Service, videoId string) (
 	return channelResponse.Items[0], nil
 }
 
-func (c *Client) GetChannelByName(service *youtube.Service, name string) (*youtube.SearchResultSnippet, error) {
+func (c *Youtube) GetChannelByName(service *youtube.Service, name string) (*youtube.SearchResultSnippet, error) {
 	cacheKey := "youtube_channel_" + name
 
 	if item, ok := c.getFromCache(cacheKey); ok {
@@ -271,7 +271,7 @@ func (c *Client) GetChannelByName(service *youtube.Service, name string) (*youtu
 	return response.Items[0].Snippet, nil
 }
 
-func (c *Client) IsShortVideo(service *youtube.Service, video *youtube.Activity) (bool, error) {
+func (c *Youtube) IsShortVideo(service *youtube.Service, video *youtube.Activity) (bool, error) {
 	call := service.Videos.List([]string{"contentDetails"}).Id(video.ContentDetails.Upload.VideoId)
 
 	response, err := call.Do()
@@ -296,7 +296,7 @@ func (c *Client) IsShortVideo(service *youtube.Service, video *youtube.Activity)
 	return true, nil
 }
 
-func (c *Client) IsUserSubscribed(service *youtube.Service, channelId string) (bool, error) {
+func (c *Youtube) IsUserSubscribed(service *youtube.Service, channelId string) (bool, error) {
 	subscriptions, err := c.GetUserSubscriptions(service)
 	if err != nil {
 		return false, err
@@ -311,7 +311,7 @@ func (c *Client) IsUserSubscribed(service *youtube.Service, channelId string) (b
 	return false, nil
 }
 
-func (c *Client) GetVideoDetails(service *youtube.Service, videoId string) (*youtube.Video, error) {
+func (c *Youtube) GetVideoDetails(service *youtube.Service, videoId string) (*youtube.Video, error) {
 	cacheKey := "youtube_video_" + videoId
 
 	if item, ok := c.getFromCache(cacheKey); ok {
@@ -333,7 +333,7 @@ func (c *Client) GetVideoDetails(service *youtube.Service, videoId string) (*you
 	return response.Items[0], nil
 }
 
-func (c *Client) GetAuthURL() (string, error) {
+func (c *Youtube) GetAuthURL() (string, error) {
 	b, err := os.ReadFile(c.options.ConfigPath)
 	if err != nil {
 		log.Printf("[ERROR] Unable to read client secret file: %v", err)
@@ -389,7 +389,7 @@ type CacheItem struct {
 	Expiration time.Time
 }
 
-func (c *Client) getFromCache(key string) (interface{}, bool) {
+func (c *Youtube) getFromCache(key string) (interface{}, bool) {
 	item, ok := c.cache.Load(key)
 	if !ok {
 		return nil, false
@@ -404,7 +404,7 @@ func (c *Client) getFromCache(key string) (interface{}, bool) {
 	return cacheItem.Items, true
 }
 
-func (c *Client) storeInCache(key string, value interface{}) {
+func (c *Youtube) storeInCache(key string, value interface{}) {
 	c.cache.Store(key, CacheItem{
 		Items:      value,
 		Expiration: time.Now().Add(1 * time.Hour),

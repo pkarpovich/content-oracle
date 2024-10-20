@@ -2,8 +2,7 @@ package content
 
 import (
 	"content-oracle/app/database"
-	"content-oracle/app/providers/esport"
-	"content-oracle/app/providers/zima"
+	"content-oracle/app/providers"
 	"context"
 	"fmt"
 	"github.com/go-pkgz/syncs"
@@ -39,7 +38,7 @@ type MultiProvider struct {
 	providers              []Provider
 }
 
-func NewMultiProvider(zimaClient *zima.Client, blockedVideoRepository *database.BlockedVideoRepository, providers ...Provider) MultiProvider {
+func NewMultiProvider(zimaClient *providers.Zima, blockedVideoRepository *database.BlockedVideoRepository, providers ...Provider) MultiProvider {
 	youtubeHistoryProvider := NewYouTubeHistory(YouTubeHistoryOptions{
 		BlockedVideoRepository: blockedVideoRepository,
 		ZimaClient:             zimaClient,
@@ -80,15 +79,15 @@ func (mp MultiProvider) GetAll() ([]Content, error) {
 }
 
 type ESportProvider interface {
-	GetAll() ([]esport.Match, error)
+	GetAll() ([]providers.ESportMatch, error)
 }
 
 type MultiESportProvider []ESportProvider
 
-func (mp MultiESportProvider) GetAll() ([]esport.Match, error) {
+func (mp MultiESportProvider) GetAll() ([]providers.ESportMatch, error) {
 	wg := syncs.NewSizedGroup(4)
 
-	var allMatches []esport.Match
+	var allMatches []providers.ESportMatch
 
 	for _, provider := range mp {
 		wg.Go(func(ctx context.Context) {

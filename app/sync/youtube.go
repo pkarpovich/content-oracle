@@ -2,8 +2,7 @@ package sync
 
 import (
 	"content-oracle/app/database"
-	"content-oracle/app/providers/youtube"
-	"content-oracle/app/providers/zima"
+	"content-oracle/app/providers"
 	"context"
 	"fmt"
 	"log"
@@ -16,14 +15,14 @@ const YoutubeApplicationName = "YouTube (com.google.ios.youtube)"
 
 type YouTubeProvider struct {
 	youtubeRepository *database.YouTubeRepository
-	youtubeClient     *youtube.Client
-	zimaClient        *zima.Client
+	youtubeClient     *providers.Youtube
+	zimaClient        *providers.Zima
 }
 
 type YouTubeProviderOptions struct {
 	YoutubeRepository *database.YouTubeRepository
-	YoutubeClient     *youtube.Client
-	ZimaClient        *zima.Client
+	YoutubeClient     *providers.Youtube
+	ZimaClient        *providers.Zima
 }
 
 func NewYouTubeProvider(options YouTubeProviderOptions) *YouTubeProvider {
@@ -113,7 +112,7 @@ func (c *YouTubeProvider) Do(ctx context.Context) error {
 	return nil
 }
 
-func (c *YouTubeProvider) prepareChannelsList(ctx context.Context, youtubeService *youtube.Service) ([]string, error) {
+func (c *YouTubeProvider) prepareChannelsList(ctx context.Context, youtubeService *providers.Service) ([]string, error) {
 	allChannels := make([]string, 0)
 
 	rankingChannels, err := c.processRankingChannels()
@@ -152,7 +151,7 @@ func (c *YouTubeProvider) processRankingChannels() ([]string, error) {
 	return rankingChannels, nil
 }
 
-func (c *YouTubeProvider) processHistoryContent(ctx context.Context, youtubeService *youtube.Service) ([]string, error) {
+func (c *YouTubeProvider) processHistoryContent(ctx context.Context, youtubeService *providers.Service) ([]string, error) {
 	historyChannels := make([]string, 0)
 
 	historyContent, err := c.zimaClient.GetContent(false, YoutubeApplicationName)

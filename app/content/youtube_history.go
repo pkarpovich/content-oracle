@@ -2,7 +2,7 @@ package content
 
 import (
 	"content-oracle/app/database"
-	"content-oracle/app/providers/zima"
+	"content-oracle/app/providers"
 	"fmt"
 	"github.com/samber/lo"
 	"log"
@@ -17,12 +17,12 @@ const RemainingTimeThreshold = 300
 
 type YouTubeHistory struct {
 	blockedVideoRepository *database.BlockedVideoRepository
-	zimaClient             *zima.Client
+	zimaClient             *providers.Zima
 }
 
 type YouTubeHistoryOptions struct {
 	BlockedVideoRepository *database.BlockedVideoRepository
-	ZimaClient             *zima.Client
+	ZimaClient             *providers.Zima
 }
 
 func NewYouTubeHistory(opt YouTubeHistoryOptions) *YouTubeHistory {

@@ -3,9 +3,7 @@ package http
 import (
 	"content-oracle/app/content"
 	"content-oracle/app/database"
-	"content-oracle/app/providers/twitch"
-	"content-oracle/app/providers/youtube"
-	"content-oracle/app/providers/zima"
+	"content-oracle/app/providers"
 	"content-oracle/app/user"
 	"context"
 	"encoding/json"
@@ -20,9 +18,9 @@ import (
 )
 
 type Server struct {
-	TwitchClient         *twitch.Client
-	ZimaClient           *zima.Client
-	YouTubeService       *youtube.Client
+	TwitchClient         *providers.Twitch
+	ZimaClient           *providers.Zima
+	YouTubeService       *providers.Youtube
 	YouTubeRepository    *database.YouTubeRepository
 	UserActivity         *user.Activity
 	UserHistory          *user.History
@@ -34,9 +32,9 @@ type Server struct {
 }
 
 type ClientOptions struct {
-	TwitchClient         *twitch.Client
-	YouTubeService       *youtube.Client
-	ZimaClient           *zima.Client
+	TwitchClient         *providers.Twitch
+	YouTubeService       *providers.Youtube
+	ZimaClient           *providers.Zima
 	YouTubeRepository    *database.YouTubeRepository
 	UserActivity         *user.Activity
 	UserHistory          *user.History

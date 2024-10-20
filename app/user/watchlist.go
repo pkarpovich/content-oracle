@@ -2,7 +2,7 @@ package user
 
 import (
 	"content-oracle/app/database"
-	"content-oracle/app/providers/youtube"
+	"content-oracle/app/providers"
 	"context"
 	"fmt"
 	"log"
@@ -12,13 +12,13 @@ import (
 type Watchlist struct {
 	youtubeWatchlistRepository *database.YouTubeWatchlistRepository
 	youtubeRepository          *database.YouTubeRepository
-	youtubeClient              *youtube.Client
+	youtubeClient              *providers.Youtube
 }
 
 type WatchlistOptions struct {
 	YouTubeWatchlistRepository *database.YouTubeWatchlistRepository
 	YouTubeRepository          *database.YouTubeRepository
-	YouTubeClient              *youtube.Client
+	YouTubeClient              *providers.Youtube
 }
 
 func NewWatchlist(opt WatchlistOptions) *Watchlist {

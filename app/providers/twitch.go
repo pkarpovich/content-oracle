@@ -1,4 +1,4 @@
-package twitch
+package providers
 
 import (
 	"content-oracle/app/database"
@@ -6,13 +6,13 @@ import (
 	"log"
 )
 
-type Client struct {
+type Twitch struct {
 	settingsRepository *database.SettingsRepository
 	helix              *helix.Client
 	userId             string
 }
 
-type ClientOptions struct {
+type TwitchOptions struct {
 	RedirectURI        string
 	ClientSecret       string
 	ClientID           string
@@ -20,7 +20,7 @@ type ClientOptions struct {
 	SettingsRepository *database.SettingsRepository
 }
 
-func NewClient(opt *ClientOptions) (*Client, error) {
+func NewTwitch(opt *TwitchOptions) (*Twitch, error) {
 	client, err := helix.NewClient(&helix.Options{
 		RedirectURI:  opt.RedirectURI,
 		ClientID:     opt.ClientID,
@@ -60,14 +60,14 @@ func NewClient(opt *ClientOptions) (*Client, error) {
 		log.Printf("Authorization URL: %s", url)
 	}
 
-	return &Client{
+	return &Twitch{
 		settingsRepository: opt.SettingsRepository,
 		userId:             opt.UserId,
 		helix:              client,
 	}, nil
 }
 
-func (c *Client) GetLiveStreams() (*helix.StreamsResponse, error) {
+func (c *Twitch) GetLiveStreams() (*helix.StreamsResponse, error) {
 	resp, err := c.helix.GetFollowedStream(&helix.FollowedStreamsParams{
 		UserID: c.userId,
 	})
@@ -78,7 +78,7 @@ func (c *Client) GetLiveStreams() (*helix.StreamsResponse, error) {
 	return resp, nil
 }
 
-func (c *Client) SetAuthToken(code string) error {
+func (c *Twitch) SetAuthToken(code string) error {
 	resp, err := c.helix.RequestUserAccessToken(code)
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (c *Client) SetAuthToken(code string) error {
 	return nil
 }
 
-func (c *Client) GetAuthURL() string {
+func (c *Twitch) GetAuthURL() string {
 	return c.helix.GetAuthorizationURL(&helix.AuthorizationURLParams{
 		ResponseType: "code",
 		Scopes:       []string{"user:read:follows"},

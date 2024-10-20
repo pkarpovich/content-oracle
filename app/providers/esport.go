@@ -1,4 +1,4 @@
-package esport
+package providers
 
 import (
 	"bytes"
@@ -9,60 +9,60 @@ import (
 	"time"
 )
 
-type Client struct {
+type ESport struct {
 	BaseURL string
 	ApiKey  string
 	TeamIds []string
 }
 
-type ClientOptions struct {
+type ESportOptions struct {
 	BaseURL string
 	ApiKey  string
 	TeamIds []string
 }
 
-func NewClient(opt *ClientOptions) *Client {
-	return &Client{
+func NewEsport(opt *ESportOptions) *ESport {
+	return &ESport{
 		BaseURL: opt.BaseURL,
 		ApiKey:  opt.ApiKey,
 		TeamIds: opt.TeamIds,
 	}
 }
 
-type Team struct {
+type ESportTeam struct {
 	Id      int    `json:"id"`
 	Acronym string `json:"acronym"`
 	Name    string `json:"name"`
 	Logo    string `json:"logo"`
 }
 
-type Match struct {
-	Id         string    `json:"id"`
-	Tournament string    `json:"tournament"`
-	Team1      Team      `json:"team1"`
-	Team2      Team      `json:"team2"`
-	Score      string    `json:"score"`
-	Time       time.Time `json:"time"`
-	BestOf     int       `json:"bestOf"`
-	Location   string    `json:"location"`
-	URL        string    `json:"url"`
-	IsLive     bool      `json:"isLive"`
-	GameType   string    `json:"gameType"`
-	ModifiedAt time.Time `json:"modifiedAt"`
+type ESportMatch struct {
+	Id         string     `json:"id"`
+	Tournament string     `json:"tournament"`
+	Team1      ESportTeam `json:"team1"`
+	Team2      ESportTeam `json:"team2"`
+	Score      string     `json:"score"`
+	Time       time.Time  `json:"time"`
+	BestOf     int        `json:"bestOf"`
+	Location   string     `json:"location"`
+	URL        string     `json:"url"`
+	IsLive     bool       `json:"isLive"`
+	GameType   string     `json:"gameType"`
+	ModifiedAt time.Time  `json:"modifiedAt"`
 }
 
-type GetMatchesRequest struct {
+type getMatchesRequest struct {
 	Ids   []string  `json:"ids"`
 	After time.Time `json:"after"`
 }
 
-type GetMatchesResponse struct {
-	Data []Match `json:"data"`
+type getMatchesResponse struct {
+	Data []ESportMatch `json:"data"`
 }
 
-func (c *Client) GetMatches() ([]Match, error) {
+func (c *ESport) GetMatches() ([]ESportMatch, error) {
 	after := time.Now().Add(-time.Hour * 24 * 15)
-	bodyBytes, err := json.Marshal(GetMatchesRequest{Ids: c.TeamIds, After: after})
+	bodyBytes, err := json.Marshal(getMatchesRequest{Ids: c.TeamIds, After: after})
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (c *Client) GetMatches() ([]Match, error) {
 		}
 	}()
 
-	var response GetMatchesResponse
+	var response getMatchesResponse
 	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (c *Client) GetMatches() ([]Match, error) {
 	return response.Data, nil
 }
 
-func sortMatches(matches []Match) {
+func sortMatches(matches []ESportMatch) {
 	today := time.Now().Truncate(24 * time.Hour)
 
 	sort.Slice(matches, func(i, j int) bool {

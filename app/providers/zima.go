@@ -1,4 +1,4 @@
-package zima
+package providers
 
 import (
 	"bytes"
@@ -7,32 +7,32 @@ import (
 	"net/http"
 )
 
-type Client struct {
+type Zima struct {
 	url string
 }
 
-func NewClient(url string) *Client {
-	return &Client{url: url}
+func NewZima(url string) *Zima {
+	return &Zima{url: url}
 }
 
-type GetContentActionArgs struct {
+type getContentActionArgs struct {
 	ApplicationName string `json:"applicationName"`
 	IncludePlayback bool   `json:"includePlayback"`
 }
 
-type GetContentActionPayload struct {
+type getContentActionPayload struct {
 	Name string               `json:"name"`
-	Args GetContentActionArgs `json:"args"`
+	Args getContentActionArgs `json:"args"`
 }
 
-type Playback struct {
+type ZimaPlayback struct {
 	ID        string `json:"id"`
 	ContentID string `json:"contentId"`
 	Position  string `json:"position"`
 	UpdatedAt string `json:"updatedAt"`
 }
 
-type Metadata struct {
+type ZimaMetadata struct {
 	ID         string `json:"id"`
 	ContentID  string `json:"contentId"`
 	ContentUrl string `json:"contentUrl"`
@@ -40,33 +40,33 @@ type Metadata struct {
 	VideoID    string `json:"videoId"`
 }
 
-type Content struct {
-	ID          string     `json:"id"`
-	Title       string     `json:"title"`
-	Artist      string     `json:"artist"`
-	Album       string     `json:"album"`
-	Application string     `json:"application"`
-	MediaType   string     `json:"mediaType"`
-	CreatedAt   string     `json:"createdAt"`
-	Playback    []Playback `json:"playback"`
-	Metadata    *Metadata  `json:"metadata"`
+type ZimaContent struct {
+	ID          string         `json:"id"`
+	Title       string         `json:"title"`
+	Artist      string         `json:"artist"`
+	Album       string         `json:"album"`
+	Application string         `json:"application"`
+	MediaType   string         `json:"mediaType"`
+	CreatedAt   string         `json:"createdAt"`
+	Playback    []ZimaPlayback `json:"playback"`
+	Metadata    *ZimaMetadata  `json:"metadata"`
 }
 
-type InvokeActionResponse struct {
-	Message  string    `json:"message"`
-	Response []Content `json:"response"`
+type invokeActionResponse struct {
+	Message  string        `json:"message"`
+	Response []ZimaContent `json:"response"`
 }
 
-func (c *Client) GetContent(includePlayback bool, applicationName string) ([]Content, error) {
-	reqPayload := GetContentActionPayload{
+func (c *Zima) GetContent(includePlayback bool, applicationName string) ([]ZimaContent, error) {
+	reqPayload := getContentActionPayload{
 		Name: "content-collector-history",
-		Args: GetContentActionArgs{
+		Args: getContentActionArgs{
 			IncludePlayback: includePlayback,
 			ApplicationName: applicationName,
 		},
 	}
 
-	resp, err := InvokeAction[InvokeActionResponse, GetContentActionPayload](c.url, reqPayload)
+	resp, err := InvokeAction[invokeActionResponse, getContentActionPayload](c.url, reqPayload)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ type OpenUrlActionPayload struct {
 	} `json:"args"`
 }
 
-func (c *Client) OpenUrl(url string) error {
+func (c *Zima) OpenUrl(url string) error {
 	reqPayload := OpenUrlActionPayload{
 		Name: "streams-start",
 		Args: struct {

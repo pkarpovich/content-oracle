@@ -2,15 +2,15 @@ package http
 
 import (
 	"content-oracle/app/content"
-	"content-oracle/app/providers/esport"
+	"content-oracle/app/providers"
 	"encoding/json"
 	"log"
 	"net/http"
 )
 
 type GetAllContentResponse struct {
-	ContentList    []content.Content `json:"contentList"`
-	EsportsMatches []esport.Match    `json:"esportsMatches"`
+	ContentList    []content.Content       `json:"contentList"`
+	EsportsMatches []providers.ESportMatch `json:"esportsMatches"`
 }
 
 func (c *Server) getAllContentHandler(w http.ResponseWriter, r *http.Request) {

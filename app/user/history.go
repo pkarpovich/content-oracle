@@ -1,7 +1,7 @@
 package user
 
 import (
-	"content-oracle/app/providers/zima"
+	"content-oracle/app/providers"
 	"fmt"
 	"log"
 	"sort"
@@ -9,11 +9,11 @@ import (
 )
 
 type History struct {
-	zimaClient *zima.Client
+	zimaClient *providers.Zima
 	baseURL    string
 }
 
-func NewHistory(zimaClient *zima.Client, baseURL string) *History {
+func NewHistory(zimaClient *providers.Zima, baseURL string) *History {
 	return &History{
 		zimaClient: zimaClient,
 		baseURL:    baseURL,
@@ -54,7 +54,7 @@ func (p *History) GetAll() (*FullHistory, error) {
 		return nil, err
 	}
 
-	allPlayback := make([]zima.Playback, 0)
+	allPlayback := make([]providers.ZimaPlayback, 0)
 
 	for _, item := range fullHistory {
 		for _, playback := range item.Playback {

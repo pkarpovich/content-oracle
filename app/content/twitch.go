@@ -1,17 +1,17 @@
 package content
 
 import (
-	"content-oracle/app/providers/twitch"
+	"content-oracle/app/providers"
 	"fmt"
 	"strings"
 )
 
 type Twitch struct {
-	client *twitch.Client
+	client *providers.Twitch
 }
 
 type TwitchOptions struct {
-	TwitchClient *twitch.Client
+	TwitchClient *providers.Twitch
 }
 
 func NewTwitch(opt TwitchOptions) *Twitch {

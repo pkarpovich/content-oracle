@@ -1,21 +1,21 @@
 package content
 
 import (
-	"content-oracle/app/providers/esport"
+	"content-oracle/app/providers"
 	"log"
 )
 
 type ESportEvents struct {
-	client *esport.Client
+	client *providers.ESport
 }
 
-func NewESportEvents(client *esport.Client) *ESportEvents {
+func NewESportEvents(client *providers.ESport) *ESportEvents {
 	return &ESportEvents{
 		client,
 	}
 }
 
-func (c *ESportEvents) GetAll() ([]esport.Match, error) {
+func (c *ESportEvents) GetAll() ([]providers.ESportMatch, error) {
 	matches, err := c.client.GetMatches()
 	if err != nil {
 		log.Printf("[ERROR] failed to get esport matches: %s", err)

@@ -5,10 +5,7 @@ import (
 	"content-oracle/app/content"
 	"content-oracle/app/database"
 	"content-oracle/app/http"
-	"content-oracle/app/providers/esport"
-	"content-oracle/app/providers/twitch"
-	"content-oracle/app/providers/youtube"
-	"content-oracle/app/providers/zima"
+	"content-oracle/app/providers"
 	"content-oracle/app/scheduler"
 	"content-oracle/app/sync"
 	"content-oracle/app/user"
@@ -75,7 +72,7 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
-	twitchClient, err := twitch.NewClient(&twitch.ClientOptions{
+	twitchClient, err := providers.NewTwitch(&providers.TwitchOptions{
 		SettingsRepository: settingsRepository,
 		RedirectURI:        cfg.Twitch.RedirectURI,
 		ClientID:           cfg.Twitch.ClientID,
@@ -87,7 +84,7 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
-	youtubeClient, err := youtube.NewClient(&youtube.ClientOptions{
+	youtubeClient, err := providers.NewYoutube(&providers.YoutubeOptions{
 		ClientID:           cfg.Youtube.ClientID,
 		ClientSecret:       cfg.Youtube.ClientSecret,
 		RedirectURI:        cfg.Youtube.RedirectURI,
@@ -100,7 +97,7 @@ func run(cfg *config.Config) error {
 		return err
 	}
 
-	zimaClient := zima.NewClient(cfg.Zima.Url)
+	zimaClient := providers.NewZima(cfg.Zima.Url)
 
 	syncYoutubeProvider := sync.NewYouTubeProvider(sync.YouTubeProviderOptions{
 		YoutubeRepository: youTubeRepository,
@@ -131,7 +128,7 @@ func run(cfg *config.Config) error {
 		youtubeUnsubscribeChannelsContentProvider,
 	)
 
-	esportClient := esport.NewClient(&esport.ClientOptions{
+	esportClient := providers.NewEsport(&providers.ESportOptions{
 		ApiKey:  cfg.Esport.ApiKey,
 		BaseURL: cfg.Esport.BaseUrl,
 		TeamIds: cfg.Esport.Teams,
