@@ -123,11 +123,15 @@ func (c *Server) routes(router *http.ServeMux) *http.ServeMux {
 
 type HealthResponse struct {
 	Message string `json:"message"`
+	YouTube bool   `json:"youtube"`
 }
 
 func (c *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
+	isYoutubeHealthy, _ := c.YouTubeService.ValidateToken()
+
 	err := json.NewEncoder(w).Encode(HealthResponse{
 		Message: "OK",
+		YouTube: isYoutubeHealthy,
 	})
 	if err != nil {
 		log.Printf("[ERROR] failed to encode health response: %s", err)

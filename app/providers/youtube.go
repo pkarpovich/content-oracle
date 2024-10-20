@@ -144,6 +144,15 @@ func (c *Youtube) GetService(ctx context.Context) (*Service, error) {
 	return service, nil
 }
 
+func (c *Youtube) ValidateToken() (bool, error) {
+	service, err := c.GetService(context.Background())
+	if err != nil {
+		return false, err
+	}
+
+	return service != nil, nil
+}
+
 func (c *Youtube) GetUserSubscriptions(service *youtube.Service) ([]*youtube.Subscription, error) {
 	cacheKey := "youtube_subscriptions"
 
