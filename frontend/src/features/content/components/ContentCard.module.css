@@ -11,20 +11,32 @@
     flex-direction: column;
     align-items: center;
     border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
 
-    &:hover, &:focus-within {
+    &:hover, &:focus {
         transform: translateY(-4px) scale(1.02);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
                     0 8px 16px rgba(0, 0, 0, 0.3),
                     0 0 0 1px rgba(255, 255, 255, 0.15),
                     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 
-        .actionsRow {
-            display: flex;
-        }
-
         .image {
             transform: scale(1.05);
+        }
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+        /* Touch devices: simpler interactions */
+        &:hover {
+            transform: translateY(-2px);
+        }
+        
+        &:active {
+            transform: scale(0.96);
         }
     }
 }
@@ -73,16 +85,29 @@
     opacity: 0.9;
 }
 
-.actionsRow {
-    display: none;
-    box-sizing: border-box;
-    justify-content: flex-end;
-    align-items: center;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    padding: 12px;
-    gap: 8px;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
-    border-radius: 16px 16px 0 0;
+.bottomSheetHeader {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+.bottomSheetTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.bottomSheetArtist {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--primary);
+    opacity: 0.9;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+}
+
