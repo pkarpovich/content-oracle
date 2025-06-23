@@ -1,22 +1,39 @@
 .container {
-    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
 }
 
 .progressBar {
     width: 100%;
-    height: 5px;
-    background-color: var(--bg-color);
-    box-shadow: 3px 6px 6px hsl(0deg 0% 0% / 0.4);
+    height: 4px;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
 }
 
 .progressBarFill {
-    height: 5px;
-    background-color: var(--primary-text-color);
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), oklch(from var(--primary) calc(l * 1.2) c h));
     width: 0;
     transition: width 0.4s ease-in-out;
+    box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5);
 }
 
 .progressBarFillLive {
-    border-bottom: 3px dotted var(--primary-text-color);
-    height: 0;
+    background: linear-gradient(90deg, #ff4444, #ff6666);
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+    height: 4px;
+    animation: liveProgress 1.5s ease-in-out infinite;
+}
+
+@keyframes liveProgress {
+    0%, 100% { 
+        opacity: 0.8; 
+    }
+    50% { 
+        opacity: 1;
+        box-shadow: 0 0 12px rgba(255, 68, 68, 0.8);
+    }
 }

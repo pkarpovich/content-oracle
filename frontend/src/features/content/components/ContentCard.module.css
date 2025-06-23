@@ -9,9 +9,10 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
-    align-items: center;
     border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
+    backdrop-filter: blur(10px);
+    height: 200px; /* Fixed height to match image */
 
     &:hover, &:focus {
         transform: translateY(-4px) scale(1.02);
@@ -22,6 +23,13 @@
 
         .image {
             transform: scale(1.05);
+        }
+
+        .content {
+            background: linear-gradient(145deg, 
+                rgba(0, 0, 0, 0.9),
+                rgba(0, 0, 0, 0.8)
+            );
         }
     }
 
@@ -39,50 +47,142 @@
             transform: scale(0.96);
         }
     }
+
+    @media (max-width: 600px) {
+        height: 160px; /* Smaller height on mobile to match image */
+    }
+}
+
+.imageContainer {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    /* No overlay needed - glassmorphism container provides backdrop */
+
+    @media (max-width: 600px) {
+        height: 160px;
+    }
 }
 
 .image {
     width: 100%;
-    height: 160px;
+    height: 100%;
     object-fit: cover;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-    @media (max-width: 600px) {
-        height: 120px;
-    }
+.overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    z-index: 2;
 }
 
 .content {
-    padding: 16px;
-    width: 100%;
-    box-sizing: border-box;
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 14px 16px 10px 16px;
+    z-index: 2;
+    min-height: 85px; /* Increased height for 3-line titles */
+    max-height: 85px; /* Prevent overflow */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    
+    /* Glassmorphism effect */
+    background: linear-gradient(145deg, 
+        rgba(0, 0, 0, 0.85),
+        rgba(0, 0, 0, 0.75)
+    );
+    backdrop-filter: blur(12px);
+    border: 1px none rgba(255, 255, 255, 0.1);
+    border-top-style: solid;
+
+    @media (max-width: 600px) {
+        min-height: 75px;
+        max-height: 75px;
+        padding: 12px 14px 8px 14px;
+        backdrop-filter: blur(10px);
+    }
 }
 
 .title {
     font-size: 0.9rem;
-    font-weight: 600;
+    font-weight: 700;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3; /* Increased to 3 lines */
     overflow: hidden;
-    color: rgba(255, 255, 255, 0.95);
-    height: 44px;
-    line-height: 1.4;
-    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.98);
+    line-height: 1.3;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    height: 54px; /* Increased height for 3 lines */
+
+    @media (max-width: 600px) {
+        font-size: 0.82rem;
+        height: 48px;
+        margin-bottom: 6px;
+    }
+}
+
+.metadata {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    height: 18px; /* Reduced height for smaller channel name */
 }
 
 .artist {
-    font-size: 0.8rem;
-    font-weight: 500;
+    font-size: 0.72rem; /* Reduced size */
+    font-weight: 500; /* Reduced weight */
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
-    height: 20px;
     overflow: hidden;
     color: var(--primary);
-    opacity: 0.9;
+    opacity: 0.85; /* Slightly more subtle */
+    letter-spacing: 0.01em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    flex: 1;
+    min-width: 0;
+}
+
+.liveIndicator {
+    background: linear-gradient(135deg, #ff4444, #cc2222);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.8; 
+        transform: scale(0.98);
+    }
 }
 
 .bottomSheetHeader {

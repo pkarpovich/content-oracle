@@ -85,15 +85,22 @@ export const ContentCard = ({
     return (
         <>
             <div className={styles.card} onClick={handleCardClick}>
-                <img alt={title} className={styles.image} src={imageUrl} />
-                <ProgressBar isLive={isLive} progress={position} />
-                <div className={styles.content}>
-                    <Typography className={styles.title} title={title} variant="text">
-                        {title}
-                    </Typography>
-                    <Typography className={styles.artist} title={artist.name} variant="text">
-                        {artist.name}
-                    </Typography>
+                <div className={styles.imageContainer}>
+                    <img alt={title} className={styles.image} src={imageUrl} />
+                    <ProgressBar isLive={isLive} progress={position} />
+                    <div className={styles.overlay}>
+                        {isLive && <span className={styles.liveIndicator}>LIVE</span>}
+                    </div>
+                    <div className={styles.content}>
+                        <Typography className={styles.title} title={title} variant="text">
+                            {title}
+                        </Typography>
+                        <div className={styles.metadata}>
+                            <Typography className={styles.artist} title={artist.name} variant="text">
+                                {artist.name}
+                            </Typography>
+                        </div>
+                    </div>
                 </div>
             </div>
 
