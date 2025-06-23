@@ -10,7 +10,6 @@ import { ActionButton } from "./ActionButton.tsx";
 import { AddToWatchlistPopup } from "./AddToWatchlistPopup.tsx";
 import style from "./ContentCategoryList.module.css";
 import { ContentList } from "./ContentList.tsx";
-import { EsportsPills } from "./EsportsPills.tsx";
 import { SendToTvPopupPopup } from "./SendToTvPopup.tsx";
 
 const CustomCategoryOrder = [
@@ -54,7 +53,6 @@ export const ContentCategoryList = () => {
             <SendToTvPopupPopup isOpen={isSendToTvPopupOpen} onClose={closeSendToTvPopup} />
             {error ? <p>Error: {error.message}</p> : null}
             <div className={style.container}>
-                <EsportsPills matches={data.esportsMatches} />
                 {sortedEntries.map(([category, content]) => (
                     <div className={style.itemContainer} id={categoryToHash(category)} key={category}>
                         <Typography className={style.categoryTitle} variant="h2">

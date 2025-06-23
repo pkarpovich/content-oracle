@@ -27,36 +27,7 @@ export enum Category {
 
 export const categoryToHash = (category: Category): string => category.replace(" ", "-").toLowerCase();
 
-export enum GameType {
-    cs2 = "csgo",
-    dota2 = "dota2",
-}
-
-export type Team = {
-    acronym: string;
-    id: number;
-    logo: string;
-    name: string;
-};
-
-export type Match = {
-    bestOf: number;
-    gameType: GameType;
-    id: string;
-    isLive: boolean;
-    location: string;
-    modifiedAt: string;
-    score: string;
-    targetTeamId: number;
-    team1: Team;
-    team2: Team;
-    time: string;
-    tournament: string;
-    url: string;
-};
-
 export type Data = {
-    esportsMatches: Match[];
     groupedContent: Map<Category, Content[]>;
 };
 
@@ -78,7 +49,7 @@ export const getAllContent = async (): Promise<Data> => {
         return acc;
     }, new Map());
 
-    return { esportsMatches: data.esportsMatches, groupedContent };
+    return { groupedContent };
 };
 
 export const openContent = async (url: string): Promise<void> => {
