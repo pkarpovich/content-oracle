@@ -1,4 +1,4 @@
-import { BaseURL } from "./base.ts";
+import {BaseURL, HubBaseURL} from "./base.ts";
 
 export type Artist = {
     id: string;
@@ -61,7 +61,7 @@ export type Data = {
 };
 
 export const getAllContent = async (): Promise<Data> => {
-    const resp = await fetch(`${BaseURL}/api/content`);
+    const resp = await fetch(`${HubBaseURL}/api/content`);
     if (!resp.ok) {
         throw new Error("Failed to fetch content");
     }

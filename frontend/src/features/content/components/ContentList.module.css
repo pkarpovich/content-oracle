@@ -1,7 +1,19 @@
 .listContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 32px;
     flex: 1;
     align-content: flex-start;
+    padding: 8px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 24px;
+        padding: 4px;
+    }
+
+    @media (max-width: 480px) {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
 }

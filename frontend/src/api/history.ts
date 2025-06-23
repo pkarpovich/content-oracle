@@ -1,4 +1,4 @@
-import { BaseURL } from "./base.ts";
+import {BaseURL, HubBaseURL} from "./base.ts";
 
 export enum Applications {
     infuse = "Infuse (com.firecore.infuse)",
@@ -33,7 +33,7 @@ export type FullHistory = {
 };
 
 export const getFullHistory = async (): Promise<FullHistory> => {
-    const resp = await fetch(`${BaseURL}/api/history`, {
+    const resp = await fetch(`${HubBaseURL}/api/history`, {
         method: "GET",
     });
 

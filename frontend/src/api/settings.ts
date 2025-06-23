@@ -1,4 +1,4 @@
-import { BaseURL } from "./base.ts";
+import {BaseURL, HubBaseURL} from "./base.ts";
 
 export type YoutubeSubscription = {
     channelId: string;
@@ -19,7 +19,7 @@ export type Settings = {
 };
 
 export const getSettings = async (): Promise<Settings> => {
-    const resp = await fetch(`${BaseURL}/api/settings`);
+    const resp = await fetch(`${HubBaseURL}/api/settings`);
     if (!resp.ok) {
         throw new Error("Failed to fetch settings");
     }

@@ -2,7 +2,7 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 30px;
+    gap: 48px;
 }
 
 .itemContainer {
@@ -10,5 +10,19 @@
 }
 
 .categoryTitle {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    position: relative;
+    padding-left: 16px;
+}
+
+.categoryTitle::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 2px;
 }

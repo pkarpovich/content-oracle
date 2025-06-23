@@ -4,14 +4,14 @@
     --primary: oklch(84.71% 0.2 84.93);
     --primary-dark: oklch(0.794 0.171 71.188);
     --primary-disabled: oklch(84.71% 0.2 84.93 / 0.5);
-    --bg-color: #000000cc;
+    --bg-color: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
     --card-bg-color: #2c2c2e;
-    --card-bg-color-secondary: #2f2f31;
+    --card-bg-color-secondary: #34343a;
     --shadow-color: oklch(84.71% 0.2 84.93);
     --primary-text-color: var(--primary);
     --secondary-text-color: #fff;
     --header-height: 50px;
-    --sidebar-width: 60px;
+    --sidebar-width: 80px;
     --sidebar-width-open: 350px;
 
     --dota2-color: #e74c3c;
@@ -23,7 +23,8 @@
     line-height: 1.5;
     font-weight: 400;
 
-    background-color: var(--bg-color);
+    background: var(--bg-color);
+    background-attachment: fixed;
     color: var(--primary-text-color);
 
     color-scheme: light;
@@ -49,6 +50,8 @@ body {
     min-width: 320px;
     min-height: 100vh;
     scroll-padding-top: var(--header-height);
+    scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 div#root {
