@@ -4,14 +4,16 @@ import { useCallback, useState } from "react";
 import AddIcon from "../../../icons/add.svg";
 import AddBookmarkIcon from "../../../icons/add-bookmark.svg";
 import AppleTvIcon from "../../../icons/apple-tv.svg";
+import CheckIcon from "../../../icons/check.svg";
 import styles from "./ActionButton.module.css";
 
 type Props = {
     onAddToWatchlist: () => void;
     onSendToTv: () => void;
+    onTriage: () => void;
 };
 
-export const ActionButton = ({ onAddToWatchlist, onSendToTv }: Props) => {
+export const ActionButton = ({ onAddToWatchlist, onSendToTv, onTriage }: Props) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const handleButtonClick = useCallback(() => {
@@ -33,6 +35,16 @@ export const ActionButton = ({ onAddToWatchlist, onSendToTv }: Props) => {
             })}
         >
             <div className={styles.buttonsContainer}>
+                <div className={styles.buttonWrapper}>
+                    <span className={styles.buttonLabel}>Content Triage</span>
+                    <button
+                        className={clsx(styles.button, styles.childButton)}
+                        onClick={handleSubIconClick(onTriage)}
+                        type="button"
+                    >
+                        <CheckIcon />
+                    </button>
+                </div>
                 <div className={styles.buttonWrapper}>
                     <span className={styles.buttonLabel}>Add to Watchlist</span>
                     <button

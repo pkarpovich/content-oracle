@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { clsx } from "clsx";
 
 import styles from "./BottomSheet.module.css";
 
@@ -6,9 +7,10 @@ type Props = {
     isOpen: boolean;
     onClose: () => void;
     children: ReactNode;
+    wide?: boolean;
 };
 
-export const BottomSheet = ({ isOpen, onClose, children }: Props) => {
+export const BottomSheet = ({ isOpen, onClose, children, wide = false }: Props) => {
     const overlayRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -43,7 +45,7 @@ export const BottomSheet = ({ isOpen, onClose, children }: Props) => {
             className={styles.overlay}
             onClick={handleOverlayClick}
         >
-            <div className={styles.sheet}>
+            <div className={clsx(styles.sheet, { [styles.wide]: wide })}>
                 <div className={styles.handle} />
                 <div className={styles.content}>
                     {children}

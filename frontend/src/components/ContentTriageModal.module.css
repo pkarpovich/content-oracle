@@ -1,0 +1,72 @@
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.preview {
+    width: 100%;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.previewImage {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+}
+
+.header {
+    text-align: left;
+    margin-bottom: 12px;
+    
+    @media (max-width: 768px) {
+        text-align: center;
+    }
+}
+
+.artist {
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 4px;
+}
+
+.progress {
+    text-align: left;
+    margin-bottom: 16px;
+    
+    @media (max-width: 768px) {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    & p {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
