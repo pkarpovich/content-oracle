@@ -13,6 +13,7 @@ import BoringIcon from "../../../icons/boring.svg";
 import CheckIcon from "../../../icons/check.svg";
 import EnterIcon from "../../../icons/enter.svg";
 import ShareIcon from "../../../icons/share.svg";
+import { useBlockChannel } from "../api/useBlockChannel.ts";
 import styles from "./ContentCard.module.css";
 
 type Props = {
@@ -42,6 +43,7 @@ export const ContentCard = ({
 }: Props) => {
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const { mutate: blockChannelMutation } = useBlockChannel();
 
     const handleImageError = useCallback(() => {
         setImageError(true);
@@ -76,9 +78,9 @@ export const ContentCard = ({
     }, [category, id, onCheck]);
 
     const handleBoringButtonClick = useCallback(() => {
-        onCheck({ category, channelId: artist.id, status: ActivityStatus.blockChannel });
+        blockChannelMutation(artist.id);
         setIsBottomSheetOpen(false);
-    }, [artist.id, category, onCheck]);
+    }, [artist.id, blockChannelMutation]);
 
     const allowCheckAction =
         category === Category.youtubeHistory ||

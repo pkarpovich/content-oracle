@@ -5,6 +5,7 @@ import { ContentTriageModal } from "../../../components/ContentTriageModal.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import { usePopup } from "../../../hooks/usePopup.ts";
 import { ContentItem } from "../../../types/content.ts";
+import { useBlockChannel } from "../api/useBlockChannel.ts";
 import { useCreateActivity } from "../api/useCreateActivity.ts";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
@@ -29,6 +30,7 @@ export const ContentCategoryList = () => {
     const { data, error } = useGetAllContent();
     const { mutate: openContent } = useOpenContent();
     const { mutate: createActivity } = useCreateActivity();
+    const { mutate: blockChannelMutation } = useBlockChannel();
     
     const [triageContentItems, setTriageContentItems] = useState<ContentItem[]>([]);
     const [currentTriageIndex, setCurrentTriageIndex] = useState(0);
@@ -84,7 +86,8 @@ export const ContentCategoryList = () => {
 
     const handleNotInterested = useCallback((item: ContentItem) => {
         console.log("Not interested:", item.title);
-    }, []);
+        blockChannelMutation(item.artist.id);
+    }, [blockChannelMutation]);
 
     return (
         <>
