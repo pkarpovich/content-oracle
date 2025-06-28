@@ -1,21 +1,13 @@
 import { useCallback, useState } from "react";
 
 import type { Activity } from "../../../api/activity.ts";
-import { ActivityStatus } from "../../../api/activity.ts";
 import type { Artist } from "../../../api/content.ts";
 import { Category } from "../../../api/content.ts";
-import { ActionButton } from "../../../components/ActionButton.tsx";
-import { BottomSheet } from "../../../components/BottomSheet.tsx";
 import { ProgressBar } from "../../../components/ProgressBar.tsx";
 import { Typography } from "../../../components/Typography.tsx";
-import AppleTvIcon from "../../../icons/apple-tv.svg";
-import BoringIcon from "../../../icons/boring.svg";
-import CheckIcon from "../../../icons/check.svg";
-import EnterIcon from "../../../icons/enter.svg";
-import ShareIcon from "../../../icons/share.svg";
-import SkipIcon from "../../../icons/previous.svg";
 import { useBlockChannel } from "../api/useBlockChannel.ts";
 import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
+import { ContentCardBottomSheet } from "./ContentCardBottomSheet.tsx";
 import styles from "./ContentCard.module.css";
 
 type Props = {
@@ -90,12 +82,6 @@ export const ContentCard = ({
         setIsBottomSheetOpen(false);
     }, [id, markVideoStatusMutation]);
 
-    const allowCheckAction =
-        category === Category.youtubeHistory ||
-        category === Category.youTubeSuggestions ||
-        category === Category.unsubscribedChannels;
-
-    const allowBoringAction = category === Category.unsubscribedChannels;
 
     return (
         <>
@@ -139,62 +125,19 @@ export const ContentCard = ({
                 </div>
             </div>
 
-            <BottomSheet isOpen={isBottomSheetOpen} onClose={handleCloseBottomSheet}>
-                <div className={styles.bottomSheetHeader}>
-                    <Typography className={styles.bottomSheetTitle} variant="text">
-                        {title}
-                    </Typography>
-                    <Typography className={styles.bottomSheetArtist} variant="text">
-                        by {artist.name}
-                    </Typography>
-                </div>
-
-                <div className={styles.actions}>
-                    <ActionButton
-                        icon={<EnterIcon />}
-                        title="Open Content"
-                        description="Watch this video in a new tab"
-                        onClick={handleOpenButtonClick}
-                    />
-
-                    <ActionButton
-                        icon={<ShareIcon />}
-                        title="Copy Link"
-                        description="Copy the video URL to clipboard"
-                        onClick={handleShareButtonClick}
-                    />
-
-                    <ActionButton
-                        icon={<AppleTvIcon />}
-                        title="Send to TV"
-                        description="Play this content on your TV"
-                        onClick={handleSendToTvButtonClick}
-                    />
-
-                    <ActionButton
-                        icon={<CheckIcon />}
-                        title="Mark as Watched"
-                        description="Mark as watched and remove from suggestions"
-                        onClick={handleCheckButtonClick}
-                    />
-
-                    <ActionButton
-                        icon={<SkipIcon />}
-                        title="Skip Video"
-                        description="Skip this video and remove from suggestions"
-                        onClick={handleSkipButtonClick}
-                    />
-
-                    {allowBoringAction && (
-                        <ActionButton
-                            icon={<BoringIcon />}
-                            title="Block Channel"
-                            description="Hide all content from this channel"
-                            onClick={handleBoringButtonClick}
-                        />
-                    )}
-                </div>
-            </BottomSheet>
+            {isBottomSheetOpen && (<ContentCardBottomSheet
+                    artist={artist}
+                    category={category}
+                    isOpen={isBottomSheetOpen}
+                    onBoringButtonClick={handleBoringButtonClick}
+                    onCheckButtonClick={handleCheckButtonClick}
+                    onClose={handleCloseBottomSheet}
+                    onOpenButtonClick={handleOpenButtonClick}
+                    onSendToTvButtonClick={handleSendToTvButtonClick}
+                    onShareButtonClick={handleShareButtonClick}
+                    onSkipButtonClick={handleSkipButtonClick}
+                    title={title}
+            />)}
         </>
     );
 };

@@ -21,9 +21,8 @@ export enum Category {
     liveStreams = "Live Streams",
     continueWatching = "Continue Watching",
     unsubscribedChannels = "Unsubscribed Channels",
-    youtubeHistory = "YouTube History",
     youTubeSuggestions = "YouTube Suggestions",
-    youTubeWatchlist = "YouTube Watchlist",
+    watchLater = "Watch Later",
 }
 
 export const categoryToHash = (category: Category): string => category.replace(" ", "-").toLowerCase();
@@ -71,9 +70,9 @@ export const openContent = async (url: string): Promise<void> => {
     }
 };
 
-export const addToWatchlist = async (url: string): Promise<void> => {
-    const resp = await fetch(`${BaseURL}/api/watchlist/youtube`, {
-        body: JSON.stringify({ youtubeUrl: url }),
+export const addToWatchlist = async (videoId: string): Promise<void> => {
+    const resp = await fetch(`${HubBaseURL}/api/mark-video-status`, {
+        body: JSON.stringify({ video_id: videoId, status: "watch_later" }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
     });

@@ -19,6 +19,7 @@ import { SendToTvPopupPopup } from "./SendToTvPopup.tsx";
 const CustomCategoryOrder = [
     Category.liveStreams,
     Category.continueWatching,
+    Category.watchLater,
     Category.youTubeSuggestions,
     Category.unsubscribedChannels,
 ];
