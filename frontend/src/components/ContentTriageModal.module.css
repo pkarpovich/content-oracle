@@ -70,3 +70,68 @@
     flex-direction: column;
     gap: 8px;
 }
+
+.navButtonLeft,
+.navButtonRight {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(145deg, 
+        rgba(0, 0, 0, 0.8),
+        rgba(0, 0, 0, 0.6)
+    );
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2001;
+    
+    & > svg {
+        color: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+    }
+    
+    &:hover:not(:disabled) {
+        background: linear-gradient(145deg, 
+            rgba(0, 0, 0, 0.9),
+            rgba(0, 0, 0, 0.7)
+        );
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        
+        & > svg {
+            color: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+    }
+    
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        background: rgba(0, 0, 0, 0.4);
+        border-color: rgba(255, 255, 255, 0.1);
+        
+        & > svg {
+            color: rgba(255, 255, 255, 0.4);
+        }
+    }
+    
+    &:active:not(:disabled) {
+        transform: translateY(-50%) scale(0.95);
+    }
+}
+
+.navButtonLeft {
+    left: 20px;
+}
+
+.navButtonRight {
+    right: 20px;
+}

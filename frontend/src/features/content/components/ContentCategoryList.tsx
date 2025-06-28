@@ -8,6 +8,7 @@ import { ContentItem } from "../../../types/content.ts";
 import { useBlockChannel } from "../api/useBlockChannel.ts";
 import { useCreateActivity } from "../api/useCreateActivity.ts";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
+import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
 import { ActionButton } from "./ActionButton.tsx";
 import { AddToWatchlistPopup } from "./AddToWatchlistPopup.tsx";
@@ -17,8 +18,7 @@ import { SendToTvPopupPopup } from "./SendToTvPopup.tsx";
 
 const CustomCategoryOrder = [
     Category.liveStreams,
-    Category.youtubeHistory,
-    Category.youTubeWatchlist,
+    Category.continueWatching,
     Category.youTubeSuggestions,
     Category.unsubscribedChannels,
 ];
@@ -31,6 +31,7 @@ export const ContentCategoryList = () => {
     const { mutate: openContent } = useOpenContent();
     const { mutate: createActivity } = useCreateActivity();
     const { mutate: blockChannelMutation } = useBlockChannel();
+    const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
     
     const [triageContentItems, setTriageContentItems] = useState<ContentItem[]>([]);
     const [currentTriageIndex, setCurrentTriageIndex] = useState(0);
@@ -54,7 +55,8 @@ export const ContentCategoryList = () => {
     );
 
     const handleOpenTriage = useCallback((content: ContentItem[]) => {
-        setTriageContentItems(content);
+        const shuffledContent = [...content].sort(() => Math.random() - 0.5);
+        setTriageContentItems(shuffledContent);
         setCurrentTriageIndex(0);
         openTriageModal();
     }, [openTriageModal]);
@@ -68,24 +70,22 @@ export const ContentCategoryList = () => {
     }, []);
 
     const handleSkip = useCallback((item: ContentItem) => {
-        console.log("Skipped:", item.title);
-    }, []);
+        markVideoStatusMutation({ videoId: item.id, status: "skipped" });
+    }, [markVideoStatusMutation]);
 
     const handleMarkWatched = useCallback((item: ContentItem) => {
-        console.log("Marked as watched:", item.title);
-        createActivity({ contentId: item.id, type: "watched" });
-    }, [createActivity]);
+        markVideoStatusMutation({ videoId: item.id, status: "watched" });
+    }, [markVideoStatusMutation]);
 
     const handleRemove = useCallback((item: ContentItem) => {
-        console.log("Removed:", item.title);
-    }, []);
+        markVideoStatusMutation({ videoId: item.id, status: "skipped" });
+    }, [markVideoStatusMutation]);
 
     const handleSaveForLater = useCallback((item: ContentItem) => {
         console.log("Saved for later:", item.title);
     }, []);
 
     const handleNotInterested = useCallback((item: ContentItem) => {
-        console.log("Not interested:", item.title);
         blockChannelMutation(item.artist.id);
     }, [blockChannelMutation]);
 

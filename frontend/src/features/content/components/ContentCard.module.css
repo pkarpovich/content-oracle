@@ -15,15 +15,12 @@
     height: 200px; /* Fixed height to match image */
 
     &:hover, &:focus {
-        transform: translateY(-4px) scale(1.02);
+        transform: translateY(-4px);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
                     0 8px 16px rgba(0, 0, 0, 0.3),
-                    0 0 0 1px rgba(255, 255, 255, 0.15),
                     inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.2);
 
-        .image {
-            transform: scale(1.05);
-        }
 
         .content {
             background: linear-gradient(145deg, 
@@ -109,9 +106,9 @@
 
 .content {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: -1px;
+    left: -1px;
+    right: -1px;
     padding: 14px 16px 10px 16px;
     z-index: 2;
     min-height: 85px; /* Increased height for 3-line titles */
@@ -119,6 +116,8 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
     
     /* Glassmorphism effect */
     background: linear-gradient(145deg, 
@@ -126,8 +125,7 @@
         rgba(0, 0, 0, 0.75)
     );
     backdrop-filter: blur(12px);
-    border: 1px none rgba(255, 255, 255, 0.1);
-    border-top-style: solid;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 
     @media (max-width: 600px) {
         min-height: 75px;
@@ -179,6 +177,19 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     flex: 1;
     min-width: 0;
+}
+
+.position {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5));
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 2px 6px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    flex-shrink: 0;
 }
 
 .liveIndicator {

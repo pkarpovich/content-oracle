@@ -19,6 +19,7 @@ export type Content = {
 
 export enum Category {
     liveStreams = "Live Streams",
+    continueWatching = "Continue Watching",
     unsubscribedChannels = "Unsubscribed Channels",
     youtubeHistory = "YouTube History",
     youTubeSuggestions = "YouTube Suggestions",

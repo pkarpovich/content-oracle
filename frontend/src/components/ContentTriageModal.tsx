@@ -92,66 +92,90 @@ export const ContentTriageModal = ({
     if (!currentItem) return null;
 
     return (
-        <BottomSheet isOpen={isOpen} onClose={onClose} wide>
+        <>
+            <button 
+                className={styles.navButtonLeft}
+                disabled={currentIndex === 0}
+                onClick={onPrevious}
+                type="button"
+            >
+                <svg fill="none" height="20" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            </button>
+            
+            <button 
+                className={styles.navButtonRight}
+                disabled={currentIndex === contentItems.length - 1}
+                onClick={onNext}
+                type="button"
+            >
+                <svg fill="none" height="20" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+            </button>
+
+            <BottomSheet isOpen={isOpen} onClose={onClose} wide>
                 <div className={styles.container}>
-                <div className={styles.leftColumn}>
-                    <div className={styles.preview}>
-                        <img 
-                            alt={currentItem.title}
-                            className={styles.previewImage}
-                            src={currentItem.thumbnail}
-                        />
+                    <div className={styles.leftColumn}>
+                        <div className={styles.preview}>
+                            <img 
+                                alt={currentItem.title}
+                                className={styles.previewImage}
+                                src={currentItem.thumbnail}
+                            />
+                        </div>
+
+                        <div className={styles.header}>
+                            <Typography variant="h3">{currentItem.title}</Typography>
+                            <Typography className={styles.artist} variant="text">
+                                by {currentItem.artist.name}
+                            </Typography>
+                        </div>
+
+                        <div className={styles.progress}>
+                            <Typography variant="text">
+                                {currentIndex + 1} of {contentItems.length}
+                            </Typography>
+                        </div>
                     </div>
 
-                    <div className={styles.header}>
-                        <Typography variant="h3">{currentItem.title}</Typography>
-                        <Typography className={styles.artist} variant="text">
-                            by {currentItem.artist.name}
-                        </Typography>
-                    </div>
-
-                    <div className={styles.progress}>
-                        <Typography variant="text">
-                            {currentIndex + 1} of {contentItems.length}
-                        </Typography>
+                    <div className={styles.rightColumn}>
+                        <div className={styles.actions}>
+                            <ActionButton
+                                description="Watch this video in a new tab"
+                                icon={<EnterIcon />}
+                                onClick={() => handleAction(() => onMarkWatched(currentItem))}
+                                title="Open Content"
+                            />
+                            <ActionButton
+                                description="Save the video for later viewing"
+                                icon={<BookmarkIcon />}
+                                onClick={() => handleAction(() => onSaveForLater(currentItem))}
+                                title="Save for Later"
+                            />
+                            <ActionButton
+                                description="Mark as watched and remove from suggestions"
+                                icon={<CheckIcon />}
+                                onClick={() => handleAction(() => onMarkWatched(currentItem))}
+                                title="Mark as Watched"
+                            />
+                            <ActionButton
+                                description="Skip this item and move to next"
+                                icon={<SkipIcon />}
+                                onClick={() => handleAction(() => onSkip(currentItem))}
+                                title="Skip"
+                            />
+                            <ActionButton
+                                description="Hide similar content from this channel"
+                                icon={<XIcon />}
+                                onClick={() => handleAction(() => onNotInterested(currentItem))}
+                                title="Not Interested"
+                            />
+                        </div>
                     </div>
                 </div>
-
-                <div className={styles.rightColumn}>
-                    <div className={styles.actions}>
-                        <ActionButton
-                            description="Watch this video in a new tab"
-                            icon={<EnterIcon />}
-                            onClick={() => handleAction(() => onMarkWatched(currentItem))}
-                            title="Open Content"
-                        />
-                        <ActionButton
-                            description="Save the video for later viewing"
-                            icon={<BookmarkIcon />}
-                            onClick={() => handleAction(() => onSaveForLater(currentItem))}
-                            title="Save for Later"
-                        />
-                        <ActionButton
-                            description="Mark as watched and remove from suggestions"
-                            icon={<CheckIcon />}
-                            onClick={() => handleAction(() => onMarkWatched(currentItem))}
-                            title="Mark as Watched"
-                        />
-                        <ActionButton
-                            description="Skip this item and move to next"
-                            icon={<SkipIcon />}
-                            onClick={() => handleAction(() => onSkip(currentItem))}
-                            title="Skip"
-                        />
-                        <ActionButton
-                            description="Hide similar content from this channel"
-                            icon={<XIcon />}
-                            onClick={() => handleAction(() => onNotInterested(currentItem))}
-                            title="Not Interested"
-                        />
-                    </div>
-                </div>
-            </div>
-        </BottomSheet>
+            </BottomSheet>
+        </>
     );
 };

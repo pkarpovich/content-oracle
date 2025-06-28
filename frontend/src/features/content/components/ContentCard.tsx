@@ -13,7 +13,9 @@ import BoringIcon from "../../../icons/boring.svg";
 import CheckIcon from "../../../icons/check.svg";
 import EnterIcon from "../../../icons/enter.svg";
 import ShareIcon from "../../../icons/share.svg";
+import SkipIcon from "../../../icons/previous.svg";
 import { useBlockChannel } from "../api/useBlockChannel.ts";
+import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
 import styles from "./ContentCard.module.css";
 
 type Props = {
@@ -44,6 +46,7 @@ export const ContentCard = ({
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
     const { mutate: blockChannelMutation } = useBlockChannel();
+    const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
 
     const handleImageError = useCallback(() => {
         setImageError(true);
@@ -73,14 +76,19 @@ export const ContentCard = ({
     }, [onOpenUrl, url]);
 
     const handleCheckButtonClick = useCallback(() => {
-        onCheck({ category, status: ActivityStatus.completed, videoId: id });
+        markVideoStatusMutation({ videoId: id, status: "watched" });
         setIsBottomSheetOpen(false);
-    }, [category, id, onCheck]);
+    }, [id, markVideoStatusMutation]);
 
     const handleBoringButtonClick = useCallback(() => {
         blockChannelMutation(artist.id);
         setIsBottomSheetOpen(false);
     }, [artist.id, blockChannelMutation]);
+
+    const handleSkipButtonClick = useCallback(() => {
+        markVideoStatusMutation({ videoId: id, status: "skipped" });
+        setIsBottomSheetOpen(false);
+    }, [id, markVideoStatusMutation]);
 
     const allowCheckAction =
         category === Category.youtubeHistory ||
@@ -121,6 +129,11 @@ export const ContentCard = ({
                             <Typography className={styles.artist} title={artist.name} variant="text">
                                 {artist.name}
                             </Typography>
+                            {position > 0 && (
+                                <Typography className={styles.position} variant="text">
+                                    {Math.round(position)}%
+                                </Typography>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -158,14 +171,19 @@ export const ContentCard = ({
                         onClick={handleSendToTvButtonClick}
                     />
 
-                    {allowCheckAction && (
-                        <ActionButton
-                            icon={<CheckIcon />}
-                            title="Mark as Watched"
-                            description="Remove from suggestions"
-                            onClick={handleCheckButtonClick}
-                        />
-                    )}
+                    <ActionButton
+                        icon={<CheckIcon />}
+                        title="Mark as Watched"
+                        description="Mark as watched and remove from suggestions"
+                        onClick={handleCheckButtonClick}
+                    />
+
+                    <ActionButton
+                        icon={<SkipIcon />}
+                        title="Skip Video"
+                        description="Skip this video and remove from suggestions"
+                        onClick={handleSkipButtonClick}
+                    />
 
                     {allowBoringAction && (
                         <ActionButton
