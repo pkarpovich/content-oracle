@@ -5,6 +5,8 @@ import { ContentTriageModal } from "../../../components/ContentTriageModal.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import { usePopup } from "../../../hooks/usePopup.ts";
 import { ContentItem } from "../../../types/content.ts";
+import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
+import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
 import { useBlockChannel } from "../api/useBlockChannel.ts";
 import { useCreateActivity } from "../api/useCreateActivity.ts";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
@@ -31,6 +33,7 @@ export const ContentCategoryList = () => {
     const { data, error } = useGetAllContent();
     const { mutate: openContent } = useOpenContent();
     const { mutate: createActivity } = useCreateActivity();
+    const { mutate: addToWatchlistMutation } = useAddToWatchlist();
     const { mutate: blockChannelMutation } = useBlockChannel();
     const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
     
@@ -83,8 +86,11 @@ export const ContentCategoryList = () => {
     }, [markVideoStatusMutation]);
 
     const handleSaveForLater = useCallback((item: ContentItem) => {
-        console.log("Saved for later:", item.title);
-    }, []);
+        const videoId = extractYouTubeVideoId(item.url);
+        if (videoId) {
+            addToWatchlistMutation(videoId);
+        }
+    }, [addToWatchlistMutation]);
 
     const handleNotInterested = useCallback((item: ContentItem) => {
         blockChannelMutation(item.artist.id);

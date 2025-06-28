@@ -2,8 +2,10 @@ import { ActionButton } from "../../../components/ActionButton.tsx";
 import { BottomSheet } from "../../../components/BottomSheet.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import AppleTvIcon from "../../../icons/apple-tv.svg";
+import BookmarkIcon from "../../../icons/add-bookmark.svg";
 import BoringIcon from "../../../icons/boring.svg";
 import CheckIcon from "../../../icons/check.svg";
+import CloseIcon from "../../../icons/close.svg";
 import EnterIcon from "../../../icons/enter.svg";
 import ShareIcon from "../../../icons/share.svg";
 import SkipIcon from "../../../icons/previous.svg";
@@ -19,6 +21,7 @@ type Props = {
     onCheckButtonClick: () => void;
     onClose: () => void;
     onOpenButtonClick: () => void;
+    onSaveForLaterButtonClick: () => void;
     onSendToTvButtonClick: () => void;
     onShareButtonClick: () => void;
     onSkipButtonClick: () => void;
@@ -33,12 +36,14 @@ export const ContentCardBottomSheet = ({
     onCheckButtonClick,
     onClose,
     onOpenButtonClick,
+    onSaveForLaterButtonClick,
     onSendToTvButtonClick,
     onShareButtonClick,
     onSkipButtonClick,
     title,
 }: Props) => {
     const allowBoringAction = category === Category.unsubscribedChannels;
+    const isWatchLater = category === Category.watchLater;
 
     return (
         <BottomSheet isOpen={isOpen} onClose={onClose}>
@@ -72,6 +77,22 @@ export const ContentCardBottomSheet = ({
                     onClick={onSendToTvButtonClick}
                     title="Send to TV"
                 />
+
+                {isWatchLater ? (
+                    <ActionButton
+                        description="Remove this video from watch later"
+                        icon={<CloseIcon />}
+                        onClick={onSaveForLaterButtonClick}
+                        title="Remove from Watch Later"
+                    />
+                ) : (
+                    <ActionButton
+                        description="Save this video to watch later"
+                        icon={<BookmarkIcon />}
+                        onClick={onSaveForLaterButtonClick}
+                        title="Save for Later"
+                    />
+                )}
 
                 <ActionButton
                     description="Mark as watched and remove from suggestions"

@@ -5,6 +5,8 @@ import type { Artist } from "../../../api/content.ts";
 import { Category } from "../../../api/content.ts";
 import { ProgressBar } from "../../../components/ProgressBar.tsx";
 import { Typography } from "../../../components/Typography.tsx";
+import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
+import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
 import { useBlockChannel } from "../api/useBlockChannel.ts";
 import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
 import { ContentCardBottomSheet } from "./ContentCardBottomSheet.tsx";
@@ -37,6 +39,7 @@ export const ContentCard = ({
 }: Props) => {
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const { mutate: addToWatchlistMutation } = useAddToWatchlist();
     const { mutate: blockChannelMutation } = useBlockChannel();
     const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
 
@@ -81,6 +84,18 @@ export const ContentCard = ({
         markVideoStatusMutation({ videoId: id, status: "skipped" });
         setIsBottomSheetOpen(false);
     }, [id, markVideoStatusMutation]);
+
+    const handleSaveForLaterButtonClick = useCallback(() => {
+        if (category === Category.watchLater) {
+            markVideoStatusMutation({ videoId: id, status: "" });
+        } else {
+            const videoId = extractYouTubeVideoId(url);
+            if (videoId) {
+                addToWatchlistMutation(videoId);
+            }
+        }
+        setIsBottomSheetOpen(false);
+    }, [category, id, url, addToWatchlistMutation, markVideoStatusMutation]);
 
 
     return (
@@ -133,6 +148,7 @@ export const ContentCard = ({
                     onCheckButtonClick={handleCheckButtonClick}
                     onClose={handleCloseBottomSheet}
                     onOpenButtonClick={handleOpenButtonClick}
+                    onSaveForLaterButtonClick={handleSaveForLaterButtonClick}
                     onSendToTvButtonClick={handleSendToTvButtonClick}
                     onShareButtonClick={handleShareButtonClick}
                     onSkipButtonClick={handleSkipButtonClick}
