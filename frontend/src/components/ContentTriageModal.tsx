@@ -92,30 +92,7 @@ export const ContentTriageModal = ({
     if (!currentItem) return null;
 
     return (
-        <>
-            <button 
-                className={styles.navButtonLeft}
-                disabled={currentIndex === 0}
-                onClick={onPrevious}
-                type="button"
-            >
-                <svg fill="none" height="20" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-            </button>
-            
-            <button 
-                className={styles.navButtonRight}
-                disabled={currentIndex === contentItems.length - 1}
-                onClick={onNext}
-                type="button"
-            >
-                <svg fill="none" height="20" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-            </button>
-
-            <BottomSheet isOpen={isOpen} onClose={onClose} wide>
+        <BottomSheet isOpen={isOpen} onClose={onClose} wide>
                 <div className={styles.container}>
                     <div className={styles.leftColumn}>
                         <div className={styles.preview}>
@@ -130,12 +107,6 @@ export const ContentTriageModal = ({
                             <Typography variant="h3">{currentItem.title}</Typography>
                             <Typography className={styles.artist} variant="text">
                                 by {currentItem.artist.name}
-                            </Typography>
-                        </div>
-
-                        <div className={styles.progress}>
-                            <Typography variant="text">
-                                {currentIndex + 1} of {contentItems.length}
                             </Typography>
                         </div>
                     </div>
@@ -175,7 +146,47 @@ export const ContentTriageModal = ({
                         </div>
                     </div>
                 </div>
+                
+                <div className={styles.navigationBar}>
+                    <button 
+                        className={styles.navButton}
+                        disabled={currentIndex === 0}
+                        onClick={onPrevious}
+                        type="button"
+                    >
+                        <svg fill="none" height="20" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Previous
+                    </button>
+                    
+                    <div className={styles.progressSection}>
+                        <div className={styles.progressBar}>
+                            <div 
+                                className={styles.progressFill}
+                                style={{ width: `${((currentIndex + 1) / contentItems.length) * 100}%` }}
+                            />
+                        </div>
+                        <Typography className={styles.progressText} variant="text">
+                            {currentIndex + 1} of {contentItems.length}
+                        </Typography>
+                        <Typography className={styles.keyboardHints} variant="text">
+                            ← → arrows • Space to skip • Enter to open
+                        </Typography>
+                    </div>
+                    
+                    <button 
+                        className={styles.navButton}
+                        disabled={currentIndex === contentItems.length - 1}
+                        onClick={onNext}
+                        type="button"
+                    >
+                        Next
+                        <svg fill="none" height="20" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </button>
+                </div>
             </BottomSheet>
-        </>
     );
 };

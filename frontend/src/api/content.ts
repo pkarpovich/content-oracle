@@ -57,7 +57,7 @@ export const getAllContent = async (): Promise<Data> => {
 };
 
 export const openContent = async (url: string): Promise<void> => {
-    const resp = await fetch(`${BaseURL}/api/content/open`, {
+    const resp = await fetch(`${HubBaseURL}/api/open-url`, {
         body: JSON.stringify({ url }),
         headers: { "Content-Type": "application/json" },
         method: "POST",

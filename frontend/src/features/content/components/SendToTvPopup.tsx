@@ -6,8 +6,10 @@ import { z } from "zod";
 
 import { Button } from "../../../components/Button.tsx";
 import { Input } from "../../../components/Input.tsx";
-import { Popup } from "../../../components/Popup.tsx";
+import { BottomSheet } from "../../../components/BottomSheet.tsx";
+import { Typography } from "../../../components/Typography.tsx";
 import { useOpenContent } from "../api/useOpenContent.ts";
+import styles from "./SendToTvPopup.module.css";
 
 type Props = {
     isOpen: boolean;
@@ -41,26 +43,36 @@ export const SendToTvPopupPopup = ({ isOpen, onClose }: Props) => {
     const [canSubmit, isSubmitting] = form.useStore((state) => [state.canSubmit, state.isSubmitting]);
 
     return (
-        <Popup isOpen={isOpen} onClose={onClose} title="Send to Apple TV">
-            <form onSubmit={handleSubmit}>
-                <form.Field
-                    children={({ handleChange, state }) => (
-                        <Input
-                            error={state.meta.errors.join(", ")}
-                            label="Url"
-                            onChange={handleChange}
-                            value={state.value}
-                        />
-                    )}
-                    name="url"
-                    validators={{
-                        onChange: z.string().url(),
-                    }}
-                />
-                <Button disabled={!canSubmit} loading={isSubmitting} type="submit">
-                    Send
-                </Button>
-            </form>
-        </Popup>
+        <BottomSheet isOpen={isOpen} onClose={onClose}>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <Typography variant="h3">Send to Apple TV</Typography>
+                    <Typography className={styles.description} variant="text">
+                        Enter a URL to open it on your Apple TV or connected device
+                    </Typography>
+                </div>
+                
+                <form className={styles.form} onSubmit={handleSubmit}>
+                    <form.Field
+                        children={({ handleChange, state }) => (
+                            <Input
+                                error={state.meta.errors.join(", ")}
+                                label="URL"
+                                onChange={handleChange}
+                                placeholder="https://example.com/video"
+                                value={state.value}
+                            />
+                        )}
+                        name="url"
+                        validators={{
+                            onChange: z.string().url(),
+                        }}
+                    />
+                    <Button className={styles.button} disabled={!canSubmit} loading={isSubmitting} type="submit">
+                        Send to TV
+                    </Button>
+                </form>
+            </div>
+        </BottomSheet>
     );
 };
