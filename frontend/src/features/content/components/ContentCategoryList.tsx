@@ -166,7 +166,7 @@ export const ContentCategoryList = () => {
                                 {category}
                             </Typography>
                             <span className={style.categoryCount}>
-                                {content.length}
+                                {data.meta[category]?.total || content.length}
                             </span>
                             <div className={`${style.collapseIcon} ${isCategoryCollapsed(category) ? style.collapsed : ''}`}>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -179,6 +179,7 @@ export const ContentCategoryList = () => {
                                 category={category}
                                 content={content}
                                 key={category}
+                                meta={data.meta[category]}
                                 onCheck={createActivity}
                                 onOpenUrl={openContent}
                             />

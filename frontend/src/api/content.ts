@@ -27,9 +27,15 @@ export enum Category {
 
 export const categoryToHash = (category: Category): string => category.replace(" ", "-").toLowerCase();
 
+export type CategoryMeta = {
+    total: number;
+    hasMore: boolean;
+};
+
 export type Data = {
     allContent: Content[];
     groupedContent: Map<Category, Content[]>;
+    meta: Record<string, CategoryMeta>;
 };
 
 export const getAllContent = async (): Promise<Data> => {
@@ -52,7 +58,8 @@ export const getAllContent = async (): Promise<Data> => {
 
     return { 
         allContent: data.contentList || [],
-        groupedContent 
+        groupedContent,
+        meta: data.meta || {}
     };
 };
 
