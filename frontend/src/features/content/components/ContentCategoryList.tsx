@@ -40,6 +40,19 @@ export const ContentCategoryList = () => {
     const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
     
     const [currentTriageIndex, setCurrentTriageIndex] = useState(0);
+    
+    const [collapsedCategories, setCollapsedCategories] = useState<Set<Category>>(() => {
+        try {
+            const stored = localStorage.getItem('contentCategoriesCollapsed');
+            if (stored) {
+                const parsedArray = JSON.parse(stored) as Category[];
+                return new Set(parsedArray);
+            }
+        } catch (error) {
+            console.warn('Failed to load collapsed categories from localStorage:', error);
+        }
+        return new Set();
+    });
 
     const triageContentItems = triageData || [];
 
@@ -99,6 +112,29 @@ export const ContentCategoryList = () => {
         blockChannelMutation(item.artist.id);
     }, [blockChannelMutation]);
 
+    const toggleCategoryCollapse = useCallback((category: Category) => {
+        setCollapsedCategories(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(category)) {
+                newSet.delete(category);
+            } else {
+                newSet.add(category);
+            }
+            
+            try {
+                localStorage.setItem('contentCategoriesCollapsed', JSON.stringify(Array.from(newSet)));
+            } catch (error) {
+                console.warn('Failed to save collapsed categories to localStorage:', error);
+            }
+            
+            return newSet;
+        });
+    }, []);
+
+    const isCategoryCollapsed = useCallback((category: Category) => {
+        return collapsedCategories.has(category);
+    }, [collapsedCategories]);
+
     return (
         <>
             <ActionButton onAddToWatchlist={openWatchlistPopup} onSendToTv={openSendToTvPopup} onTriage={handleOpenTriage} />
@@ -121,16 +157,32 @@ export const ContentCategoryList = () => {
             <div className={style.container}>
                 {sortedEntries.map(([category, content]) => (
                     <div className={style.itemContainer} id={categoryToHash(category)} key={category}>
-                        <Typography className={style.categoryTitle} variant="h2">
-                            {category}
-                        </Typography>
-                        <ContentList
-                            category={category}
-                            content={content}
-                            key={category}
-                            onCheck={createActivity}
-                            onOpenUrl={openContent}
-                        />
+                        <button 
+                            className={style.categoryHeader}
+                            onClick={() => toggleCategoryCollapse(category)}
+                            type="button"
+                        >
+                            <Typography className={style.categoryTitle} variant="h2">
+                                {category}
+                            </Typography>
+                            <span className={style.categoryCount}>
+                                {content.length}
+                            </span>
+                            <div className={`${style.collapseIcon} ${isCategoryCollapsed(category) ? style.collapsed : ''}`}>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </div>
+                        </button>
+                        {!isCategoryCollapsed(category) && (
+                            <ContentList
+                                category={category}
+                                content={content}
+                                key={category}
+                                onCheck={createActivity}
+                                onOpenUrl={openContent}
+                            />
+                        )}
                     </div>
                 ))}
             </div>
