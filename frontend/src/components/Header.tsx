@@ -1,6 +1,6 @@
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { clsx } from "clsx";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import { Routes } from "../constants/routes.ts";
 import HistoryIcon from "../icons/history.svg";
@@ -12,10 +12,12 @@ import { Typography } from "./Typography.tsx";
 export const Header = () => {
     const navigate = useNavigate();
     const state = useRouterState();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const handleRouteClick = useCallback(
         (to: string) => async () => {
             await navigate({ to });
+            setIsMenuOpen(false);
         },
         [navigate],
     );
@@ -24,39 +26,60 @@ export const Header = () => {
         window.location.reload();
     }, []);
 
+    const toggleMenu = useCallback(() => {
+        setIsMenuOpen(prev => !prev);
+    }, []);
+
     return (
         <div className={style.headerContainer}>
-            <button className={style.appName} onClick={handleRouteClick(Routes.Root)} type="button">
-                <Typography variant="h2">Content Oracle</Typography>
-            </button>
-            
-            <nav className={style.navigation}>
-                <button
-                    className={clsx(style.navTab, {
-                        [style.active]: state.location.pathname === Routes.History,
-                    })}
-                    onClick={handleRouteClick(Routes.History)}
+            <div className={style.leftSection}>
+                <button 
+                    className={style.menuButton} 
+                    onClick={toggleMenu}
                     type="button"
+                    aria-label="Toggle menu"
                 >
-                    <HistoryIcon />
-                    <span>History</span>
+                    <div className={clsx(style.hamburger, { [style.open]: isMenuOpen })}>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </button>
                 
-                <button
-                    className={clsx(style.navTab, {
-                        [style.active]: state.location.pathname === Routes.Settings,
-                    })}
-                    onClick={handleRouteClick(Routes.Settings)}
-                    type="button"
-                >
-                    <SettingsIcon />
-                    <span>Settings</span>
+                <button className={style.appName} onClick={handleRouteClick(Routes.Root)} type="button">
+                    <Typography variant="h2">Content Oracle</Typography>
                 </button>
-            </nav>
-
+            </div>
+            
             <div className={style.logo}>
                 <Logo onClick={handleRefresh} />
             </div>
+            
+            {isMenuOpen && (
+                <nav className={style.navigation}>
+                    <button
+                        className={clsx(style.navTab, {
+                            [style.active]: state.location.pathname === Routes.History,
+                        })}
+                        onClick={handleRouteClick(Routes.History)}
+                        type="button"
+                    >
+                        <HistoryIcon />
+                        <span>History</span>
+                    </button>
+                    
+                    <button
+                        className={clsx(style.navTab, {
+                            [style.active]: state.location.pathname === Routes.Settings,
+                        })}
+                        onClick={handleRouteClick(Routes.Settings)}
+                        type="button"
+                    >
+                        <SettingsIcon />
+                        <span>Settings</span>
+                    </button>
+                </nav>
+            )}
         </div>
     );
 };
