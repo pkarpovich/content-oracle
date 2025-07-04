@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 
 import type { Activity } from "../../../api/activity.ts";
 import type { Artist } from "../../../api/content.ts";
@@ -25,7 +25,7 @@ type Props = {
     url: string;
 };
 
-export const ContentCard = ({
+export const ContentCard = memo(({
     artist,
     category,
     id,
@@ -156,4 +156,4 @@ export const ContentCard = ({
             />)}
         </>
     );
-};
+});
