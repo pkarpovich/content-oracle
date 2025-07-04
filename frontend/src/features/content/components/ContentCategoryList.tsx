@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 
 import { Category, categoryToHash } from "../../../api/content.ts";
 import { ContentTriageModal } from "../../../components/ContentTriageModal.tsx";
@@ -10,6 +10,7 @@ import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
 import { useBlockChannel } from "../api/useBlockChannel.ts";
 import { useCreateActivity } from "../api/useCreateActivity.ts";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
+import { useGetContentTriage } from "../api/useGetContentTriage.ts";
 import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
 import { ActionButton } from "./ActionButton.tsx";
@@ -31,14 +32,22 @@ export const ContentCategoryList = () => {
     const { close: closeSendToTvPopup, isOpen: isSendToTvPopupOpen, open: openSendToTvPopup } = usePopup();
     const { close: closeTriageModal, isOpen: isTriageModalOpen, open: openTriageModal } = usePopup();
     const { data, error } = useGetAllContent();
+    const { data: triageData, error: triageError } = useGetContentTriage();
     const { mutate: openContent } = useOpenContent();
     const { mutate: createActivity } = useCreateActivity();
     const { mutate: addToWatchlistMutation } = useAddToWatchlist();
     const { mutate: blockChannelMutation } = useBlockChannel();
     const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
     
-    const [triageContentItems, setTriageContentItems] = useState<ContentItem[]>([]);
     const [currentTriageIndex, setCurrentTriageIndex] = useState(0);
+
+    const triageContentItems = triageData || [];
+
+    useEffect(() => {
+        if (isTriageModalOpen && triageContentItems.length === 0) {
+            closeTriageModal();
+        }
+    }, [isTriageModalOpen, triageContentItems.length, closeTriageModal]);
 
     const sortedEntries = useMemo(
         () =>
@@ -58,9 +67,7 @@ export const ContentCategoryList = () => {
         [data.groupedContent],
     );
 
-    const handleOpenTriage = useCallback((content: ContentItem[]) => {
-        const shuffledContent = [...content].sort(() => Math.random() - 0.5);
-        setTriageContentItems(shuffledContent);
+    const handleOpenTriage = useCallback(() => {
         setCurrentTriageIndex(0);
         openTriageModal();
     }, [openTriageModal]);
@@ -81,10 +88,6 @@ export const ContentCategoryList = () => {
         markVideoStatusMutation({ videoId: item.id, status: "watched" });
     }, [markVideoStatusMutation]);
 
-    const handleRemove = useCallback((item: ContentItem) => {
-        markVideoStatusMutation({ videoId: item.id, status: "skipped" });
-    }, [markVideoStatusMutation]);
-
     const handleSaveForLater = useCallback((item: ContentItem) => {
         const videoId = extractYouTubeVideoId(item.url);
         if (videoId) {
@@ -98,7 +101,7 @@ export const ContentCategoryList = () => {
 
     return (
         <>
-            <ActionButton onAddToWatchlist={openWatchlistPopup} onSendToTv={openSendToTvPopup} onTriage={() => handleOpenTriage(data.allContent)} />
+            <ActionButton onAddToWatchlist={openWatchlistPopup} onSendToTv={openSendToTvPopup} onTriage={handleOpenTriage} />
             <AddToWatchlistPopup isOpen={isWatchlistPopupOpen} onClose={closeWatchlistPopup} />
             <SendToTvPopupPopup isOpen={isSendToTvPopupOpen} onClose={closeSendToTvPopup} />
             <ContentTriageModal
@@ -110,11 +113,11 @@ export const ContentCategoryList = () => {
                 onNext={handleTriageNext}
                 onNotInterested={handleNotInterested}
                 onPrevious={handleTriagePrevious}
-                onRemove={handleRemove}
                 onSaveForLater={handleSaveForLater}
                 onSkip={handleSkip}
             />
             {error ? <p>Error: {error.message}</p> : null}
+            {triageError ? <p>Triage Error: {triageError.message}</p> : null}
             <div className={style.container}>
                 {sortedEntries.map(([category, content]) => (
                     <div className={style.itemContainer} id={categoryToHash(category)} key={category}>

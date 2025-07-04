@@ -83,3 +83,13 @@ export const addToWatchlist = async (videoId: string): Promise<void> => {
         throw new Error(errorText || "Failed to add to watchlist");
     }
 };
+
+export const getContentTriage = async (): Promise<Content[]> => {
+    const resp = await fetch(`${HubBaseURL}/api/content-triage`);
+    if (!resp.ok) {
+        throw new Error("Failed to fetch content triage");
+    }
+
+    const data = await resp.json();
+    return data.contentList || [];
+};

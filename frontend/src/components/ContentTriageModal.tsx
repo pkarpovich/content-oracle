@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 
-import { ContentCard } from "../features/content/components/ContentCard.tsx";
 import { ContentItem } from "../types/content.ts";
 import { ActionButton } from "./ActionButton.tsx";
 import { BottomSheet } from "./BottomSheet.tsx";
@@ -22,7 +21,6 @@ type ContentTriageModalProps = {
     onPrevious: () => void;
     onSkip: (item: ContentItem) => void;
     onMarkWatched: (item: ContentItem) => void;
-    onRemove: (item: ContentItem) => void;
     onSaveForLater: (item: ContentItem) => void;
     onNotInterested: (item: ContentItem) => void;
 };
@@ -36,11 +34,22 @@ export const ContentTriageModal = ({
     onPrevious,
     onSkip,
     onMarkWatched,
-    onRemove,
     onSaveForLater,
     onNotInterested,
 }: ContentTriageModalProps) => {
     const currentItem = contentItems[currentIndex];
+
+    const handleAction = useCallback(
+        (action: () => void) => {
+            action();
+            if (currentIndex < contentItems.length - 1) {
+                return onNext();
+            }
+
+            onClose();
+        },
+        [currentIndex, contentItems.length, onNext, onClose]
+    );
 
     const handleKeyPress = useCallback(
         (event: KeyboardEvent) => {
@@ -58,18 +67,14 @@ export const ContentTriageModal = ({
                     break;
                 case " ":
                     event.preventDefault();
-                    onSkip(currentItem);
+                    handleAction(() => onSkip(currentItem));
                     break;
                 case "Enter":
-                    onMarkWatched(currentItem);
-                    break;
-                case "Delete":
-                case "Backspace":
-                    onRemove(currentItem);
+                    handleAction(() => onMarkWatched(currentItem));
                     break;
             }
         },
-        [isOpen, currentIndex, contentItems.length, currentItem, onClose, onNext, onPrevious, onSkip, onMarkWatched, onRemove]
+        [isOpen, currentIndex, contentItems.length, currentItem, onClose, onNext, onPrevious, onSkip, onMarkWatched, handleAction]
     );
 
     useEffect(() => {
@@ -77,17 +82,9 @@ export const ContentTriageModal = ({
         return () => document.removeEventListener("keydown", handleKeyPress);
     }, [handleKeyPress]);
 
-    const handleAction = useCallback(
-        (action: () => void) => {
-            action();
-            if (currentIndex < contentItems.length - 1) {
-                onNext();
-            } else {
-                onClose();
-            }
-        },
-        [currentIndex, contentItems.length, onNext, onClose]
-    );
+    const handleOpenContent = useCallback(() => {
+        window.open(currentItem.url, "_blank");
+    }, [currentItem]);
 
     if (!currentItem) return null;
 
@@ -116,7 +113,7 @@ export const ContentTriageModal = ({
                             <ActionButton
                                 description="Watch this video in a new tab"
                                 icon={<EnterIcon />}
-                                onClick={() => handleAction(() => onMarkWatched(currentItem))}
+                                onClick={() => handleAction(handleOpenContent)}
                                 title="Open Content"
                             />
                             <ActionButton
@@ -171,7 +168,7 @@ export const ContentTriageModal = ({
                             {currentIndex + 1} of {contentItems.length}
                         </Typography>
                         <Typography className={styles.keyboardHints} variant="text">
-                            ← → arrows • Space to skip • Enter to open
+                            ← → arrows • Space to skip • Enter to mark watched
                         </Typography>
                     </div>
                     
