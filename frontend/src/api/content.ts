@@ -100,3 +100,19 @@ export const getContentTriage = async (): Promise<Content[]> => {
     const data = await resp.json();
     return data.contentList || [];
 };
+
+export const getCategoryContent = async (category: string, limit: number, offset: number): Promise<Content[]> => {
+    const params = new URLSearchParams({
+        category: category,
+        limit: limit.toString(),
+        offset: offset.toString()
+    });
+    
+    const resp = await fetch(`${HubBaseURL}/api/content/category?${params}`);
+    if (!resp.ok) {
+        throw new Error(`Failed to fetch content for category: ${category}`);
+    }
+
+    const data = await resp.json();
+    return data.contentList || [];
+};

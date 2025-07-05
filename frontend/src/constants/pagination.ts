@@ -1,0 +1,1 @@
+export const CONTENT_PAGE_SIZE = 9;
