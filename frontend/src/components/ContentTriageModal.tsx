@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 
-import { ContentItem } from "../types/content.ts";
+import type { Content as ContentItem } from "../api/content.ts";
 import { ActionButton } from "./ActionButton.tsx";
 import { BottomSheet } from "./BottomSheet.tsx";
 import { Typography } from "./Typography.tsx";

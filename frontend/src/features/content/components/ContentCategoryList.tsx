@@ -4,7 +4,7 @@ import { Category, categoryToHash } from "../../../api/content.ts";
 import { ContentTriageModal } from "../../../components/ContentTriageModal.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import { usePopup } from "../../../hooks/usePopup.ts";
-import { ContentItem } from "../../../types/content.ts";
+import type { Content as ContentItem } from "../../../api/content.ts";
 import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
 import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
 import { useBlockChannel } from "../api/useBlockChannel.ts";

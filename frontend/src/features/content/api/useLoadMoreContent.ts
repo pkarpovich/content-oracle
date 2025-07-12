@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCategoryContent } from "../../../api/content.ts";
+import { getCategoryContent, type Data, Category } from "../../../api/content.ts";
 import { CONTENT_PAGE_SIZE } from "../../../constants/pagination.ts";
 
 export const useLoadMoreContent = () => {
@@ -10,12 +10,13 @@ export const useLoadMoreContent = () => {
             return getCategoryContent(category, CONTENT_PAGE_SIZE, currentCount);
         },
         onSuccess: (newContent, { category }) => {
-            queryClient.setQueryData(["content"], (oldData: any) => {
+            queryClient.setQueryData(["content"], (oldData: Data) => {
                 if (!oldData) return oldData;
 
                 const updatedGroupedContent = new Map(oldData.groupedContent);
-                const existingContent = updatedGroupedContent.get(category) || [];
-                updatedGroupedContent.set(category, [...existingContent, ...newContent]);
+                const categoryKey = category as Category;
+                const existingContent = updatedGroupedContent.get(categoryKey) || [];
+                updatedGroupedContent.set(categoryKey, [...existingContent, ...newContent]);
 
                 const updatedMeta = {
                     ...oldData.meta,
