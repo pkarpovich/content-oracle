@@ -1,6 +1,6 @@
 services:
   content-oracle:
-    container_name: content-oracle
+    container_name: content-oracle-app
     build:
       context: .
     restart: unless-stopped
