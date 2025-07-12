@@ -1,4 +1,4 @@
-import {BaseURL, HubBaseURL} from "./base.ts";
+import { BaseURL } from "./base.ts";
 
 export type Artist = {
     id: string;
@@ -39,7 +39,7 @@ export type Data = {
 };
 
 export const getAllContent = async (): Promise<Data> => {
-    const resp = await fetch(`${HubBaseURL}/api/content`);
+    const resp = await fetch(`${BaseURL}/api/content`);
     if (!resp.ok) {
         throw new Error("Failed to fetch content");
     }
@@ -64,7 +64,7 @@ export const getAllContent = async (): Promise<Data> => {
 };
 
 export const openContent = async (url: string): Promise<void> => {
-    const resp = await fetch(`${HubBaseURL}/api/open-url`, {
+    const resp = await fetch(`${BaseURL}/api/open-url`, {
         body: JSON.stringify({ url }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
@@ -78,7 +78,7 @@ export const openContent = async (url: string): Promise<void> => {
 };
 
 export const addToWatchlist = async (videoId: string): Promise<void> => {
-    const resp = await fetch(`${HubBaseURL}/api/mark-video-status`, {
+    const resp = await fetch(`${BaseURL}/api/mark-video-status`, {
         body: JSON.stringify({ video_id: videoId, status: "watch_later" }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
@@ -92,7 +92,7 @@ export const addToWatchlist = async (videoId: string): Promise<void> => {
 };
 
 export const getContentTriage = async (): Promise<Content[]> => {
-    const resp = await fetch(`${HubBaseURL}/api/content-triage`);
+    const resp = await fetch(`${BaseURL}/api/content-triage`);
     if (!resp.ok) {
         throw new Error("Failed to fetch content triage");
     }
@@ -108,7 +108,7 @@ export const getCategoryContent = async (category: string, limit: number, offset
         offset: offset.toString()
     });
     
-    const resp = await fetch(`${HubBaseURL}/api/content/category?${params}`);
+    const resp = await fetch(`${BaseURL}/api/content/category?${params}`);
     if (!resp.ok) {
         throw new Error(`Failed to fetch content for category: ${category}`);
     }

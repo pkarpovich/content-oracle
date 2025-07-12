@@ -1,4 +1,4 @@
-import {BaseURL, HubBaseURL} from "./base.ts";
+import { BaseURL } from "./base.ts";
 
 export type YoutubeSubscription = {
     channelId: string;
@@ -19,7 +19,7 @@ export type Settings = {
 };
 
 export const getSettings = async (): Promise<Settings> => {
-    const resp = await fetch(`${HubBaseURL}/api/settings`);
+    const resp = await fetch(`${BaseURL}/api/settings`);
     if (!resp.ok) {
         throw new Error("Failed to fetch settings");
     }
@@ -27,24 +27,6 @@ export const getSettings = async (): Promise<Settings> => {
     return resp.json();
 };
 
-export const updateSettings = async (settings: Settings): Promise<void> => {
-    const resp = await fetch(`${BaseURL}/api/settings`, {
-        body: JSON.stringify(settings),
-        headers: { "Content-Type": "application/json" },
-        method: "POST",
-    });
-
-    if (!resp.ok) {
-        throw new Error("Failed to update settings");
-    }
-};
-
-export const cleanSettings = async (): Promise<void> => {
-    const resp = await fetch(`${BaseURL}/api/settings`, {
-        method: "DELETE",
-    });
-
-    if (!resp.ok) {
-        throw new Error("Failed to clean settings");
-    }
+export const updateSettings = async (_: Settings): Promise<void> => {
+    // TODO: Implement the update logic
 };

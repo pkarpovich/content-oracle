@@ -1,6 +1,5 @@
 import { memo, useCallback, useRef, useEffect } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import type { Activity } from "../../../api/activity.ts";
 import type { Category, Content, CategoryMeta } from "../../../api/content.ts";
 import { ContentCard } from "./ContentCard.tsx";
 import { LoadMoreCard } from "./LoadMoreCard.tsx";
@@ -10,12 +9,11 @@ import styles from "./ContentList.module.css";
 type Props = {
     category: Category;
     content: Content[];
-    onCheck: (activity: Activity) => void;
     onOpenUrl: (url: string) => void;
     meta?: CategoryMeta;
 };
 
-export const ContentList = memo(({ category, content, onCheck, onOpenUrl, meta }: Props) => {
+export const ContentList = memo(({ category, content, onOpenUrl, meta }: Props) => {
     const parentRef = useRef<HTMLDivElement>(null);
     const { mutate: loadMoreContent, isPending } = useLoadMoreContent();
 
@@ -64,7 +62,6 @@ export const ContentList = memo(({ category, content, onCheck, onOpenUrl, meta }
                         imageUrl={item.thumbnail}
                         isLive={item.isLive}
                         key={item.id}
-                        onCheck={onCheck}
                         onOpenUrl={onOpenUrl}
                         position={item.position}
                         title={item.title}

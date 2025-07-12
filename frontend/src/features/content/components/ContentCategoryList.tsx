@@ -8,7 +8,6 @@ import { ContentItem } from "../../../types/content.ts";
 import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
 import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
 import { useBlockChannel } from "../api/useBlockChannel.ts";
-import { useCreateActivity } from "../api/useCreateActivity.ts";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
 import { useGetContentTriage } from "../api/useGetContentTriage.ts";
 import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
@@ -34,7 +33,6 @@ export const ContentCategoryList = () => {
     const { data, error } = useGetAllContent();
     const { data: triageData, error: triageError } = useGetContentTriage();
     const { mutate: openContent } = useOpenContent();
-    const { mutate: createActivity } = useCreateActivity();
     const { mutate: addToWatchlistMutation } = useAddToWatchlist();
     const { mutate: blockChannelMutation } = useBlockChannel();
     const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
@@ -180,7 +178,6 @@ export const ContentCategoryList = () => {
                                 content={content}
                                 key={category}
                                 meta={data.meta[category]}
-                                onCheck={createActivity}
                                 onOpenUrl={openContent}
                             />
                         )}

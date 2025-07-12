@@ -1,6 +1,5 @@
 import { memo, useCallback, useState } from "react";
 
-import type { Activity } from "../../../api/activity.ts";
 import type { Artist } from "../../../api/content.ts";
 import { Category } from "../../../api/content.ts";
 import { ProgressBar } from "../../../components/ProgressBar.tsx";
@@ -18,7 +17,6 @@ type Props = {
     id: string;
     imageUrl: string;
     isLive: boolean;
-    onCheck: (activity: Activity) => void;
     onOpenUrl: (url: string) => void;
     position: number;
     title: string;
@@ -31,7 +29,6 @@ export const ContentCard = memo(({
     id,
     imageUrl,
     isLive,
-    onCheck,
     onOpenUrl,
     position,
     title,
