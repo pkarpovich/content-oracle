@@ -5,7 +5,7 @@ services:
       context: .
     restart: unless-stopped
     environment:
-      VITE_API_BASE_URL: https://content-oracle.${ROOT_DOMAIN}
+      VITE_API_BASE_URL: https://turtle-hub.${ROOT_DOMAIN}/content-oracle
     expose:
       - 80
     networks:
