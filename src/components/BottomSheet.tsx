@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { clsx } from "clsx";
 
 import styles from "./BottomSheet.module.css";
@@ -39,7 +40,7 @@ export const BottomSheet = ({ isOpen, onClose, children, wide = false }: Props) 
 
     if (!isOpen) return null;
 
-    return (
+    return createPortal(
         <div
             ref={overlayRef}
             className={styles.overlay}
@@ -51,6 +52,7 @@ export const BottomSheet = ({ isOpen, onClose, children, wide = false }: Props) 
                     {children}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
