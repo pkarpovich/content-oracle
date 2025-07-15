@@ -1,7 +1,3 @@
-import { useMemo } from "react";
-
-import type { Playback } from "../../../api/history.ts";
-import { Row } from "../../../components/row/Row.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import { formatDate } from "../../../utils/date.ts";
 import { useGetFullHistory } from "../api/useGetFullHistory.ts";
@@ -11,47 +7,32 @@ import { HistoryItem } from "./HistoryItem.tsx";
 export const History = () => {
     const { data } = useGetFullHistory();
 
-    const groupedByDate = useMemo(() => {
-        const groupedByDate: Record<string, Playback[]> = {};
-
-        data!.playback.forEach((playback) => {
-            const playbackDate = formatDate(playback.startTime);
-
-            if (!Array.isArray(groupedByDate[playbackDate])) {
-                groupedByDate[playbackDate] = [];
-            }
-
-            groupedByDate[playbackDate].push(playback);
-        });
-
-        return groupedByDate;
-    }, [data]);
+    if (!data) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className={style.container}>
-            {Object.entries(groupedByDate).map(([date, playbacks]) => (
-                <div className={style.dayContainer} key={date}>
-                    <div>
-                        <Typography variant="h1">{date}</Typography>
+            {data.groupedByDate.map((dateGroup) => (
+                <div className={style.dayContainer} key={dateGroup.date}>
+                    <div className={style.dayHeader}>
+                        <Typography variant="h1" className={style.dayTitle}>
+                            {formatDate(dateGroup.date + "T00:00:00")}
+                        </Typography>
                     </div>
-                    {playbacks.map((playback) => {
-                        const content = data!.content.get(playback.contentId)!;
-
-                        return (
-                            <Row key={playback.id}>
-                                <HistoryItem
-                                    application={content.application}
-                                    artist={content.artist}
-                                    finishTime={playback.finishTime}
-                                    id={content.id}
-                                    startTime={playback.startTime}
-                                    thumbnail={content.thumbnail}
-                                    title={content.title}
-                                    url={content.url}
-                                />
-                            </Row>
-                        );
-                    })}
+                    {dateGroup.content.map((item) => (
+                        <HistoryItem
+                            key={item.content.id}
+                            application={item.content.application}
+                            artist={item.content.artist}
+                            finishTime={item.mostRecentPlayback.finishTime}
+                            id={item.content.id}
+                            startTime={item.mostRecentPlayback.startTime}
+                            thumbnail={item.content.thumbnail}
+                            title={item.content.title}
+                            url={item.content.url}
+                        />
+                    ))}
                 </div>
             ))}
         </div>

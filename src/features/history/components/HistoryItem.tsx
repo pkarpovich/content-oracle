@@ -70,14 +70,20 @@ export const HistoryItem = ({
     }, [title, url]);
     return (
         <div className={style.container}>
-            <div className={style.thumbnail}>{Thumbnail}</div>
-            <div className={style.information}>
-                <div className={style.text}>
-                    {new Date(startTime).toLocaleTimeString()} - {new Date(finishTime).toLocaleTimeString()}
+            <div className={style.thumbnail}>
+                {Thumbnail}
+                <div className={style.timeContainer}>
+                    <div className={style.timeBadge}>
+                        {new Date(startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(finishTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
                 </div>
-                {Title}
-                <div className={style.text}>{artist}</div>
-                <div className={style.text}>{application}</div>
+            </div>
+            <div className={style.information}>
+                <div>
+                    {Title}
+                    <div className={style.artistText}>{artist}</div>
+                    <div className={style.applicationText}>{application}</div>
+                </div>
             </div>
         </div>
     );

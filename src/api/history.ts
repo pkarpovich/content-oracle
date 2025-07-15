@@ -23,13 +23,22 @@ export type HistoryItem = {
 export type Playback = {
     contentId: string;
     finishTime: string;
-    id: string;
     startTime: string;
 };
 
+export type GroupedHistoryItem = {
+    content: HistoryItem;
+    mostRecentPlayback: Playback;
+    allPlaybacks: Playback[];
+};
+
+export type GroupedByDateItem = {
+    date: string;
+    content: GroupedHistoryItem[];
+};
+
 export type FullHistory = {
-    content: Map<string, HistoryItem>;
-    playback: Playback[];
+    groupedByDate: GroupedByDateItem[];
 };
 
 export const getFullHistory = async (): Promise<FullHistory> => {
@@ -43,13 +52,7 @@ export const getFullHistory = async (): Promise<FullHistory> => {
 
     const data = await resp.json();
 
-    const content = data.items.reduce((acc: Map<string, HistoryItem>, item: HistoryItem) => {
-        acc.set(item.id, item);
-        return acc;
-    }, new Map());
-
     return {
-        content,
-        playback: data.playback,
+        groupedByDate: data.groupedByDate,
     };
 };
