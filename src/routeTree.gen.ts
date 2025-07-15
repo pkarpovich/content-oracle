@@ -19,6 +19,9 @@ import { Route as rootRoute } from './routes/__root'
 const SettingsLazyImport = createFileRoute('/settings')()
 const HistoryLazyImport = createFileRoute('/history')()
 const IndexLazyImport = createFileRoute('/')()
+const CategoryCategoryNameLazyImport = createFileRoute(
+  '/category/$categoryName',
+)()
 
 // Create/Update Routes
 
@@ -39,6 +42,14 @@ const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const CategoryCategoryNameLazyRoute = CategoryCategoryNameLazyImport.update({
+  id: '/category/$categoryName',
+  path: '/category/$categoryName',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/category.$categoryName.lazy').then((d) => d.Route),
+)
 
 // Populate the FileRoutesByPath interface
 
@@ -65,6 +76,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsLazyImport
       parentRoute: typeof rootRoute
     }
+    '/category/$categoryName': {
+      id: '/category/$categoryName'
+      path: '/category/$categoryName'
+      fullPath: '/category/$categoryName'
+      preLoaderRoute: typeof CategoryCategoryNameLazyImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -74,12 +92,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/history': typeof HistoryLazyRoute
   '/settings': typeof SettingsLazyRoute
+  '/category/$categoryName': typeof CategoryCategoryNameLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/history': typeof HistoryLazyRoute
   '/settings': typeof SettingsLazyRoute
+  '/category/$categoryName': typeof CategoryCategoryNameLazyRoute
 }
 
 export interface FileRoutesById {
@@ -87,14 +107,15 @@ export interface FileRoutesById {
   '/': typeof IndexLazyRoute
   '/history': typeof HistoryLazyRoute
   '/settings': typeof SettingsLazyRoute
+  '/category/$categoryName': typeof CategoryCategoryNameLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/history' | '/settings'
+  fullPaths: '/' | '/history' | '/settings' | '/category/$categoryName'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/history' | '/settings'
-  id: '__root__' | '/' | '/history' | '/settings'
+  to: '/' | '/history' | '/settings' | '/category/$categoryName'
+  id: '__root__' | '/' | '/history' | '/settings' | '/category/$categoryName'
   fileRoutesById: FileRoutesById
 }
 
@@ -102,12 +123,14 @@ export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   HistoryLazyRoute: typeof HistoryLazyRoute
   SettingsLazyRoute: typeof SettingsLazyRoute
+  CategoryCategoryNameLazyRoute: typeof CategoryCategoryNameLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   HistoryLazyRoute: HistoryLazyRoute,
   SettingsLazyRoute: SettingsLazyRoute,
+  CategoryCategoryNameLazyRoute: CategoryCategoryNameLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -124,7 +147,8 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/history",
-        "/settings"
+        "/settings",
+        "/category/$categoryName"
       ]
     },
     "/": {
@@ -135,6 +159,9 @@ export const routeTree = rootRoute
     },
     "/settings": {
       "filePath": "settings.lazy.tsx"
+    },
+    "/category/$categoryName": {
+      "filePath": "category.$categoryName.lazy.tsx"
     }
   }
 }

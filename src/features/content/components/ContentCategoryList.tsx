@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
+import { Link } from "@tanstack/react-router";
 
 import { Category, categoryToHash } from "../../../api/content.ts";
 import { ContentTriageModal } from "../../../components/ContentTriageModal.tsx";
@@ -155,23 +156,31 @@ export const ContentCategoryList = () => {
             <div className={style.container}>
                 {sortedEntries.map(([category, content]) => (
                     <div className={style.itemContainer} id={categoryToHash(category)} key={category}>
-                        <button 
-                            className={style.categoryHeader}
-                            onClick={() => toggleCategoryCollapse(category)}
-                            type="button"
-                        >
-                            <Typography className={style.categoryTitle} variant="h2">
-                                {category}
-                            </Typography>
+                        <div className={style.categoryHeader}>
+                            <Link
+                                className={style.categoryLink}
+                                to="/category/$categoryName"
+                                params={{ categoryName: categoryToHash(category) }}
+                            >
+                                <Typography className={style.categoryTitle} variant="h2">
+                                    {category}
+                                </Typography>
+                            </Link>
                             <span className={style.categoryCount}>
                                 {data.meta[category]?.total || content.length}
                             </span>
-                            <div className={`${style.collapseIcon} ${isCategoryCollapsed(category) ? style.collapsed : ''}`}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                    <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                            </div>
-                        </button>
+                            <button 
+                                className={style.collapseButton}
+                                onClick={() => toggleCategoryCollapse(category)}
+                                type="button"
+                            >
+                                <div className={`${style.collapseIcon} ${isCategoryCollapsed(category) ? style.collapsed : ''}`}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
                         {!isCategoryCollapsed(category) && (
                             <ContentList
                                 category={category}
