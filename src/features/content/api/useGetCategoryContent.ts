@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCategoryContent, type Content } from "../../../api/content.ts";
+import { getCategoryContent } from "../../../api/content.ts";
 
 export const useGetCategoryContent = (category: string, limit: number = 50, offset: number = 0) => {
     return useQuery({

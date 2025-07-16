@@ -156,7 +156,7 @@ export const FilterSidebar = ({ onFiltersChange, isOpen = true, onClose }: Filte
                         <Input
                             placeholder="Search content..."
                             value={filters.search}
-                            onChange={(e) => handleFilterChange("search", e.target.value)}
+                            onChange={(v) => handleFilterChange("search", v)}
                             className={styles.searchInput}
                         />
                     </FilterSection>
@@ -257,7 +257,7 @@ export const FilterSidebar = ({ onFiltersChange, isOpen = true, onClose }: Filte
                 {hasActiveFilters && (
                     <div className={styles.footer}>
                         <Button
-                            variant="secondary"
+                            variant="contained"
                             onClick={handleClearAll}
                             className={styles.clearButton}
                         >

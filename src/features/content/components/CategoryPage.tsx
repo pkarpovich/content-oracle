@@ -120,7 +120,7 @@ export const CategoryPage = () => {
                     <div className={styles.titleSection}>
                         <Typography variant="h1">{category}</Typography>
                         <Button
-                            variant="secondary"
+                            variant="contained"
                             size="small"
                             onClick={() => setIsFilterOpen(true)}
                             className={styles.filtersButton}
