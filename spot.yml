@@ -1,0 +1,15 @@
+task:
+  - name: git checkout
+    script: git clone git@github.com:pkarpovich/content-oracle.git ~/content-oracle
+    cond: "[ ! -d ~/content-oracle/.git ]"
+
+  - name: git pull/update
+    script: |
+      cd ~/content-oracle
+      git pull
+
+  - name: pull docker images and restart
+    script: |
+      cd ~/content-oracle
+      docker compose pull
+      docker compose up -d --build

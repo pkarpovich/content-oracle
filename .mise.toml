@@ -1,3 +1,6 @@
 [tools]
 node = "22"
 pnpm = "9"
+
+[tasks.deploy_local]
+run = "spot -t local -v -i ./inventory.yml -k ~/.ssh/id_pi_ed25519"
