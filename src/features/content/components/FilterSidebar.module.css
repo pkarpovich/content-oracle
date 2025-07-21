@@ -4,9 +4,12 @@
     left: 0;
     width: 320px;
     height: 100vh;
-    background: rgba(16, 16, 16, 0.95);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     z-index: 1000;
@@ -35,8 +38,22 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
     flex-shrink: 0;
+}
+
+.headerContent {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.itemCount {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
 }
 
 .closeButton {
@@ -62,6 +79,7 @@
 
 .filterSection {
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .sectionHeader {
@@ -76,7 +94,8 @@
     transition: background-color 0.2s ease;
     
     &:hover {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(8px);
     }
 }
 
@@ -145,7 +164,9 @@
 
 .footer {
     padding: 20px 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
     flex-shrink: 0;
 }
 
@@ -153,18 +174,152 @@
     width: 100%;
 }
 
+.dateRangeInputs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dateInputWrapper {
+    position: relative;
+}
+
+.dateInputContainer {
+    cursor: pointer;
+    
+    &:hover .dateInput {
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+}
+
+.dateInput {
+    width: 100%;
+    pointer-events: none;
+}
+
+.datePickerPopover {
+    background: rgba(16, 16, 16, 0.95);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    z-index: 9999;
+}
+    
+.datePickerPopover :global(.rdp-root) {
+    --rdp-accent-color: var(--primary);
+    --rdp-accent-background-color: var(--primary);
+    --rdp-background-color: transparent;
+    --rdp-outline: none;
+    --rdp-today-color: var(--primary);
+    --rdp-range_middle-background-color: rgba(from var(--primary) r g b / 0.3);
+    --rdp-range_middle-color: #fefefe;
+    --rdp-range_start-background: var(--primary);
+    --rdp-range_start-color: white;
+    --rdp-range_end-background: var(--primary);
+    --rdp-range_end-color: white;
+    color: white;
+}
+
+.dayPicker .rdp-day {
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.dayPicker .rdp-day:hover:not(.rdp-day_selected) {
+    background: rgba(255, 138, 0, 0.2) !important;
+    color: white;
+}
+
+.dayPicker .rdp-day_selected {
+    background: #ff8a00 !important;
+    color: white !important;
+}
+
+.dayPicker .rdp-day_selected:hover {
+    background: #ff9d26 !important;
+}
+
+.dayPicker .rdp-day_range_start,
+.dayPicker .rdp-day_range_end {
+    background: #ff8a00 !important;
+    color: white !important;
+}
+
+.dayPicker .rdp-day_range_middle {
+    background: rgba(255, 138, 0, 0.3) !important;
+    color: white !important;
+}
+
+.dayPicker .rdp-day_today {
+    font-weight: bold;
+    color: #ff8a00;
+    background: transparent;
+}
+
+.dayPicker .rdp-month_caption {
+    color: white;
+    font-weight: 600;
+}
+
+.dayPicker .rdp-weekday {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.dayPicker .rdp-nav_button {
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.dayPicker .rdp-nav_button:hover {
+    background: rgba(255, 138, 0, 0.2) !important;
+    color: white;
+}
+
+
+.closeDatePicker {
+    width: 100%;
+    margin-top: 12px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+}
+
 /* Desktop Layout */
 @media (min-width: 1024px) {
     .sidebar {
-        position: static;
+        position: fixed;
+        top: calc(var(--header-height) + 32px);
+        left: 24px;
+        width: 320px;
+        height: calc(100vh - var(--header-height) - 64px);
         transform: none;
-        height: auto;
-        min-height: calc(100vh - var(--header-height, 80px));
-        background: rgba(16, 16, 16, 0.6);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        margin-right: 24px;
-        flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(32px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 
+            0 12px 40px rgba(0, 0, 0, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        z-index: 100;
     }
     
     .header {

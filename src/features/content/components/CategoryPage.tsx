@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useParams, Link } from "@tanstack/react-router";
 
-import { Category } from "../../../api/content.ts";
+import { Category, type GetContentByCategoryRequest, type QueryFilters } from "../../../api/content.ts";
 import { Typography } from "../../../components/Typography.tsx";
 import { Button } from "../../../components/Button.tsx";
 import { useGetCategoryContent } from "../api/useGetCategoryContent.ts";
@@ -15,12 +15,16 @@ export const CategoryPage = () => {
     const { mutate: openContent } = useOpenContent();
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [filters, setFilters] = useState<FilterState>({
-        search: "",
-        duration: [],
-        channel: [],
-        contentType: [],
-        date: "",
         status: [],
+        excluded_statuses: [],
+        excluded_video_ids: [],
+        is_subscribed: undefined,
+        min_ranking: undefined,
+        start_date: undefined,
+        end_date: undefined,
+        include_shorts: undefined,
+        include_blocked: undefined,
+        order_by: undefined,
     });
 
     const category = useMemo(() => {
@@ -29,55 +33,58 @@ export const CategoryPage = () => {
         );
     }, [categoryName]);
 
-    const { data: allContent = [], error } = useGetCategoryContent(category || "", 50, 0);
+    const request: GetContentByCategoryRequest = useMemo(() => {
+        const baseRequest: GetContentByCategoryRequest = {
+            category: category || "",
+            limit: 50,
+            offset: 0,
+            ...filters,
+        };
 
-    // Mock filtering logic - this would be replaced with actual filtering logic
-    const filteredContent = useMemo(() => {
-        let result = allContent;
-
-        // Search filter
-        if (filters.search) {
-            result = result.filter(item => 
-                item.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-                item.artist.name.toLowerCase().includes(filters.search.toLowerCase())
-            );
+        if (baseRequest.include_shorts === undefined && (
+            (baseRequest.status && baseRequest.status.length > 0) ||
+            (baseRequest.excluded_statuses && baseRequest.excluded_statuses.length > 0) ||
+            baseRequest.is_subscribed !== undefined ||
+            baseRequest.min_ranking !== undefined ||
+            baseRequest.start_date ||
+            baseRequest.end_date ||
+            baseRequest.order_by
+        )) {
+            baseRequest.include_shorts = false;
         }
 
-        // Channel filter
-        if (filters.channel.length > 0) {
-            result = result.filter(item => 
-                filters.channel.some(channel => 
-                    item.artist.name.toLowerCase().includes(channel.toLowerCase())
-                )
-            );
-        }
+        return baseRequest;
+    }, [category, filters]);
 
-        // Content type filter (mock logic)
-        if (filters.contentType.length > 0) {
-            result = result.filter(item => {
-                if (filters.contentType.includes("live")) {
-                    return item.isLive;
-                }
-                if (filters.contentType.includes("video")) {
-                    return !item.isLive;
-                }
-                return true;
+    const { data: response, error } = useGetCategoryContent(request);
+
+    const content = response?.contentList || [];
+    const appliedFilters = response?.appliedFilter;
+
+    useEffect(() => {
+        if (appliedFilters) {
+            setFilters({
+                status: appliedFilters.status || [],
+                excluded_statuses: appliedFilters.excluded_statuses || [],
+                excluded_video_ids: appliedFilters.excluded_video_ids || [],
+                is_subscribed: appliedFilters.is_subscribed,
+                min_ranking: appliedFilters.min_ranking,
+                start_date: appliedFilters.start_date,
+                end_date: appliedFilters.end_date,
+                include_shorts: appliedFilters.include_shorts,
+                include_blocked: appliedFilters.include_blocked,
+                order_by: appliedFilters.order_by,
             });
         }
-
-        // Other filters would be implemented here with real data
-        // For now, they're just mock UI elements
-
-        return result;
-    }, [allContent, filters]);
+    }, [appliedFilters]);
 
     const meta = useMemo(() => {
-        if (!filteredContent) return undefined;
+        if (!response) return undefined;
         return {
-            total: filteredContent.length,
-            hasMore: allContent.length === 50 // If we got 50 items, there might be more
+            total: response.total,
+            hasMore: response.offset + response.limit < response.total
         };
-    }, [filteredContent, allContent]);
+    }, [response]);
 
     if (error) {
         return (
@@ -102,46 +109,18 @@ export const CategoryPage = () => {
     return (
         <div className={styles.pageContainer}>
             <FilterSidebar 
+                filters={filters}
                 onFiltersChange={setFilters} 
                 isOpen={isFilterOpen}
                 onClose={() => setIsFilterOpen(false)}
+                totalItems={response?.total || 0}
             />
             
             <div className={styles.mainContent}>
-                <div className={styles.navigation}>
-                    <Link to="/" className={styles.breadcrumb}>
-                        Home
-                    </Link>
-                    <span className={styles.breadcrumbSeparator}>›</span>
-                    <span className={styles.breadcrumbCurrent}>{category}</span>
-                </div>
-                
-                <div className={styles.header}>
-                    <div className={styles.titleSection}>
-                        <Typography variant="h1">{category}</Typography>
-                        <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => setIsFilterOpen(true)}
-                            className={styles.filtersButton}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            Filters
-                        </Button>
-                    </div>
-                    <Typography className={styles.count} variant="text">
-                        {filteredContent.length} items
-                        {filteredContent.length !== allContent.length && (
-                            <span className={styles.filteredCount}> (filtered from {allContent.length})</span>
-                        )}
-                    </Typography>
-                </div>
                 
                 <ContentList
                     category={category}
-                    content={filteredContent}
+                    content={content}
                     meta={meta}
                     onOpenUrl={openContent}
                 />

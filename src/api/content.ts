@@ -101,18 +101,57 @@ export const getContentTriage = async (): Promise<Content[]> => {
     return data.contentList || [];
 };
 
-export const getCategoryContent = async (category: string, limit: number, offset: number): Promise<Content[]> => {
-    const params = new URLSearchParams({
-        category: category,
-        limit: limit.toString(),
-        offset: offset.toString()
+export type GetContentByCategoryRequest = {
+    category: string;
+    limit?: number;
+    offset?: number;
+    status?: string[];
+    excluded_statuses?: string[];
+    excluded_video_ids?: string[];
+    is_subscribed?: boolean;
+    min_ranking?: number;
+    start_date?: string;
+    end_date?: string;
+    include_shorts?: boolean;
+    include_blocked?: boolean;
+    order_by?: string;
+};
+
+export type QueryFilters = {
+    status?: string[];
+    excluded_statuses?: string[];
+    excluded_video_ids?: string[];
+    is_subscribed?: boolean;
+    min_ranking?: number;
+    start_date?: string;
+    end_date?: string;
+    include_shorts?: boolean;
+    include_blocked?: boolean;
+    order_by?: string;
+    limit: number;
+    offset: number;
+};
+
+export type GetContentByCategoryResponse = {
+    contentList: Content[];
+    total: number;
+    limit: number;
+    offset: number;
+    category: string;
+    appliedFilter: QueryFilters;
+};
+
+export const getCategoryContent = async (request: GetContentByCategoryRequest): Promise<GetContentByCategoryResponse> => {
+    const resp = await fetch(`${BaseURL}/api/content/category`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
     });
     
-    const resp = await fetch(`${BaseURL}/api/content/category?${params}`);
     if (!resp.ok) {
-        throw new Error(`Failed to fetch content for category: ${category}`);
+        throw new Error(`Failed to fetch content for category: ${request.category}`);
     }
 
     const data = await resp.json();
-    return data.contentList || [];
+    return data;
 };
