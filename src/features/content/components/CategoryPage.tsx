@@ -38,7 +38,16 @@ export const CategoryPage = () => {
             category: category || "",
             limit: 50,
             offset: 0,
-            ...filters,
+            status: filters.status,
+            excluded_statuses: filters.excluded_statuses,
+            excluded_video_ids: filters.excluded_video_ids,
+            is_subscribed: filters.is_subscribed,
+            min_ranking: filters.min_ranking,
+            start_date: filters.start_date ? `${filters.start_date.getFullYear()}-${String(filters.start_date.getMonth() + 1).padStart(2, '0')}-${String(filters.start_date.getDate()).padStart(2, '0')}` : undefined,
+            end_date: filters.end_date ? `${filters.end_date.getFullYear()}-${String(filters.end_date.getMonth() + 1).padStart(2, '0')}-${String(filters.end_date.getDate()).padStart(2, '0')}` : undefined,
+            include_shorts: filters.include_shorts,
+            include_blocked: filters.include_blocked,
+            order_by: filters.order_by,
         };
 
         if (baseRequest.include_shorts === undefined && (
@@ -69,8 +78,8 @@ export const CategoryPage = () => {
                 excluded_video_ids: appliedFilters.excluded_video_ids || [],
                 is_subscribed: appliedFilters.is_subscribed,
                 min_ranking: appliedFilters.min_ranking,
-                start_date: appliedFilters.start_date,
-                end_date: appliedFilters.end_date,
+                start_date: appliedFilters.start_date ? new Date(appliedFilters.start_date) : undefined,
+                end_date: appliedFilters.end_date ? new Date(appliedFilters.end_date) : undefined,
                 include_shorts: appliedFilters.include_shorts,
                 include_blocked: appliedFilters.include_blocked,
                 order_by: appliedFilters.order_by,

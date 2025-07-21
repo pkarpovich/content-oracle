@@ -11,33 +11,37 @@ type Props = {
     icon?: ReactNode;
     label?: string;
     name?: string;
-    onChange: (value: string) => void;
+    onChange?: (value: string) => void;
     placeholder?: string;
+    readOnly?: boolean;
     required?: boolean;
     type?: string;
     value: string;
 };
 
 export const Input = ({
+    className,
     disabled = false,
     error,
     icon,
     label,
     name,
     onChange,
+    placeholder,
+    readOnly = false,
     required = false,
     type = "text",
     value,
 }: Props) => {
     const handleChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
-            onChange(e.target.value);
+            onChange?.(e.target.value);
         },
         [onChange],
     );
 
     return (
-        <div className={styles.inputWrapper}>
+        <div className={clsx(styles.inputWrapper, className)}>
             <div
                 className={clsx(styles.inputContainer, {
                     [styles.errorBorder]: Boolean(error),
@@ -50,6 +54,8 @@ export const Input = ({
                     id={name}
                     name={name}
                     onChange={handleChange}
+                    placeholder={placeholder}
+                    readOnly={readOnly}
                     required={required}
                     type={type}
                     value={value}

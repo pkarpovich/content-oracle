@@ -21,8 +21,8 @@ export type FilterState = {
     excluded_video_ids: string[];
     is_subscribed?: boolean;
     min_ranking?: number;
-    start_date?: string;
-    end_date?: string;
+    start_date?: Date;
+    end_date?: Date;
     include_shorts?: boolean;
     include_blocked?: boolean;
     order_by?: string;
@@ -158,6 +158,10 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
         handleFilterChange("order_by", value);
     }, [handleFilterChange]);
 
+    const handleOnClickOutside = useCallback(() => {
+        setShowDatePicker(false);
+    }, []);
+
     const hasActiveFilters = filters.status.length > 0 || 
         filters.excluded_statuses.length > 0 || 
         filters.excluded_video_ids.length > 0 || 
@@ -230,15 +234,19 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                                 isOpen={showDatePicker}
                                 positions={['left', 'right', 'bottom', 'top']}
                                 padding={8}
-                                containerStyle={{ zIndex: 9999 }}
+                                containerStyle={{ zIndex: "9999" }}
+                                clickOutsideCapture={true}
+                                onClickOutside={handleOnClickOutside}
                                 content={
                                     <div className={styles.datePickerPopover} onClick={handlePopoverContentClick}>
                                         <DayPicker
                                             mode="range"
                                             selected={{
-                                                from: filters.start_date ? new Date(filters.start_date) : undefined,
-                                                to: filters.end_date ? new Date(filters.end_date) : undefined,
+                                                from: filters.start_date,
+                                                to: filters.end_date,
                                             }}
+                                            showOutsideDays={true}
+                                            captionLayout="dropdown"
                                             onSelect={handleDateRangeSelect}
                                             className={styles.dayPicker}
                                         />
@@ -246,21 +254,24 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                                 }
                             >
                                 <div className={styles.dateInputWrapper}>
-                                    <div className={styles.dateInputContainer} onClick={handleDatePickerToggle}>
-                                        <Input
-                                            placeholder="Start Date"
-                                            value={filters.start_date ? new Date(filters.start_date).toLocaleDateString() : ""}
-                                            readOnly
-                                            className={styles.dateInput}
-                                        />
-                                    </div>
-                                    <div className={styles.dateInputContainer} onClick={handleDatePickerToggle}>
-                                        <Input
-                                            placeholder="End Date"
-                                            value={filters.end_date ? new Date(filters.end_date).toLocaleDateString() : ""}
-                                            readOnly
-                                            className={styles.dateInput}
-                                        />
+                                    <div className={styles.dateRangeInputs}>
+                                        <div className={styles.dateInputContainer} onClick={handleDatePickerToggle}>
+                                            <Input
+                                                placeholder="Start Date"
+                                                value={filters.start_date ? filters.start_date.toLocaleDateString() : ""}
+                                                readOnly={true}
+                                                className={styles.dateInput}
+                                            />
+                                        </div>
+                                        <span className={styles.dateSeparator}>-</span>
+                                        <div className={styles.dateInputContainer} onClick={handleDatePickerToggle}>
+                                            <Input
+                                                placeholder="End Date"
+                                                value={filters.end_date ? filters.end_date.toLocaleDateString() : ""}
+                                                readOnly={true}
+                                                className={styles.dateInput}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </Popover>
