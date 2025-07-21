@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Popover } from "react-tiny-popover";
 import { DayPicker, DateRange } from "react-day-picker";
 import { Button } from "../../../components/Button.tsx";
@@ -58,10 +58,17 @@ type FilterSectionProps = {
     title: string;
     children: React.ReactNode;
     defaultOpen?: boolean;
+    hasActiveFilters?: boolean;
 };
 
-const FilterSection = ({ title, children, defaultOpen = true }: FilterSectionProps) => {
+const FilterSection = ({ title, children, defaultOpen = true, hasActiveFilters = false }: FilterSectionProps) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
+    
+    useEffect(() => {
+        if (hasActiveFilters) {
+            setIsOpen(true);
+        }
+    }, [hasActiveFilters]);
 
     return (
         <div className={styles.filterSection}>
@@ -198,7 +205,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                 </div>
 
                 <div className={styles.content}>
-                    <FilterSection title="Watch Status">
+                    <FilterSection title="Watch Status" hasActiveFilters={filters.status.length > 0} defaultOpen={false}>
                         <div className={styles.checkboxGroup}>
                             {STATUS_OPTIONS.map(option => (
                                 <label key={option.value} className={styles.checkboxOption}>
@@ -213,7 +220,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                         </div>
                     </FilterSection>
 
-                    <FilterSection title="Exclude Status">
+                    <FilterSection title="Exclude Status" hasActiveFilters={filters.excluded_statuses.length > 0} defaultOpen={false}>
                         <div className={styles.checkboxGroup}>
                             {EXCLUDED_STATUS_OPTIONS.map(option => (
                                 <label key={option.value} className={styles.checkboxOption}>
@@ -228,7 +235,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                         </div>
                     </FilterSection>
 
-                    <FilterSection title="Date Range">
+                    <FilterSection title="Date Range" hasActiveFilters={filters.start_date !== undefined || filters.end_date !== undefined} defaultOpen={false}>
                         <div className={styles.dateRangeInputs}>
                             <Popover
                                 isOpen={showDatePicker}
@@ -278,7 +285,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                         </div>
                     </FilterSection>
 
-                    <FilterSection title="Subscription">
+                    <FilterSection title="Subscription" hasActiveFilters={filters.is_subscribed !== undefined} defaultOpen={false}>
                         <div className={styles.radioGroup}>
                             <label className={styles.radioOption}>
                                 <input
@@ -310,7 +317,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                         </div>
                     </FilterSection>
 
-                    <FilterSection title="Content Options">
+                    <FilterSection title="Content Options" hasActiveFilters={filters.include_shorts !== undefined || filters.include_blocked !== undefined} defaultOpen={false}>
                         <div className={styles.checkboxGroup}>
                             <label className={styles.checkboxOption}>
                                 <input
@@ -331,7 +338,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                         </div>
                     </FilterSection>
 
-                    <FilterSection title="Minimum Ranking">
+                    <FilterSection title="Minimum Ranking" hasActiveFilters={filters.min_ranking !== undefined && filters.min_ranking > 0} defaultOpen={false}>
                         <div className={styles.sliderContainer}>
                             <input
                                 type="range"
@@ -348,7 +355,7 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                         </div>
                     </FilterSection>
 
-                    <FilterSection title="Sort Order">
+                    <FilterSection title="Sort Order" hasActiveFilters={filters.order_by !== undefined} defaultOpen={false}>
                         <div className={styles.radioGroup}>
                             <label className={styles.radioOption}>
                                 <input
