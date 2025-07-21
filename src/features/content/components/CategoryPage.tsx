@@ -1,9 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
-import { useParams, Link } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 
-import { Category, type GetContentByCategoryRequest, type QueryFilters } from "../../../api/content.ts";
+import { Category, type GetContentByCategoryRequest } from "../../../api/content.ts";
 import { Typography } from "../../../components/Typography.tsx";
-import { Button } from "../../../components/Button.tsx";
 import { useGetCategoryContent } from "../api/useGetCategoryContent.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
 import { ContentList } from "./ContentList.tsx";

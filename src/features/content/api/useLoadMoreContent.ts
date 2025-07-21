@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getCategoryContent, type Data, Category } from "../../../api/content.ts";
+import { getCategoryContent, type Data, Category, type GetContentByCategoryRequest } from "../../../api/content.ts";
 import { CONTENT_PAGE_SIZE } from "../../../constants/pagination.ts";
 
 export const useLoadMoreContent = () => {
@@ -7,7 +7,13 @@ export const useLoadMoreContent = () => {
 
     return useMutation({
         mutationFn: async ({ category, currentCount }: { category: string; currentCount: number }) => {
-            return getCategoryContent(category, CONTENT_PAGE_SIZE, currentCount);
+            const request: GetContentByCategoryRequest = {
+                category,
+                limit: CONTENT_PAGE_SIZE,
+                offset: currentCount
+            };
+            const response = await getCategoryContent(request);
+            return response.contentList;
         },
         onSuccess: (newContent, { category }) => {
             queryClient.setQueryData(["content"], (oldData: Data) => {
