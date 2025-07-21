@@ -146,8 +146,18 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
 
 
     const handleSubscriptionChange = useCallback((value: boolean | undefined) => {
-        handleFilterChange("is_subscribed", value);
-    }, [handleFilterChange]);
+        if (value === undefined) {
+            const newFilters = {
+                ...filters,
+                is_subscribed: undefined,
+                min_ranking: 0,
+                order_by: "v.published_at DESC"
+            };
+            onFiltersChange?.(newFilters);
+        } else {
+            handleFilterChange("is_subscribed", value);
+        }
+    }, [filters, onFiltersChange, handleFilterChange]);
 
     const handleShortsChange = useCallback((checked: boolean) => {
         handleFilterChange("include_shorts", checked ? false : undefined);

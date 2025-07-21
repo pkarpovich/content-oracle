@@ -33,9 +33,22 @@ export const CategoryPage = () => {
         );
     }, [categoryName]);
 
+    const hasUserFilters = useMemo(() => {
+        return filters.status.length > 0 || 
+            filters.excluded_statuses.length > 0 || 
+            filters.excluded_video_ids.length > 0 || 
+            filters.is_subscribed !== undefined || 
+            filters.min_ranking !== undefined || 
+            filters.start_date !== undefined || 
+            filters.end_date !== undefined || 
+            filters.include_shorts !== undefined || 
+            filters.include_blocked !== undefined || 
+            filters.order_by !== undefined;
+    }, [filters]);
+
     const request: GetContentByCategoryRequest = useMemo(() => {
         const baseRequest: GetContentByCategoryRequest = {
-            category: category || "",
+            category: hasUserFilters ? "Custom" : (category || ""),
             limit: 50,
             offset: 0,
             status: filters.status,
@@ -63,7 +76,7 @@ export const CategoryPage = () => {
         }
 
         return baseRequest;
-    }, [category, filters]);
+    }, [category, filters, hasUserFilters]);
 
     const { data: response, error } = useGetCategoryContent(request);
 
