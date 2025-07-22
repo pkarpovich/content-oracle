@@ -15,8 +15,11 @@
     height: 4px;
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
-    transform: translate3d(0, 0, 0);
     z-index: 3;
+
+    @supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
+        backdrop-filter: none;
+    }
 }
 
 .progressBarFill {
