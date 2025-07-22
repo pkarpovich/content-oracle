@@ -109,10 +109,11 @@ export const ContentCard = memo(({
                         </div>
                     ) : (
                         <img 
-                            alt={title} 
+                            alt={title}
+                            loading="lazy"
                             className={styles.image} 
                             onError={handleImageError}
-                            src={imageUrl} 
+                            src={imageUrl}
                         />
                     )}
                     <ProgressBar isLive={isLive} progress={position} />
