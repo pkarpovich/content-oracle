@@ -76,9 +76,14 @@
         rgba(44, 44, 46, 0.8),
         rgba(44, 44, 46, 0.6)
     );
-    backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .fallbackImage {
+        backdrop-filter: blur(12px);
+    }
 }
 
 .fallbackIcon {
@@ -122,14 +127,24 @@
         rgba(0, 0, 0, 0.85),
         rgba(0, 0, 0, 0.75)
     );
-    backdrop-filter: blur(12px);
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 
     @media (max-width: 600px) {
         min-height: 75px;
         max-height: 75px;
         padding: 12px 14px 8px 14px;
-        backdrop-filter: blur(10px);
+    }
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .content {
+        backdrop-filter: blur(12px);
+    }
+
+    .content {
+        @media (max-width: 600px) {
+            backdrop-filter: blur(10px);
+        }
     }
 }
 
@@ -182,12 +197,17 @@
     font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5));
-    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
     padding: 2px 6px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     flex-shrink: 0;
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .position {
+        backdrop-filter: blur(8px);
+    }
 }
 
 .liveIndicator {
@@ -202,8 +222,13 @@
     box-shadow: 0 2px 8px rgba(255, 68, 68, 0.4);
     animation: pulse 2s infinite;
     flex-shrink: 0;
-    backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .liveIndicator {
+        backdrop-filter: blur(4px);
+    }
 }
 
 @keyframes pulse {

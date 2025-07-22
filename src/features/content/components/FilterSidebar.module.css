@@ -4,8 +4,7 @@
     left: 0;
     width: 320px;
     height: 100vh;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(24px);
+    background: rgba(16, 16, 16, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.3),
@@ -16,6 +15,13 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .sidebar {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(24px);
+    }
 }
 
 .sidebarOpen {
@@ -39,9 +45,15 @@
     justify-content: space-between;
     padding: 20px 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(8px);
+    background: rgba(16, 16, 16, 0.8);
     flex-shrink: 0;
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .header {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(8px);
+    }
 }
 
 .headerContent {
@@ -96,6 +108,11 @@
     
     &:hover {
         background: rgba(255, 255, 255, 0.06);
+    }
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .sectionHeader:hover {
         backdrop-filter: blur(8px);
     }
 }
@@ -167,8 +184,13 @@
     padding: 20px 24px;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(8px);
     flex-shrink: 0;
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .footer {
+        backdrop-filter: blur(8px);
+    }
 }
 
 .clearButton {
@@ -272,7 +294,6 @@
 
 .datePickerPopover {
     background: rgba(16, 16, 16, 0.95);
-    backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     padding: 16px;
@@ -280,6 +301,13 @@
         0 12px 40px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     z-index: 9999;
+}
+
+@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
+    .datePickerPopover {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(24px);
+    }
 }
     
 .datePickerPopover :global(.rdp-root) {
