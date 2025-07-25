@@ -17,21 +17,20 @@ export const useMarkVideoStatus = () => {
             await queryClient.cancelQueries({ queryKey: ["content"] });
 
             const content = queryClient.getQueryData<Data>(["content"]);
+            if (!content) return;
 
-            if (content) {
-                // Remove video from UI when marked as watched or skipped
-                if (status === "watched" || status === "skipped") {
-                    // Remove from all categories
-                    for (const [category, items] of content.groupedContent) {
-                        const filteredItems = items.filter((item) => item.id !== videoId);
-                        content.groupedContent.set(category, filteredItems);
-                    }
 
-                    // Remove from allContent array as well
-                    content.allContent = content.allContent.filter((item) => item.id !== videoId);
-
-                    queryClient.setQueryData<Data>(["content"], content);
+            if (status === "watched" || status === "skipped" || status === "watch_later") {
+                // Remove from all categories
+                for (const [category, items] of content.groupedContent) {
+                    const filteredItems = items.filter((item) => item.id !== videoId);
+                    content.groupedContent.set(category, filteredItems);
                 }
+
+                // Remove from allContent array as well
+                content.allContent = content.allContent.filter((item) => item.id !== videoId);
+
+                queryClient.setQueryData<Data>(["content"], content);
             }
 
             return content;
@@ -42,11 +41,11 @@ export const useMarkVideoStatus = () => {
                                  "Video status cleared";
             toast.success(data.message || statusMessage);
         },
-        onError: (error: Error) => {
+        onError: (error: Error, _, context) => {
+            if (context) {
+                queryClient.setQueryData<Data>(["content"], context);
+            }
             toast.error(error.message || "Failed to mark video status");
-        },
-        onSettled: async () => {
-            await queryClient.invalidateQueries({ queryKey: ["content"] });
         },
     });
 };

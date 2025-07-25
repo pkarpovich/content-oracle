@@ -19,7 +19,7 @@ export type MarkVideoStatusResponse = {
     message: string;
 };
 
-export type VideoStatus = "watched" | "skipped" | "";
+export type VideoStatus = "watched" | "skipped" | "watch_later" | "";
 
 export const blockChannel = async (channelId: string): Promise<BlockChannelResponse> => {
     const resp = await fetch(`${BaseURL}/api/block-channel`, {

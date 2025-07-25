@@ -1,14 +1,10 @@
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useState, useMemo } from "react";
 
 import type { Artist } from "../../../api/content.ts";
 import { Category } from "../../../api/content.ts";
 import { ProgressBar } from "../../../components/ProgressBar.tsx";
 import { Typography } from "../../../components/Typography.tsx";
-import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
-import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
-import { useBlockChannel } from "../api/useBlockChannel.ts";
-import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
-import { ContentCardBottomSheet } from "./ContentCardBottomSheet.tsx";
+import { useContentCardBottomSheet } from "../../../contexts/ContentCardBottomSheetContext.tsx";
 import styles from "./ContentCard.module.css";
 
 type Props = {
@@ -34,65 +30,24 @@ export const ContentCard = memo(({
     title,
     url,
 }: Props) => {
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const { mutate: addToWatchlistMutation } = useAddToWatchlist();
-    const { mutate: blockChannelMutation } = useBlockChannel();
-    const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
+    const { openBottomSheet } = useContentCardBottomSheet();
+
+    const videoData = useMemo(() => ({
+        id,
+        url,
+        title,
+        artist,
+        category,
+    }), [id, url, title, artist, category]);
 
     const handleImageError = useCallback(() => {
         setImageError(true);
     }, []);
 
     const handleCardClick = useCallback(() => {
-        setIsBottomSheetOpen(true);
-    }, []);
-
-    const handleCloseBottomSheet = useCallback(() => {
-        setIsBottomSheetOpen(false);
-    }, []);
-
-    const handleOpenButtonClick = useCallback(() => {
-        window.open(url, "_blank");
-        setIsBottomSheetOpen(false);
-    }, [url]);
-
-    const handleShareButtonClick = useCallback(async () => {
-        await navigator.clipboard.writeText(url);
-        setIsBottomSheetOpen(false);
-    }, [url]);
-
-    const handleSendToTvButtonClick = useCallback(() => {
-        onOpenUrl(url);
-        setIsBottomSheetOpen(false);
-    }, [onOpenUrl, url]);
-
-    const handleCheckButtonClick = useCallback(() => {
-        markVideoStatusMutation({ videoId: id, status: "watched" });
-        setIsBottomSheetOpen(false);
-    }, [id, markVideoStatusMutation]);
-
-    const handleBoringButtonClick = useCallback(() => {
-        blockChannelMutation(artist.id);
-        setIsBottomSheetOpen(false);
-    }, [artist.id, blockChannelMutation]);
-
-    const handleSkipButtonClick = useCallback(() => {
-        markVideoStatusMutation({ videoId: id, status: "skipped" });
-        setIsBottomSheetOpen(false);
-    }, [id, markVideoStatusMutation]);
-
-    const handleSaveForLaterButtonClick = useCallback(() => {
-        if (category === Category.watchLater) {
-            markVideoStatusMutation({ videoId: id, status: "" });
-        } else {
-            const videoId = extractYouTubeVideoId(url);
-            if (videoId) {
-                addToWatchlistMutation(videoId);
-            }
-        }
-        setIsBottomSheetOpen(false);
-    }, [category, id, url, addToWatchlistMutation, markVideoStatusMutation]);
+        openBottomSheet(videoData);
+    }, [openBottomSheet, videoData]);
 
 
     return (
@@ -138,20 +93,6 @@ export const ContentCard = memo(({
                 </div>
             </div>
 
-            {isBottomSheetOpen && (<ContentCardBottomSheet
-                    artist={artist}
-                    category={category}
-                    isOpen={isBottomSheetOpen}
-                    onBoringButtonClick={handleBoringButtonClick}
-                    onCheckButtonClick={handleCheckButtonClick}
-                    onClose={handleCloseBottomSheet}
-                    onOpenButtonClick={handleOpenButtonClick}
-                    onSaveForLaterButtonClick={handleSaveForLaterButtonClick}
-                    onSendToTvButtonClick={handleSendToTvButtonClick}
-                    onShareButtonClick={handleShareButtonClick}
-                    onSkipButtonClick={handleSkipButtonClick}
-                    title={title}
-            />)}
         </>
     );
 });

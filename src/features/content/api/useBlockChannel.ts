@@ -29,11 +29,11 @@ export const useBlockChannel = () => {
         onSuccess: (data) => {
             toast.success(data.message || "Channel blocked successfully");
         },
-        onError: (error: Error) => {
+        onError: (error: Error, _, context) => {
+            if (context) {
+                queryClient.setQueryData<Data>(["content"], context);
+            }
             toast.error(error.message || "Failed to block channel");
-        },
-        onSettled: async () => {
-            await queryClient.invalidateQueries({ queryKey: ["content"] });
         },
     });
 };

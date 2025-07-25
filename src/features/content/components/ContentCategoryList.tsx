@@ -103,7 +103,7 @@ export const ContentCategoryList = () => {
     const handleSaveForLater = useCallback((item: ContentItem) => {
         const videoId = extractYouTubeVideoId(item.url);
         if (videoId) {
-            addToWatchlistMutation(videoId);
+            addToWatchlistMutation({ videoId, originalVideoId: item.id });
         }
     }, [addToWatchlistMutation]);
 
