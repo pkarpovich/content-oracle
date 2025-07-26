@@ -4,6 +4,7 @@ import type { Artist } from "../../../api/content.ts";
 import { Category } from "../../../api/content.ts";
 import { ProgressBar } from "../../../components/ProgressBar.tsx";
 import { Typography } from "../../../components/Typography.tsx";
+import { ResponsiveThumbnail } from "../../../components/ResponsiveThumbnail.tsx";
 import { useContentCardBottomSheet } from "../../../contexts/ContentCardBottomSheetContext.tsx";
 import styles from "./ContentCard.module.css";
 
@@ -63,12 +64,12 @@ export const ContentCard = memo(({
                             </div>
                         </div>
                     ) : (
-                        <img 
+                        <ResponsiveThumbnail
+                            src={url || imageUrl}
                             alt={title}
-                            loading="lazy"
-                            className={styles.image} 
+                            className={styles.image}
                             onError={handleImageError}
-                            src={imageUrl}
+                            fallbackSrc={imageUrl}
                         />
                     )}
                     <ProgressBar isLive={isLive} progress={position} />
