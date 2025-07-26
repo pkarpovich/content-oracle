@@ -1,17 +1,11 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useMemo, useState} from "react";
 import { Link } from "@tanstack/react-router";
 
 import { Category, categoryToHash } from "../../../api/content.ts";
-import { ContentTriageModal } from "../../../components/ContentTriageModal.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import { usePopup } from "../../../hooks/usePopup.ts";
-import type { Content as ContentItem } from "../../../api/content.ts";
-import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
-import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
-import { useBlockChannel } from "../api/useBlockChannel.ts";
+import { useContentTriageModal } from "../../../contexts/ContentTriageModalContext.tsx";
 import { useGetAllContent } from "../api/useGetAllContent.ts";
-import { useGetContentTriage } from "../api/useGetContentTriage.ts";
-import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
 import { ActionButton } from "./ActionButton.tsx";
 import { AddToWatchlistPopup } from "./AddToWatchlistPopup.tsx";
@@ -30,15 +24,9 @@ const CustomCategoryOrder = [
 export const ContentCategoryList = () => {
     const { close: closeWatchlistPopup, isOpen: isWatchlistPopupOpen, open: openWatchlistPopup } = usePopup();
     const { close: closeSendToTvPopup, isOpen: isSendToTvPopupOpen, open: openSendToTvPopup } = usePopup();
-    const { close: closeTriageModal, isOpen: isTriageModalOpen, open: openTriageModal } = usePopup();
+    const { openTriageModal } = useContentTriageModal();
     const { data, error } = useGetAllContent();
-    const { data: triageData, error: triageError } = useGetContentTriage();
     const { mutate: openContent } = useOpenContent();
-    const { mutate: addToWatchlistMutation } = useAddToWatchlist();
-    const { mutate: blockChannelMutation } = useBlockChannel();
-    const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
-    
-    const [currentTriageIndex, setCurrentTriageIndex] = useState(0);
     
     const [collapsedCategories, setCollapsedCategories] = useState<Set<Category>>(() => {
         try {
@@ -53,13 +41,6 @@ export const ContentCategoryList = () => {
         return new Set();
     });
 
-    const triageContentItems = triageData || [];
-
-    useEffect(() => {
-        if (isTriageModalOpen && triageContentItems.length === 0) {
-            closeTriageModal();
-        }
-    }, [isTriageModalOpen, triageContentItems.length, closeTriageModal]);
 
     const sortedEntries = useMemo(
         () =>
@@ -79,37 +60,6 @@ export const ContentCategoryList = () => {
         [data.groupedContent],
     );
 
-    const handleOpenTriage = useCallback(() => {
-        setCurrentTriageIndex(0);
-        openTriageModal();
-    }, [openTriageModal]);
-
-    const handleTriageNext = useCallback(() => {
-        setCurrentTriageIndex(prev => Math.min(prev + 1, triageContentItems.length - 1));
-    }, [triageContentItems.length]);
-
-    const handleTriagePrevious = useCallback(() => {
-        setCurrentTriageIndex(prev => Math.max(prev - 1, 0));
-    }, []);
-
-    const handleSkip = useCallback((item: ContentItem) => {
-        markVideoStatusMutation({ videoId: item.id, status: "skipped" });
-    }, [markVideoStatusMutation]);
-
-    const handleMarkWatched = useCallback((item: ContentItem) => {
-        markVideoStatusMutation({ videoId: item.id, status: "watched" });
-    }, [markVideoStatusMutation]);
-
-    const handleSaveForLater = useCallback((item: ContentItem) => {
-        const videoId = extractYouTubeVideoId(item.url);
-        if (videoId) {
-            addToWatchlistMutation({ videoId, originalVideoId: item.id });
-        }
-    }, [addToWatchlistMutation]);
-
-    const handleNotInterested = useCallback((item: ContentItem) => {
-        blockChannelMutation(item.artist.id);
-    }, [blockChannelMutation]);
 
     const toggleCategoryCollapse = useCallback((category: Category) => {
         setCollapsedCategories(prev => {
@@ -136,23 +86,10 @@ export const ContentCategoryList = () => {
 
     return (
         <>
-            <ActionButton onAddToWatchlist={openWatchlistPopup} onSendToTv={openSendToTvPopup} onTriage={handleOpenTriage} />
+            <ActionButton onAddToWatchlist={openWatchlistPopup} onSendToTv={openSendToTvPopup} onTriage={openTriageModal} />
             <AddToWatchlistPopup isOpen={isWatchlistPopupOpen} onClose={closeWatchlistPopup} />
             <SendToTvPopupPopup isOpen={isSendToTvPopupOpen} onClose={closeSendToTvPopup} />
-            <ContentTriageModal
-                contentItems={triageContentItems}
-                currentIndex={currentTriageIndex}
-                isOpen={isTriageModalOpen}
-                onClose={closeTriageModal}
-                onMarkWatched={handleMarkWatched}
-                onNext={handleTriageNext}
-                onNotInterested={handleNotInterested}
-                onPrevious={handleTriagePrevious}
-                onSaveForLater={handleSaveForLater}
-                onSkip={handleSkip}
-            />
             {error ? <p>Error: {error.message}</p> : null}
-            {triageError ? <p>Triage Error: {triageError.message}</p> : null}
             <div className={style.container}>
                 {sortedEntries.map(([category, content]) => (
                     <div className={style.itemContainer} id={categoryToHash(category)} key={category}>
