@@ -1,43 +1,34 @@
 import { memo, useCallback } from "react";
+
+import { VideoStatus } from "../../../api/channels.ts";
+import type { Artist } from "../../../api/content.ts";
+import { Category } from "../../../api/content.ts";
 import { ActionButton } from "../../../components/ActionButton.tsx";
 import { BottomSheet } from "../../../components/BottomSheet.tsx";
 import { Typography } from "../../../components/Typography.tsx";
-import AppleTvIcon from "../../../icons/apple-tv.svg";
 import BookmarkIcon from "../../../icons/add-bookmark.svg";
+import AppleTvIcon from "../../../icons/apple-tv.svg";
 import BoringIcon from "../../../icons/boring.svg";
 import CheckIcon from "../../../icons/check.svg";
 import CloseIcon from "../../../icons/close.svg";
 import EnterIcon from "../../../icons/enter.svg";
-import ShareIcon from "../../../icons/share.svg";
 import SkipIcon from "../../../icons/previous.svg";
-import type { Artist } from "../../../api/content.ts";
-import { Category } from "../../../api/content.ts";
-import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
-import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
+import ShareIcon from "../../../icons/share.svg";
 import { useBlockChannel } from "../api/useBlockChannel.ts";
 import { useMarkVideoStatus } from "../api/useMarkVideoStatus.ts";
 import styles from "./ContentCard.module.css";
 
 type Props = {
-    id: string;
-    url: string;
-    title: string;
     artist: Artist;
     category: Category;
+    id: string;
     onClose: () => void;
     onOpenUrl?: (url: string) => void;
+    title: string;
+    url: string;
 };
 
-export const ContentCardBottomSheet = memo(({
-    id,
-    url,
-    title,
-    artist,
-    category,
-    onClose,
-    onOpenUrl,
-}: Props) => {
-    const { mutate: addToWatchlistMutation } = useAddToWatchlist();
+export const ContentCardBottomSheet = memo(({ artist, category, id, onClose, onOpenUrl, title, url }: Props) => {
     const { mutate: blockChannelMutation } = useBlockChannel();
     const { mutate: markVideoStatusMutation } = useMarkVideoStatus();
 
@@ -60,7 +51,7 @@ export const ContentCardBottomSheet = memo(({
     }, [onOpenUrl, url, onClose]);
 
     const handleCheckButtonClick = useCallback(() => {
-        markVideoStatusMutation({ videoId: id, status: "watched" });
+        markVideoStatusMutation({ status: VideoStatus.Watched, videoId: id });
         onClose();
     }, [id, markVideoStatusMutation, onClose]);
 
@@ -70,14 +61,17 @@ export const ContentCardBottomSheet = memo(({
     }, [artist.id, blockChannelMutation, onClose]);
 
     const handleSkipButtonClick = useCallback(() => {
-        markVideoStatusMutation({ videoId: id, status: "skipped" });
+        markVideoStatusMutation({ status: VideoStatus.Skipped, videoId: id });
         onClose();
     }, [id, markVideoStatusMutation, onClose]);
 
     const handleSaveForLaterButtonClick = useCallback(() => {
-        markVideoStatusMutation({ videoId: id, status: category === Category.watchLater ? "" : "watch_later" });
+        markVideoStatusMutation({
+            status: category === Category.watchLater ? VideoStatus.None : VideoStatus.WatchLater,
+            videoId: id,
+        });
         onClose();
-    }, [category, id, url, addToWatchlistMutation, markVideoStatusMutation, onClose]);
+    }, [category, id, markVideoStatusMutation, onClose]);
 
     return (
         <BottomSheet isOpen={true} onClose={onClose}>
@@ -142,14 +136,14 @@ export const ContentCardBottomSheet = memo(({
                     title="Skip Video"
                 />
 
-                {allowBoringAction && (
+                {allowBoringAction ? (
                     <ActionButton
                         description="Hide all content from this channel"
                         icon={<BoringIcon />}
                         onClick={handleBoringButtonClick}
                         title="Block Channel"
                     />
-                )}
+                ) : null}
             </div>
         </BottomSheet>
     );
