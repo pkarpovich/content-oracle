@@ -62,16 +62,104 @@ body::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-        radial-gradient(circle at 20px 20px, rgba(255, 255, 255, 0.025) 3px, transparent 3px),
-        radial-gradient(circle at 60px 60px, rgba(120, 119, 198, 0.02) 2px, transparent 2px),
-        radial-gradient(circle at 25% 25%, rgba(120, 119, 198, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 75% 75%, rgba(255, 119, 198, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 50% 90%, rgba(120, 198, 119, 0.04) 0%, transparent 50%),
-        linear-gradient(150deg, oklch(0.08 0.02 240 / 0.8) 0%, oklch(0.12 0.03 280 / 0.6) 50%, oklch(0.08 0.02 320 / 0.8) 100%);
-    background-size: 20px 20px, 80px 80px, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    background: var(--bg-color);
+    opacity: 0.6;
+    background-image: 
+        repeating-radial-gradient(circle at 0 0, transparent 0, rgba(25, 25, 25, 0.8) 40px),
+        repeating-linear-gradient(rgba(20, 20, 20, 0.4), rgba(30, 30, 30, 0.6));
     pointer-events: none;
     z-index: -1;
+    animation: patternFloat 12s ease-in-out infinite;
+}
+
+/* Dynamic ambient overlay for premium depth */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        /* Simple pulsing orbs only */
+        radial-gradient(circle 800px at 30% 20%,
+            rgba(255, 165, 0, 0.08) 0%, 
+            transparent 60%
+        ),
+        radial-gradient(circle 600px at 70% 80%, 
+            rgba(120, 119, 198, 0.06) 0%, 
+            transparent 50%
+        );
+    pointer-events: none;
+    z-index: -1;
+    opacity: 1;
+    mix-blend-mode: soft-light;
+    animation: pulsing 8s ease-in-out infinite alternate;
+    transition: background 0.3s ease-out;
+
+    @media (max-width: 768px) {
+        background: 
+            radial-gradient(circle 300px at 50% 40%, 
+                rgba(255, 165, 0, 0.06) 0%, 
+                transparent 60%
+            ),
+            radial-gradient(circle 200px at 20% 80%, 
+                rgba(120, 119, 198, 0.04) 0%, 
+                transparent 60%
+            );
+        animation: mobilePulsing 6s ease-in-out infinite alternate;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+        opacity: 0.3;
+    }
+}
+
+/* Simple pattern animation */
+@keyframes patternFloat {
+    0% { 
+        opacity: 0.5;
+    }
+    50% { 
+        opacity: 0.8;
+    }
+    100% { 
+        opacity: 0.6;
+    }
+}
+
+
+/* Pulsing animation */
+@keyframes pulsing {
+    0% { 
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    100% { 
+        opacity: 0.8;
+        transform: scale(0.95);
+    }
+}
+
+/* Mobile optimized animation */
+@keyframes mobilePulsing {
+    0% { 
+        opacity: 0.4;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.7;
+        transform: scale(1.02);
+    }
+    100% { 
+        opacity: 0.5;
+        transform: scale(0.98);
+    }
 }
 
 
