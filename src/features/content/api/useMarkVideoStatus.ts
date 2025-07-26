@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 import { markVideoStatus, VideoStatus } from "../../../api/channels.ts";
-import type { Data } from "../../../api/content.ts";
+import { Category, Data } from "../../../api/content.ts";
 import { queryClient } from "../../../main.tsx";
 
 type MarkVideoStatusParams = {
@@ -19,26 +19,65 @@ export const useMarkVideoStatus = () => {
             const content = queryClient.getQueryData<Data>(["content"]);
             if (!content) return;
 
-
-            if (status === "watched" || status === "skipped" || status === "watch_later") {
-                // Remove from all categories
-                for (const [category, items] of content.groupedContent) {
-                    const filteredItems = items.filter((item) => item.id !== videoId);
-                    content.groupedContent.set(category, filteredItems);
-                }
-
-                // Remove from allContent array as well
-                content.allContent = content.allContent.filter((item) => item.id !== videoId);
-
-                queryClient.setQueryData<Data>(["content"], content);
+            const video = content.allContent.find((item) => item.id === videoId);
+            if (!video) {
+                throw new Error("Video not found in content");
             }
+
+            const newGroupedContent = new Map(content.groupedContent);
+
+            const currentCategory = video.category;
+            const currentCategoryItems = newGroupedContent.get(currentCategory);
+            if (currentCategoryItems) {
+                const filteredItems = currentCategoryItems.filter((item) => item.id !== videoId);
+                newGroupedContent.set(currentCategory, filteredItems);
+            }
+
+            let updatedAllContent = content.allContent;
+            switch (status) {
+                case VideoStatus.WatchLater:
+                    updatedAllContent = content.allContent.map((item) =>
+                        item.id === videoId ? { ...item, category: Category.watchLater } : item,
+                    );
+
+                    const updatedVideo = { ...video, category: Category.watchLater };
+                    const watchLaterVideos = newGroupedContent.get(Category.watchLater) || [];
+                    newGroupedContent.set(Category.watchLater, [updatedVideo, ...watchLaterVideos]);
+                    break;
+
+                case VideoStatus.Watched:
+                case VideoStatus.Skipped:
+                    // Remove from all categories (already done above)
+                    // These videos should not appear in any category
+                    break;
+
+                case VideoStatus.None:
+                    // Restore to original category
+                    const originalCategory = video.category;
+                    const categoryVideos = newGroupedContent.get(originalCategory) || [];
+                    newGroupedContent.set(originalCategory, [...categoryVideos, video]);
+                    break;
+            }
+
+            const newContent = {
+                ...content,
+                allContent: updatedAllContent,
+                groupedContent: newGroupedContent,
+            };
+
+            queryClient.setQueryData<Data>(["content"], newContent);
 
             return content;
         },
         onSuccess: (data, { status }) => {
-            const statusMessage = status === "watched" ? "Video marked as watched" : 
-                                 status === "skipped" ? "Video skipped" : 
-                                 "Video status cleared";
+            const statusMessage =
+                status === VideoStatus.Watched
+                    ? "Video marked as watched"
+                    : status === VideoStatus.Skipped
+                      ? "Video skipped"
+                      : status === VideoStatus.WatchLater
+                        ? "Video added to Watch Later"
+                        : "Video status cleared";
             toast.success(data.message || statusMessage);
         },
         onError: (error: Error, _, context) => {

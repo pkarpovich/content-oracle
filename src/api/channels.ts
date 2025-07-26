@@ -19,7 +19,12 @@ export type MarkVideoStatusResponse = {
     message: string;
 };
 
-export type VideoStatus = "watched" | "skipped" | "watch_later" | "";
+export enum VideoStatus {
+    Watched = "watched",
+    Skipped = "skipped",
+    WatchLater = "watch_later",
+    None = "",
+}
 
 export const blockChannel = async (channelId: string): Promise<BlockChannelResponse> => {
     const resp = await fetch(`${BaseURL}/api/block-channel`, {
