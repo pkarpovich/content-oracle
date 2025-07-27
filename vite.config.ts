@@ -16,19 +16,33 @@ export default defineConfig({
             registerType: "autoUpdate",
             manifest: {
                 display: "standalone",
+                orientation: "any",
                 name: "Content Oracle",
                 short_name: "Content Oracle",
-                theme_color: "#ffbf00",
-                background_color: "#2d5a73",
+                theme_color: "#323130",
+                background_color: "#202322",
                 icons: [
                     {
-                        type: "image/icon",
+                        type: "image/x-icon",
                         src: "/favicon.ico",
+                        sizes: "16x16 32x32",
                     },
                     {
                         src: "/apple-touch-icon.png",
-                        sizes: "180x180",
+                        sizes: "1024x1024",
                         type: "image/png",
+                    },
+                    {
+                        src: "/apple-touch-icon.png",
+                        sizes: "152x152",
+                        type: "image/png",
+                        purpose: "any maskable",
+                    },
+                    {
+                        src: "/apple-touch-icon.png",
+                        sizes: "167x167",
+                        type: "image/png",
+                        purpose: "any maskable",
                     },
                 ],
             },
