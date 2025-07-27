@@ -36,10 +36,19 @@ export const YoutubeSettings = ({ onRankChange, ranking, subscriptions }: Props)
 
     return (
         <div className={style.container}>
-            <Typography variant="h2">Youtube Subscriptions Ranking</Typography>
+            <div className={style.header}>
+                <Typography variant="h2">Youtube Subscriptions Ranking</Typography>
+                <Typography variant="text">Distribute {TotalRanksAmount} points between your channels to prioritize content.</Typography>
+            </div>
             <div className={style.pointsContainer}>
-                <Typography variant="h3">Total points: {TotalRanksAmount}</Typography>
-                <Typography variant="h3">Remaining points: {remainingRanks}</Typography>
+                <div className={style.pointsItem}>
+                    <div className={style.pointsLabel}>Total points</div>
+                    <div className={style.pointsValue}>{TotalRanksAmount}</div>
+                </div>
+                <div className={style.pointsItem}>
+                    <div className={style.pointsLabel}>Remaining points</div>
+                    <div className={style.pointsValue}>{remainingRanks}</div>
+                </div>
             </div>
             <div className={style.subscriptionsContainer} ref={parentRef}>
                 <div

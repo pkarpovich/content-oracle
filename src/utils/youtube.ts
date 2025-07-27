@@ -55,10 +55,11 @@ export const getYouTubeThumbnail = (videoIdOrUrl: string) => {
         return null;
     }
 
-    const baseUrl = `https://i.ytimg.com/vi/${videoId}`;
+    const baseUrl = `https://i3.ytimg.com/vi/${videoId}`;
 
     return {
-        desktop: `${baseUrl}/maxresdefault.jpg`,
+        full: `${baseUrl}/maxresdefault.jpg`,
+        desktop: `${baseUrl}/mqdefault.jpg`,
         fallback: `${baseUrl}/hqdefault.jpg`,
         mobile: `${baseUrl}/mqdefault.webp`,
     };
