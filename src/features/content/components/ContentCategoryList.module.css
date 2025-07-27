@@ -17,7 +17,6 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 24px;
     width: 100%;
     position: relative;
 }
@@ -64,9 +63,10 @@
 
 .categoryTitle {
     position: relative;
-    padding-left: 32px;
-    font-size: 1.4rem;
+    padding-left: 16px;
+    font-size: 2rem;
     font-weight: 700;
+    font-family: "Bitcount Prop Single", monospace;
     letter-spacing: -0.02em;
     color: var(--primary);
     margin: 0;

@@ -1,68 +1,65 @@
-import { memo, useState, useCallback } from 'react';
-import { getVideoThumbnail } from '../utils/youtube.ts';
-import styles from './ResponsiveThumbnail.module.css';
+import { memo, type ReactNode, useCallback, useState } from "react";
+
+import { getVideoThumbnail } from "../utils/youtube.ts";
+import styles from "./ResponsiveThumbnail.module.css";
 
 type ResponsiveThumbnailProps = {
-    src: string;
     alt: string;
     className?: string;
-    loading?: 'lazy' | 'eager';
-    onError?: () => void;
     fallbackSrc?: string;
+    loaderElement?: ReactNode;
+    loading?: "eager" | "lazy";
+    onError?: () => void;
     showLoader?: boolean;
-    loaderElement?: React.ReactNode;
+    src: string;
 };
 
-export const ResponsiveThumbnail = memo(({
-    src,
-    alt,
-    className,
-    loading = 'lazy',
-    onError,
-    fallbackSrc,
-    showLoader = true,
-    loaderElement
-}: ResponsiveThumbnailProps) => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [hasError, setHasError] = useState(false);
+export const ResponsiveThumbnail = memo(
+    ({
+        alt,
+        className,
+        fallbackSrc,
+        loaderElement,
+        loading = "lazy",
+        onError,
+        showLoader = true,
+        src,
+    }: ResponsiveThumbnailProps) => {
+        const [isLoading, setIsLoading] = useState(true);
+        const [hasError, setHasError] = useState(false);
 
-    const thumbnailData = getVideoThumbnail(src);
+        const thumbnailData = getVideoThumbnail(src);
 
-    const handleLoad = useCallback(() => {
-        setIsLoading(false);
-    }, []);
+        const handleLoad = useCallback(() => {
+            setIsLoading(false);
+        }, []);
 
-    const handleError = useCallback(() => {
-        setIsLoading(false);
-        setHasError(true);
-        onError?.();
-    }, [onError]);
+        const handleError = useCallback(() => {
+            setIsLoading(false);
+            setHasError(true);
+            onError?.();
+        }, [onError]);
 
-    const defaultLoader = <div className={styles.loader} />;
+        const defaultLoader = <div className={styles.loader} />;
 
-    return (
-        <div className={styles.container}>
-            {showLoader && isLoading && !hasError && (loaderElement || defaultLoader)}
-            <picture className={styles.image} style={{ opacity: isLoading ? 0 : 1 }}>
-                <source 
-                    media="(min-width: 601px)" 
-                    srcSet={thumbnailData?.desktop || fallbackSrc} 
-                />
-                <source 
-                    media="(max-width: 600px)" 
-                    srcSet={thumbnailData?.mobile || fallbackSrc} 
-                />
-                <img 
-                    alt={alt}
-                    loading={loading}
-                    className={className} 
-                    onError={handleError}
-                    onLoad={handleLoad}
-                    src={thumbnailData?.fallback || fallbackSrc}
-                />
-            </picture>
-        </div>
-    );
-});
+        return (
+            <div className={styles.container}>
+                {showLoader && isLoading && !hasError ? (loaderElement ?? defaultLoader) : null}
+                <picture className={styles.image} style={{ opacity: isLoading ? 0 : 1 }}>
+                    <source media="(min-width: 601px)" srcSet={thumbnailData?.desktop ?? fallbackSrc} />
+                    <source media="(max-width: 600px)" srcSet={thumbnailData?.mobile ?? fallbackSrc} />
+                    <img
+                        alt={alt}
+                        className={className}
+                        loading={loading}
+                        onError={handleError}
+                        onLoad={handleLoad}
+                        src={thumbnailData?.fallback ?? fallbackSrc}
+                    />
+                </picture>
+            </div>
+        );
+    },
+);
 
-ResponsiveThumbnail.displayName = 'ResponsiveThumbnail';
+ResponsiveThumbnail.displayName = "ResponsiveThumbnail";

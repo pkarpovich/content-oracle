@@ -27,59 +27,57 @@ export const Header = () => {
     }, []);
 
     const toggleMenu = useCallback(() => {
-        setIsMenuOpen(prev => !prev);
+        setIsMenuOpen((prev) => !prev);
     }, []);
 
     return (
-        <div className={style.headerContainer}>
-            <div className={style.leftSection}>
-                <button 
-                    className={style.menuButton} 
-                    onClick={toggleMenu}
-                    type="button"
-                    aria-label="Toggle menu"
-                >
-                    <div className={clsx(style.hamburger, { [style.open]: isMenuOpen })}>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </button>
-                
-                <button className={style.appName} onClick={handleRouteClick(Routes.Root)} type="button">
-                    <Typography variant="h2">Content Oracle</Typography>
-                </button>
-            </div>
-            
-            <div className={style.logo}>
-                <Logo onClick={handleRefresh} />
-            </div>
-            
-            {isMenuOpen && (
-                <nav className={style.navigation}>
-                    <button
-                        className={clsx(style.navTab, {
-                            [style.active]: state.location.pathname === Routes.History,
-                        })}
-                        onClick={handleRouteClick(Routes.History)}
-                        type="button"
-                    >
-                        <HistoryIcon />
-                        <span>History</span>
+        <>
+            <div className={style.backdrop} />
+            <div className={style.backdropEdge} />
+            <div className={style.headerContainer}>
+                <div className={style.leftSection}>
+                    <button className={style.appName} onClick={handleRouteClick(Routes.Root)} type="button">
+                        <Typography variant="h2">Content Oracle</Typography>
                     </button>
-                    
-                    <button
-                        className={clsx(style.navTab, {
-                            [style.active]: state.location.pathname === Routes.Settings,
-                        })}
-                        onClick={handleRouteClick(Routes.Settings)}
-                        type="button"
-                    >
-                        <SettingsIcon />
-                        <span>Settings</span>
+                    <button aria-label="Toggle menu" className={style.menuButton} onClick={toggleMenu} type="button">
+                        <div className={clsx(style.hamburger, { [style.open]: isMenuOpen })}>
+                            <span />
+                            <span />
+                            <span />
+                        </div>
                     </button>
-                </nav>
-            )}
-        </div>
+                </div>
+
+                <div className={style.logo}>
+                    <Logo onClick={handleRefresh} />
+                </div>
+
+                {isMenuOpen ? (
+                    <nav className={style.navigation}>
+                        <button
+                            className={clsx(style.navTab, {
+                                [style.active]: state.location.pathname === Routes.History,
+                            })}
+                            onClick={handleRouteClick(Routes.History)}
+                            type="button"
+                        >
+                            <HistoryIcon />
+                            <span>History</span>
+                        </button>
+
+                        <button
+                            className={clsx(style.navTab, {
+                                [style.active]: state.location.pathname === Routes.Settings,
+                            })}
+                            onClick={handleRouteClick(Routes.Settings)}
+                            type="button"
+                        >
+                            <SettingsIcon />
+                            <span>Settings</span>
+                        </button>
+                    </nav>
+                ) : null}
+            </div>
+        </>
     );
 };

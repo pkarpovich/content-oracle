@@ -6,6 +6,9 @@
 }
 
 .header {
+    position: sticky;
+    z-index: 10;
+    top: 0;
     grid-area: header;
     grid-column: 1 / -1;
     grid-row: 1;
