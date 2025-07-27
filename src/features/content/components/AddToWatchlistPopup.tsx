@@ -4,9 +4,9 @@ import type { FormEvent } from "react";
 import { useCallback } from "react";
 import { z } from "zod";
 
+import { BottomSheet } from "../../../components/BottomSheet.tsx";
 import { Button } from "../../../components/Button.tsx";
 import { Input } from "../../../components/Input.tsx";
-import { BottomSheet } from "../../../components/BottomSheet.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
 import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
@@ -27,7 +27,10 @@ export const AddToWatchlistPopup = ({ isOpen, onClose }: Props) => {
         onSubmit: ({ formApi, value }) => {
             const videoId = extractYouTubeVideoId(value.url);
             if (videoId) {
-                mutate(videoId);
+                mutate({
+                    originalVideoId: videoId,
+                    videoId,
+                });
                 formApi.reset();
                 onClose();
             }
@@ -55,7 +58,7 @@ export const AddToWatchlistPopup = ({ isOpen, onClose }: Props) => {
                         Enter a YouTube URL or video ID to add it to your watchlist
                     </Typography>
                 </div>
-                
+
                 <form className={styles.form} onSubmit={handleSubmit}>
                     <form.Field
                         children={({ handleChange, state }) => (
@@ -69,10 +72,12 @@ export const AddToWatchlistPopup = ({ isOpen, onClose }: Props) => {
                         )}
                         name="url"
                         validators={{
-                            onChange: z.string().refine(
-                                (url) => extractYouTubeVideoId(url) !== null,
-                                "Please enter a valid YouTube URL or video ID"
-                            ),
+                            onChange: z
+                                .string()
+                                .refine(
+                                    (url) => extractYouTubeVideoId(url) !== null,
+                                    "Please enter a valid YouTube URL or video ID",
+                                ),
                         }}
                     />
                     <Button className={styles.button} disabled={!canSubmit} loading={isSubmitting} type="submit">

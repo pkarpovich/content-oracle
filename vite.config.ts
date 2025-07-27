@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
+import webfontDownload from "vite-plugin-webfont-dl";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -10,6 +11,7 @@ export default defineConfig({
         react(),
         TanStackRouterVite(),
         svgr({ include: "**/*.svg" }),
+        webfontDownload(),
         VitePWA({
             registerType: "autoUpdate",
             manifest: {
