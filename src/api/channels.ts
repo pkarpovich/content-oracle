@@ -9,23 +9,6 @@ export type BlockChannelResponse = {
     message: string;
 };
 
-export type MarkVideoStatusRequest = {
-    video_id: string;
-    status: string;
-};
-
-export type MarkVideoStatusResponse = {
-    success: boolean;
-    message: string;
-};
-
-export enum VideoStatus {
-    Watched = "watched",
-    Skipped = "skipped",
-    WatchLater = "watch_later",
-    None = "",
-}
-
 export const blockChannel = async (channelId: string): Promise<BlockChannelResponse> => {
     const resp = await fetch(`${BaseURL}/api/block-channel`, {
         method: "POST",
@@ -36,21 +19,6 @@ export const blockChannel = async (channelId: string): Promise<BlockChannelRespo
     if (!resp.ok) {
         const errorText = await resp.text();
         throw new Error(errorText || "Failed to block channel");
-    }
-
-    return await resp.json();
-};
-
-export const markVideoStatus = async (videoId: string, status: VideoStatus): Promise<MarkVideoStatusResponse> => {
-    const resp = await fetch(`${BaseURL}/api/mark-video-status`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ video_id: videoId, status }),
-    });
-
-    if (!resp.ok) {
-        const errorText = await resp.text();
-        throw new Error(errorText || "Failed to mark video status");
     }
 
     return await resp.json();

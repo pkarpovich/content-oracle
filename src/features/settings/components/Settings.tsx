@@ -5,12 +5,13 @@ import { Button } from "../../../components/Button.tsx";
 import { Typography } from "../../../components/Typography.tsx";
 import { useGetSettings } from "../api/useGetSettings.ts";
 import { useUpdateSettings } from "../api/useUpdateSettings.ts";
+import { BlockedChannels } from "./BlockedChannels.tsx";
 import style from "./Settings.module.css";
 import { YoutubeSettings } from "./YoutubeSettings.tsx";
 
 const InitialRankings = new Map<string, number>();
 
-type SettingsTab = 'youtube' | 'general' | 'notifications';
+type SettingsTab = 'youtube' | 'blocked' | 'general' | 'notifications';
 
 export const Settings = () => {
     const { data: settings, error, isLoading } = useGetSettings();
@@ -47,6 +48,24 @@ export const Settings = () => {
         saveSettings({
             ranking: Array.from(ranking.entries()).map(([id, rank]) => ({ id, rank })),
             subscriptions: settings.subscriptions,
+            blockedChannels: settings.blockedChannels,
+        });
+    }, [ranking, saveSettings, settings]);
+
+    const handleUnblock = useCallback((channelId: string) => {
+        if (!settings) {
+            return;
+        }
+
+        // Remove channel from blocked list
+        const updatedBlockedChannels = settings.blockedChannels.filter(
+            channel => channel.channelId !== channelId
+        );
+
+        saveSettings({
+            ranking: Array.from(ranking.entries()).map(([id, rank]) => ({ id, rank })),
+            subscriptions: settings.subscriptions,
+            blockedChannels: updatedBlockedChannels,
         });
     }, [ranking, saveSettings, settings]);
 
@@ -58,6 +77,13 @@ export const Settings = () => {
                         onRankChange={handleRankChange}
                         ranking={ranking}
                         subscriptions={settings.subscriptions}
+                    />
+                ) : null;
+            case 'blocked':
+                return settings ? (
+                    <BlockedChannels
+                        blockedChannels={settings.blockedChannels}
+                        onUnblock={handleUnblock}
                     />
                 ) : null;
             case 'general':
@@ -81,16 +107,18 @@ export const Settings = () => {
 
     return (
         <div className={style.container}>
-            <div className={style.header}>
-                <Typography variant="h1">Settings</Typography>
-            </div>
-            
             <div className={style.tabsContainer}>
                 <button
                     className={`${style.tab} ${activeTab === 'youtube' ? style.tabActive : ''}`}
                     onClick={() => setActiveTab('youtube')}
                 >
                     YouTube Subscriptions
+                </button>
+                <button
+                    className={`${style.tab} ${activeTab === 'blocked' ? style.tabActive : ''}`}
+                    onClick={() => setActiveTab('blocked')}
+                >
+                    Blocked Channels
                 </button>
                 <button
                     className={`${style.tab} ${activeTab === 'general' ? style.tabActive : ''}`}

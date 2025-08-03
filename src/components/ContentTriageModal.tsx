@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { VideoStatus } from "../api/channels.ts";
+import { VideoStatus } from "../api/content.ts";
 import { useBlockChannel } from "../features/content/api/useBlockChannel.ts";
 import { useGetContentTriage } from "../features/content/api/useGetContentTriage.ts";
 import { useMarkVideoStatus } from "../features/content/api/useMarkVideoStatus.ts";
@@ -115,7 +115,9 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                 <div className={styles.container}>
                     <div className={styles.leftColumn}>
                         <Typography variant="h3">No items to triage</Typography>
-                        <Typography variant="text">All caught up! There are no items that need your attention right now.</Typography>
+                        <Typography variant="text">
+                            All caught up! There are no items that need your attention right now.
+                        </Typography>
                     </div>
                 </div>
             </BottomSheet>

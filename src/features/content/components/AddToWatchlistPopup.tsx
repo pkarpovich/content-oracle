@@ -11,6 +11,7 @@ import { Typography } from "../../../components/Typography.tsx";
 import { extractYouTubeVideoId } from "../../../utils/youtube.ts";
 import { useAddToWatchlist } from "../api/useAddToWatchlist.ts";
 import styles from "./AddToWatchlistPopup.module.css";
+import { VideoStatus } from "../../../api/content.ts";
 
 type Props = {
     isOpen: boolean;
@@ -28,7 +29,7 @@ export const AddToWatchlistPopup = ({ isOpen, onClose }: Props) => {
             const videoId = extractYouTubeVideoId(value.url);
             if (videoId) {
                 mutate({
-                    originalVideoId: videoId,
+                    status: VideoStatus.WatchLater,
                     videoId,
                 });
                 formApi.reset();

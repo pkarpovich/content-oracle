@@ -8,6 +8,14 @@ export type YoutubeSubscription = {
     url: string;
 };
 
+export type BlockedChannel = {
+    channelId: string;
+    name: string;
+    previewUrl: string;
+    rank: number;
+    url: string;
+};
+
 export type Rank = {
     id: string;
     rank: number;
@@ -16,6 +24,7 @@ export type Rank = {
 export type Settings = {
     ranking: Rank[];
     subscriptions: YoutubeSubscription[];
+    blockedChannels: BlockedChannel[];
 };
 
 export const getSettings = async (): Promise<Settings> => {
