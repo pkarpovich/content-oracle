@@ -19,6 +19,7 @@ type Props = {
 
 export const Button = ({
     children,
+    className,
     color = "primary",
     disabled = false,
     endIcon,
@@ -30,21 +31,26 @@ export const Button = ({
     variant = "contained",
 }: Props) => (
     <button
-        className={clsx(styles.button, styles[variant], styles[size], styles[color], {
-            [styles.disabled]: disabled || loading,
-        })}
+        className={clsx(
+            styles.button,
+            styles[variant],
+            styles[size],
+            styles[color],
+            {
+                [styles.disabled]: disabled || loading,
+                [styles.loading]: loading,
+            },
+            className
+        )}
         disabled={disabled || loading}
         onClick={onClick}
         type={type}
     >
-        {loading ? (
-            <span className={styles.loader} />
-        ) : (
-            <>
-                {startIcon ? <span className={styles.icon}>{startIcon}</span> : null}
-                <span className={styles.label}>{children}</span>
-                {endIcon ? <span className={styles.icon}>{endIcon}</span> : null}
-            </>
-        )}
+        <span className={styles.content}>
+            {loading && <span className={styles.loader} />}
+            {startIcon && !loading ? <span className={styles.startIcon}>{startIcon}</span> : null}
+            <span className={clsx(styles.label, { [styles.labelHidden]: loading })}>{children}</span>
+            {endIcon && !loading ? <span className={styles.endIcon}>{endIcon}</span> : null}
+        </span>
     </button>
 );
