@@ -55,7 +55,9 @@ export const ContentCardBottomSheet = memo(({ artist, category, id, onClose, onO
     }, [id, markVideoStatusMutation, onClose]);
 
     const handleBoringButtonClick = useCallback(() => {
-        blockChannelMutation(artist.id);
+        blockChannelMutation({
+            channelId: artist.id,
+        });
         onClose();
     }, [artist.id, blockChannelMutation, onClose]);
 

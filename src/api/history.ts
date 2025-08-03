@@ -41,8 +41,19 @@ export type FullHistory = {
     groupedByDate: GroupedByDateItem[];
 };
 
-export const getFullHistory = async (): Promise<FullHistory> => {
-    const resp = await fetch(`${BaseURL}/api/history`, {
+export type GetHistoryParams = {
+    limit?: number;
+    offset?: number;
+};
+
+export const getFullHistory = async (params?: GetHistoryParams): Promise<FullHistory> => {
+    const searchParams = new URLSearchParams();
+    if (params?.limit) searchParams.set("limit", params.limit.toString());
+    if (params?.offset) searchParams.set("offset", params.offset.toString());
+    
+    const url = `${BaseURL}/api/history${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+    
+    const resp = await fetch(url, {
         method: "GET",
     });
 
@@ -53,6 +64,6 @@ export const getFullHistory = async (): Promise<FullHistory> => {
     const data = await resp.json();
 
     return {
-        groupedByDate: data.groupedByDate,
+        groupedByDate: data.groupedByDate || [],
     };
 };
