@@ -1,6 +1,6 @@
 import { clsx } from "clsx";
 import type { ChangeEvent, ReactNode } from "react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import styles from "./Input.module.css";
 
@@ -33,6 +33,8 @@ export const Input = ({
     type = "text",
     value,
 }: Props) => {
+    const [isFocused, setIsFocused] = useState(false);
+
     const handleChange = useCallback(
         (e: ChangeEvent<HTMLInputElement>) => {
             onChange?.(e.target.value);
@@ -40,11 +42,22 @@ export const Input = ({
         [onChange],
     );
 
+    const handleFocus = useCallback(() => {
+        setIsFocused(true);
+    }, []);
+
+    const handleBlur = useCallback(() => {
+        setIsFocused(false);
+    }, []);
+
+    const isFloating = Boolean(value) || Boolean(error) || isFocused;
+
     return (
         <div className={clsx(styles.inputWrapper, className)}>
             <div
                 className={clsx(styles.inputContainer, {
                     [styles.errorBorder]: Boolean(error),
+                    [styles.focused]: isFloating,
                 })}
             >
                 {icon ? <span className={styles.icon}>{icon}</span> : null}
@@ -53,8 +66,10 @@ export const Input = ({
                     disabled={disabled}
                     id={name}
                     name={name}
+                    onBlur={handleBlur}
                     onChange={handleChange}
-                    placeholder={placeholder}
+                    onFocus={handleFocus}
+                    placeholder={isFloating ? placeholder : ""}
                     readOnly={readOnly}
                     required={required}
                     type={type}
@@ -63,7 +78,7 @@ export const Input = ({
                 {label ? (
                     <label
                         className={clsx(styles.label, {
-                            [styles.labelFloating]: Boolean(value) || Boolean(error),
+                            [styles.labelFloating]: isFloating,
                         })}
                         htmlFor={name}
                     >

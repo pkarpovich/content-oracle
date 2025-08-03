@@ -1,79 +1,232 @@
 .inputWrapper {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
+    position: relative;
+    margin-bottom: 28px;
 }
 
 .inputContainer {
     position: relative;
     display: flex;
     align-items: center;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 0 12px;
-    transition: border-color 0.3s;
-    background-color: var(--card-bg-color);
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    border-radius: 16px;
+    padding: 0 20px;
+    min-height: 60px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 4px 24px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    position: relative;
 }
 
-.inputContainer:focus-within {
-    border-color: var(--primary);
+.inputContainer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 14px;
+    padding: 2px;
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    pointer-events: none;
+}
+
+.inputContainer:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.inputContainer:focus-within,
+.focused {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        0 0 0 3px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.inputContainer:focus-within::before,
+.focused::before {
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.1) 100%
+    );
 }
 
 .label {
     position: absolute;
+    left: 20px;
     top: 50%;
-    left: 12px;
     transform: translateY(-50%);
-    font-size: 16px;
-    color: var(--primary);
-    background-color: var(--card-bg-color);
-    padding: 0 4px;
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    background: linear-gradient(
+        135deg, 
+        rgba(0, 0, 0, 0) 0%, 
+        rgba(0, 0, 0, 0) 100%
+    );
+    padding: 0;
     pointer-events: none;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    z-index: 1;
+    z-index: 2;
+    letter-spacing: 0.01em;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0);
+    backdrop-filter: blur(0px);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    transition:
+        all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        background 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        backdrop-filter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        box-shadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        border 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        font-size 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        padding 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.input:focus + .label, .labelFloating {
+.labelFloating {
     top: -8px;
-    left: 8px;
-    font-size: 12px;
-    color: var(--primary);
+    left: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(
+        135deg, 
+        rgba(0, 0, 0, 0.6) 0%, 
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    backdrop-filter: blur(12px);
+    padding: 3px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.required {
+    color: rgba(255, 107, 107, 0.9);
+    margin-left: 3px;
+    font-weight: 600;
 }
 
 .icon {
-    margin-right: 8px;
-    color: #888;
+    margin-right: 16px;
+    color: rgba(255, 255, 255, 0.6);
     display: flex;
     align-items: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1;
+}
+
+.inputContainer:focus-within .icon,
+.focused .icon {
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .input {
     flex: 1;
     border: none;
     outline: none;
-    padding: 12px 0;
-    font-size: 16px;
+    padding: 20px 0;
+    font-size: 14px;
     background-color: transparent;
-    z-index: 0;
-    transition: all 0.3s ease;
-    color: var(--secondary-text-color);
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    z-index: 1;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+    font-weight: 400;
+    letter-spacing: 0.005em;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.inputContainer:focus-within .input::placeholder {
+    color: rgba(255, 255, 255, 0.2);
 }
 
 .input:disabled {
-    background-color: #f9f9f9;
+    cursor: not-allowed;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.input:disabled::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.inputContainer:has(.input:disabled) {
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
+.inputContainer:has(.input:disabled) .label {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.inputContainer:has(.input:disabled) .icon {
+    color: rgba(255, 255, 255, 0.4);
+}
+
 .errorBorder {
-    border-color: #f44336;
+    border-color: rgba(255, 107, 107, 0.6) !important;
+    background: rgba(255, 107, 107, 0.08) !important;
+    box-shadow: 
+        0 8px 32px rgba(255, 107, 107, 0.15),
+        0 0 0 4px rgba(255, 107, 107, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.errorBorder:focus-within,
+.errorBorder.focused {
+    border-color: rgba(255, 107, 107, 0.8) !important;
+    background: rgba(255, 107, 107, 0.12) !important;
+    box-shadow: 
+        0 12px 40px rgba(255, 107, 107, 0.2),
+        0 0 0 4px rgba(255, 107, 107, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 2px 0 rgba(255, 107, 107, 0.08) !important;
 }
 
 .errorText {
-    color: #f44336;
+    color: rgba(255, 107, 107, 0.9);
     font-size: 12px;
-    margin-top: 5px;
-    text-align: left;
+    font-weight: 500;
+    margin-top: 12px;
+    margin-left: 8px;
+    background: rgba(255, 107, 107, 0.12);
+    backdrop-filter: blur(12px);
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.1);
+    letter-spacing: 0.005em;
 }
