@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
-import { markVideoStatus, VideoStatus } from "../../../api/channels.ts";
+import { markVideoStatus, VideoStatus } from "../../../api/content.ts";
 import { Category, Data } from "../../../api/content.ts";
 import { queryClient } from "../../../main.tsx";
 

@@ -77,9 +77,15 @@ export const openContent = async (url: string): Promise<void> => {
     }
 };
 
-export const addToWatchlist = async (videoId: string): Promise<void> => {
-    const resp = await fetch(`${BaseURL}/api/mark-video-status`, {
-        body: JSON.stringify({ video_id: videoId, status: "watch_later" }),
+export type AddToWatchlistResponse = {
+    success: boolean;
+    message: string;
+    video: Content;
+}
+
+export const addToWatchlist = async (videoId: string, status?: string): Promise<AddToWatchlistResponse> => {
+    const resp = await fetch(`${BaseURL}/api/add-video`, {
+        body: JSON.stringify({ video_id: videoId, status }),
         headers: { "Content-Type": "application/json" },
         method: "POST",
     });
@@ -89,6 +95,40 @@ export const addToWatchlist = async (videoId: string): Promise<void> => {
 
         throw new Error(errorText || "Failed to add to watchlist");
     }
+
+    return await resp.json();
+};
+
+export type MarkVideoStatusRequest = {
+    video_id: string;
+    status: string;
+};
+
+export type MarkVideoStatusResponse = {
+    success: boolean;
+    message: string;
+};
+
+export enum VideoStatus {
+    Watched = "watched",
+    Skipped = "skipped",
+    WatchLater = "watch_later",
+    None = "",
+}
+
+export const markVideoStatus = async (videoId: string, status: VideoStatus): Promise<MarkVideoStatusResponse> => {
+    const resp = await fetch(`${BaseURL}/api/mark-video-status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ video_id: videoId, status }),
+    });
+
+    if (!resp.ok) {
+        const errorText = await resp.text();
+        throw new Error(errorText || "Failed to mark video status");
+    }
+
+    return await resp.json();
 };
 
 export const getContentTriage = async (): Promise<Content[]> => {
