@@ -2,6 +2,7 @@ import { BaseURL } from "./base.ts";
 
 export type BlockChannelRequest = {
     channel_id: string;
+    isContentTriage?: boolean;
 };
 
 export type BlockChannelResponse = {
@@ -9,11 +10,11 @@ export type BlockChannelResponse = {
     message: string;
 };
 
-export const blockChannel = async (channelId: string): Promise<BlockChannelResponse> => {
+export const blockChannel = async (channelId: string, isContentTriage?: boolean): Promise<BlockChannelResponse> => {
     const resp = await fetch(`${BaseURL}/api/block-channel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ channel_id: channelId }),
+        body: JSON.stringify({ channel_id: channelId, isContentTriage }),
     });
 
     if (!resp.ok) {

@@ -2,13 +2,18 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 import { blockChannel } from "../../../api/channels.ts";
-import type { Data } from "../../../api/content.ts";
+import { Content, Data, VideoStatus } from "../../../api/content.ts";
 import { queryClient } from "../../../main.tsx";
+
+type BlockChannelParams = {
+    channelId: string;
+    isContentTriage?: boolean;
+};
 
 export const useBlockChannel = () => {
     return useMutation({
-        mutationFn: blockChannel,
-        onMutate: async (channelId: string) => {
+        mutationFn: ({ channelId, isContentTriage }: BlockChannelParams) => blockChannel(channelId, isContentTriage),
+        onMutate: async ({ channelId, isContentTriage }: BlockChannelParams) => {
             await queryClient.cancelQueries({ queryKey: ["content"] });
 
             const content = queryClient.getQueryData<Data>(["content"]);
@@ -22,6 +27,17 @@ export const useBlockChannel = () => {
                 content.allContent = content.allContent.filter((item) => item.artist.id !== channelId);
 
                 queryClient.setQueryData<Data>(["content"], content);
+            }
+
+            if (isContentTriage) {
+                const triageContent = queryClient.getQueryData<Content[]>(["content-triage"]);
+                if (triageContent) {
+                    const filteredTriageContent = triageContent.map((item) => ({
+                        ...item,
+                        status: item.artist.id === channelId ? VideoStatus.Skipped : item.status,
+                    }));
+                    queryClient.setQueryData<Content[]>(["content-triage"], filteredTriageContent);
+                }
             }
 
             return content;

@@ -20,9 +20,8 @@ export const useMarkVideoStatus = () => {
             if (!content) return;
 
             const video = content.allContent.find((item) => item.id === videoId);
-            if (!video) {
-                throw new Error("Video not found in content");
-            }
+            // DEVNOTE: In content triage we might not have the video in allContent
+            if (!video) return;
 
             const newGroupedContent = new Map(content.groupedContent);
 

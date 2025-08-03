@@ -33,11 +33,26 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
     const handleNavigate = useCallback(
         (direction: number) => {
             setCurrentIndex((prev) => {
-                const newIndex = prev + direction;
-                return Math.max(0, Math.min(newIndex, contentItems.length - 1));
+                let newIndex = prev + direction;
+
+                // Find the next/previous item that hasn't been skipped
+                while (newIndex >= 0 && newIndex < contentItems.length) {
+                    const item = contentItems[newIndex];
+                    if (!item.status || item.status !== VideoStatus.Skipped) {
+                        break;
+                    }
+                    newIndex += direction;
+                }
+
+                // If we reached the end and all items are skipped, stay at current position
+                if (newIndex < 0 || newIndex >= contentItems.length) {
+                    return prev;
+                }
+
+                return newIndex;
             });
         },
-        [contentItems.length],
+        [contentItems],
     );
 
     const handleNext = useCallback(() => handleNavigate(1), [handleNavigate]);
@@ -181,7 +196,14 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                         <ActionButton
                             description="Hide similar content from this channel"
                             icon={<XIcon />}
-                            onClick={() => handleAction(() => blockChannel(currentItem.artist.id))}
+                            onClick={() =>
+                                handleAction(() =>
+                                    blockChannel({
+                                        channelId: currentItem.artist.id,
+                                        isContentTriage: true,
+                                    }),
+                                )
+                            }
                             title="Not Interested"
                         />
                     </div>
@@ -189,12 +211,7 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
             </div>
 
             <div className={styles.navigationBar}>
-                <button
-                    className={styles.navButton}
-                    disabled={currentIndex === 0}
-                    onClick={handlePrevious}
-                    type="button"
-                >
+                <button className={styles.navButton} onClick={handlePrevious} type="button">
                     <ArrowLeftIcon />
                     Previous
                 </button>
@@ -214,12 +231,7 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                     </Typography>
                 </div>
 
-                <button
-                    className={styles.navButton}
-                    disabled={currentIndex === contentItems.length - 1}
-                    onClick={handleNext}
-                    type="button"
-                >
+                <button className={styles.navButton} onClick={handleNext} type="button">
                     Next
                     <ArrowRightIcon />
                 </button>

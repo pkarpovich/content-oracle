@@ -15,6 +15,7 @@ export type Content = {
     thumbnail: string;
     title: string;
     url: string;
+    status?: string;
 };
 
 export enum Category {
@@ -56,10 +57,10 @@ export const getAllContent = async (): Promise<Data> => {
         return acc;
     }, new Map());
 
-    return { 
+    return {
         allContent: data.contentList || [],
         groupedContent,
-        meta: data.meta || {}
+        meta: data.meta || {},
     };
 };
 
@@ -81,7 +82,7 @@ export type AddToWatchlistResponse = {
     success: boolean;
     message: string;
     video: Content;
-}
+};
 
 export const addToWatchlist = async (videoId: string, status?: string): Promise<AddToWatchlistResponse> => {
     const resp = await fetch(`${BaseURL}/api/add-video`, {
@@ -131,6 +132,10 @@ export const markVideoStatus = async (videoId: string, status: VideoStatus): Pro
     return await resp.json();
 };
 
+function shuffleArray<T>(array: T[]): T[] {
+    return array.sort(() => Math.random() - 0.5);
+}
+
 export const getContentTriage = async (): Promise<Content[]> => {
     const resp = await fetch(`${BaseURL}/api/content-triage`);
     if (!resp.ok) {
@@ -138,7 +143,7 @@ export const getContentTriage = async (): Promise<Content[]> => {
     }
 
     const data = await resp.json();
-    return data.contentList || [];
+    return shuffleArray(data.contentList) || [];
 };
 
 export type GetContentByCategoryRequest = {
@@ -181,13 +186,15 @@ export type GetContentByCategoryResponse = {
     appliedFilter: QueryFilters;
 };
 
-export const getCategoryContent = async (request: GetContentByCategoryRequest): Promise<GetContentByCategoryResponse> => {
+export const getCategoryContent = async (
+    request: GetContentByCategoryRequest,
+): Promise<GetContentByCategoryResponse> => {
     const resp = await fetch(`${BaseURL}/api/content/category`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request),
     });
-    
+
     if (!resp.ok) {
         throw new Error(`Failed to fetch content for category: ${request.category}`);
     }

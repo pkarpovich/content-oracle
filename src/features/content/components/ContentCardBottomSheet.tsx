@@ -1,7 +1,6 @@
 import { memo, useCallback } from "react";
 
-import { VideoStatus } from "../../../api/channels.ts";
-import type { Artist } from "../../../api/content.ts";
+import { type Artist, VideoStatus } from "../../../api/content.ts";
 import { Category } from "../../../api/content.ts";
 import { ActionButton } from "../../../components/ActionButton.tsx";
 import { BottomSheet } from "../../../components/BottomSheet.tsx";
