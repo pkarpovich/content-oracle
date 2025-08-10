@@ -12,6 +12,7 @@ export type Content = {
     id: string;
     isLive: boolean;
     position: number;
+    publishedAt?: string;
     thumbnail: string;
     title: string;
     url: string;
@@ -132,10 +133,6 @@ export const markVideoStatus = async (videoId: string, status: VideoStatus): Pro
     return await resp.json();
 };
 
-function shuffleArray<T>(array: T[]): T[] {
-    return array.sort(() => Math.random() - 0.5);
-}
-
 export const getContentTriage = async (): Promise<Content[]> => {
     const resp = await fetch(`${BaseURL}/api/content-triage`);
     if (!resp.ok) {
@@ -143,7 +140,7 @@ export const getContentTriage = async (): Promise<Content[]> => {
     }
 
     const data = await resp.json();
-    return shuffleArray(data.contentList) || [];
+    return data.contentList;
 };
 
 export type GetContentByCategoryRequest = {
@@ -199,6 +196,5 @@ export const getCategoryContent = async (
         throw new Error(`Failed to fetch content for category: ${request.category}`);
     }
 
-    const data = await resp.json();
-    return data;
+    return await resp.json();
 };

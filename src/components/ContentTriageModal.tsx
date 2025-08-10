@@ -4,6 +4,9 @@ import { VideoStatus } from "../api/content.ts";
 import { useBlockChannel } from "../features/content/api/useBlockChannel.ts";
 import { useGetContentTriage } from "../features/content/api/useGetContentTriage.ts";
 import { useMarkVideoStatus } from "../features/content/api/useMarkVideoStatus.ts";
+import { useTriageQueue, SortOption } from "../hooks/useTriageQueue.ts";
+import { formatDate, formatRelativeTime } from "../utils/date.ts";
+import { ExpiryIndicator } from "./ExpiryIndicator.tsx";
 import BookmarkIcon from "../icons/add-bookmark.svg";
 import CheckIcon from "../icons/check.svg";
 import XIcon from "../icons/close.svg";
@@ -22,71 +25,69 @@ type ContentTriageModalProps = {
 };
 
 export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
-
     const { data: contentItems = [], error, isLoading } = useGetContentTriage();
     const { mutate: markVideoStatus } = useMarkVideoStatus();
-    const { mutate: blockChannel } = useBlockChannel();
+    const { mutate: blockChannelApi } = useBlockChannel();
+    const [sortBy, setSortBy] = useState<SortOption>(SortOption.DEFAULT);
 
-    const currentItem = contentItems[currentIndex];
-
-    const handleNavigate = useCallback(
-        (direction: number) => {
-            setCurrentIndex((prev) => {
-                let newIndex = prev + direction;
-
-                // Find the next/previous item that hasn't been skipped
-                while (newIndex >= 0 && newIndex < contentItems.length) {
-                    const item = contentItems[newIndex];
-                    if (!item.status || item.status !== VideoStatus.Skipped) {
-                        break;
-                    }
-                    newIndex += direction;
-                }
-
-                // If we reached the end and all items are skipped, stay at current position
-                if (newIndex < 0 || newIndex >= contentItems.length) {
-                    return prev;
-                }
-
-                return newIndex;
+    const {
+        currentItem,
+        currentIndex,
+        activeQueue,
+        progress,
+        processItem,
+        skipChannel,
+        blockChannel,
+        goToNext,
+        goToPrevious,
+        canGoNext,
+        canGoPrevious,
+        getChannelStats,
+    } = useTriageQueue({
+        items: contentItems,
+        sortBy,
+        onProcessItem: (item, status) => {
+            markVideoStatus({ videoId: item.id, status });
+        },
+        onSkipChannel: (_, videoIds) => {
+            videoIds.forEach((videoId) => {
+                markVideoStatus({ videoId, status: VideoStatus.Skipped });
             });
         },
-        [contentItems],
-    );
-
-    const handleNext = useCallback(() => handleNavigate(1), [handleNavigate]);
-    const handlePrevious = useCallback(() => handleNavigate(-1), [handleNavigate]);
+        onBlockChannel: (channelId) => {
+            blockChannelApi({ channelId, isContentTriage: true });
+        },
+    });
 
     const handleAction = useCallback(
         (action: () => void) => {
             action();
-            if (currentIndex < contentItems.length - 1) {
-                return handleNext();
-            }
 
-            onClose();
+            if (progress.isComplete) {
+                onClose();
+            }
         },
-        [currentIndex, contentItems.length, handleNext, onClose],
+        [progress.isComplete, onClose],
     );
 
     const handleKeyPress = useCallback(
         (event: KeyboardEvent) => {
+            if (!currentItem) return;
+
             const keyActions: Record<string, () => void> = {
-                ArrowLeft: () => handleNavigate(-1),
-                ArrowRight: () => handleNavigate(1),
-                Enter: () =>
-                    handleAction(() => markVideoStatus({ status: VideoStatus.Watched, videoId: currentItem.id })),
-                Escape: () => onClose(),
+                ArrowLeft: goToPrevious,
+                ArrowRight: goToNext,
+                Enter: () => handleAction(() => processItem(VideoStatus.Watched)),
+                Escape: onClose,
                 Space: () => {
                     event.preventDefault();
-                    handleAction(() => markVideoStatus({ status: VideoStatus.Skipped, videoId: currentItem.id }));
+                    handleAction(() => processItem(VideoStatus.Skipped));
                 },
             };
 
             keyActions[event.code]?.();
         },
-        [currentItem, handleNavigate, handleAction, markVideoStatus, onClose],
+        [currentItem, goToPrevious, goToNext, handleAction, processItem, onClose],
     );
 
     useEffect(() => {
@@ -95,7 +96,9 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
     }, [handleKeyPress]);
 
     const handleOpenContent = useCallback(() => {
-        window.open(currentItem.url, "_blank");
+        if (currentItem) {
+            window.open(currentItem.url, "_blank");
+        }
     }, [currentItem]);
 
     if (isLoading) {
@@ -139,8 +142,28 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
         );
     }
 
+    const sortOptions = [
+        { value: SortOption.DEFAULT, label: "Default" },
+        { value: SortOption.NEWEST_FIRST, label: "Newest First" },
+        { value: SortOption.OLDEST_FIRST, label: "Oldest First" },
+        { value: SortOption.CHANNEL_NAME, label: "By Channel" },
+    ];
+
     return (
         <BottomSheet isOpen={isOpen} onClose={onClose} wide>
+            <div className={styles.sortingTabs}>
+                {sortOptions.map((option) => (
+                    <button
+                        key={option.value}
+                        className={`${styles.sortTab} ${sortBy === option.value ? styles.sortTabActive : ""}`}
+                        onClick={() => setSortBy(option.value)}
+                        type="button"
+                    >
+                        {option.label}
+                    </button>
+                ))}
+            </div>
+
             <div className={styles.container}>
                 <div className={styles.leftColumn}>
                     <div className={styles.preview}>
@@ -152,6 +175,15 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                         <Typography className={styles.artist} variant="text">
                             by {currentItem.artist.name}
                         </Typography>
+                        {currentItem.publishedAt && (
+                            <>
+                                <Typography className={styles.publishedDate} variant="text">
+                                    Published {formatRelativeTime(currentItem.publishedAt)} •{" "}
+                                    {formatDate(currentItem.publishedAt, "MMM d, yyyy")}
+                                </Typography>
+                                <ExpiryIndicator publishedAt={currentItem.publishedAt} />
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -166,52 +198,39 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                         <ActionButton
                             description="Save the video for later viewing"
                             icon={<BookmarkIcon />}
-                            onClick={() =>
-                                handleAction(() =>
-                                    markVideoStatus({ status: VideoStatus.WatchLater, videoId: currentItem.id }),
-                                )
-                            }
+                            onClick={() => handleAction(() => processItem(VideoStatus.WatchLater))}
                             title="Save for Later"
                         />
                         <ActionButton
                             description="Mark as watched and remove from suggestions"
                             icon={<CheckIcon />}
-                            onClick={() =>
-                                handleAction(() =>
-                                    markVideoStatus({ status: VideoStatus.Watched, videoId: currentItem.id }),
-                                )
-                            }
+                            onClick={() => handleAction(() => processItem(VideoStatus.Watched))}
                             title="Mark as Watched"
                         />
                         <ActionButton
                             description="Skip this item and move to next"
                             icon={<SkipIcon />}
-                            onClick={() =>
-                                handleAction(() =>
-                                    markVideoStatus({ status: VideoStatus.Skipped, videoId: currentItem.id }),
-                                )
-                            }
+                            onClick={() => handleAction(() => processItem(VideoStatus.Skipped))}
                             title="Skip"
                         />
                         <ActionButton
-                            description="Hide similar content from this channel"
+                            description={`Skip all ${getChannelStats(currentItem.artist.id).remaining} videos from this channel`}
+                            icon={<SkipIcon />}
+                            onClick={() => handleAction(() => skipChannel())}
+                            title="Skip Channel"
+                        />
+                        <ActionButton
+                            description="Hide all content from this channel"
                             icon={<XIcon />}
-                            onClick={() =>
-                                handleAction(() =>
-                                    blockChannel({
-                                        channelId: currentItem.artist.id,
-                                        isContentTriage: true,
-                                    }),
-                                )
-                            }
-                            title="Not Interested"
+                            onClick={() => handleAction(() => blockChannel())}
+                            title="Block Channel"
                         />
                     </div>
                 </div>
             </div>
 
             <div className={styles.navigationBar}>
-                <button className={styles.navButton} onClick={handlePrevious} type="button">
+                <button className={styles.navButton} onClick={goToPrevious} disabled={!canGoPrevious} type="button">
                     <ArrowLeftIcon />
                     Previous
                 </button>
@@ -220,18 +239,21 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                     <div className={styles.progressBar}>
                         <div
                             className={styles.progressFill}
-                            style={{ width: `${((currentIndex + 1) / contentItems.length) * 100}%` }}
+                            style={{
+                                width: `${activeQueue.length > 0 ? (currentIndex / activeQueue.length) * 100 : 0}%`,
+                            }}
                         />
                     </div>
                     <Typography className={styles.progressText} variant="text">
-                        {currentIndex + 1} of {contentItems.length}
+                        Item {currentIndex} of {activeQueue.length}
+                        {progress.processed > 0 && ` (${progress.processed} already processed)`}
                     </Typography>
                     <Typography className={styles.keyboardHints} variant="text">
                         ← → arrows • Space to skip • Enter to mark watched
                     </Typography>
                 </div>
 
-                <button className={styles.navButton} onClick={handleNext} type="button">
+                <button className={styles.navButton} onClick={goToNext} disabled={!canGoNext} type="button">
                     Next
                     <ArrowRightIcon />
                 </button>
