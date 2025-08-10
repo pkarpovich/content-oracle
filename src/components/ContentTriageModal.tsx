@@ -188,43 +188,69 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                 </div>
 
                 <div className={styles.rightColumn}>
-                    <div className={styles.actions}>
-                        <ActionButton
-                            description="Watch this video in a new tab"
-                            icon={<EnterIcon />}
-                            onClick={() => handleAction(handleOpenContent)}
-                            title="Open Content"
-                        />
-                        <ActionButton
-                            description="Save the video for later viewing"
-                            icon={<BookmarkIcon />}
-                            onClick={() => handleAction(() => processItem(VideoStatus.WatchLater))}
-                            title="Save for Later"
-                        />
-                        <ActionButton
-                            description="Mark as watched and remove from suggestions"
-                            icon={<CheckIcon />}
-                            onClick={() => handleAction(() => processItem(VideoStatus.Watched))}
-                            title="Mark as Watched"
-                        />
-                        <ActionButton
-                            description="Skip this item and move to next"
-                            icon={<SkipIcon />}
-                            onClick={() => handleAction(() => processItem(VideoStatus.Skipped))}
-                            title="Skip"
-                        />
-                        <ActionButton
-                            description={`Skip all ${getChannelStats(currentItem.artist.id).remaining} videos from this channel`}
-                            icon={<SkipIcon />}
-                            onClick={() => handleAction(() => skipChannel())}
-                            title="Skip Channel"
-                        />
-                        <ActionButton
-                            description="Hide all content from this channel"
-                            icon={<XIcon />}
-                            onClick={() => handleAction(() => blockChannel())}
-                            title="Block Channel"
-                        />
+                    <div className={styles.actionGroups}>
+                        <div className={styles.actionGroup}>
+                            <Typography className={styles.actionGroupTitle} variant="text">
+                                Item Actions
+                            </Typography>
+                            <div className={styles.actions}>
+                                <ActionButton
+                                    description="Open video in new tab"
+                                    icon={<EnterIcon />}
+                                    onClick={() => handleAction(handleOpenContent)}
+                                    title="Open"
+                                />
+                                <ActionButton
+                                    description="Add to watch later list"
+                                    icon={<BookmarkIcon />}
+                                    onClick={() => handleAction(() => processItem(VideoStatus.WatchLater))}
+                                    title="Save for Later"
+                                />
+                                <div className={`${styles.actions} ${styles.twoColumns}`}>
+                                    <ActionButton
+                                        description="Mark as watched"
+                                        icon={<CheckIcon />}
+                                        onClick={() => handleAction(() => processItem(VideoStatus.Watched))}
+                                        title="Mark as Watched"
+                                    />
+                                    <ActionButton
+                                        description="Skip this video"
+                                        icon={<SkipIcon />}
+                                        onClick={() => handleAction(() => processItem(VideoStatus.Skipped))}
+                                        title="Skip Item"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={styles.actionGroup}>
+                            <Typography className={styles.actionGroupTitle} variant="text">
+                                Channel Actions
+                            </Typography>
+                            <div className={`${styles.actions} ${getChannelStats(currentItem.artist.id).remaining > 1 ? styles.twoColumns : ''}`}>
+                                {getChannelStats(currentItem.artist.id).remaining > 1 && (
+                                    <ActionButton
+                                        description="Hide channel this session"
+                                        icon={
+                                            <div className={styles.channelCountIcon}>
+                                                <SkipIcon />
+                                                <span className={styles.channelCount}>
+                                                    {getChannelStats(currentItem.artist.id).remaining}
+                                                </span>
+                                            </div>
+                                        }
+                                        onClick={() => handleAction(() => skipChannel())}
+                                        title="Mute Channel"
+                                    />
+                                )}
+                                <ActionButton
+                                    description="Block channel permanently"
+                                    icon={<XIcon />}
+                                    onClick={() => handleAction(() => blockChannel())}
+                                    title="Block Channel"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
