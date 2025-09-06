@@ -1,0 +1,164 @@
+.container {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
+    height: 100%;
+    max-height: 70vh;
+}
+
+.leftColumn {
+    flex: 1;
+    min-width: 0;
+}
+
+.rightColumn {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.thumbnailContainer {
+    flex-shrink: 0;
+}
+
+.thumbnail {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.titleSection {
+    flex: 1;
+    min-width: 0;
+}
+
+.title {
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+}
+
+.artist {
+    color: #888;
+    margin-bottom: 0.25rem;
+}
+
+.application {
+    color: #666;
+    font-size: 0.875rem;
+    text-transform: capitalize;
+}
+
+.details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.detailRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.label {
+    font-weight: 600;
+    color: #fff;
+}
+
+.value {
+    color: #666;
+    word-break: break-all;
+}
+
+.link {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.sectionTitle {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.sessionsList {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sessionItem {
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.sessionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.sessionNumber {
+    font-weight: 600;
+    color: #fff;
+}
+
+.sessionDuration {
+    color: var(--primary, #0066cc);
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.sessionTime {
+    margin-top: 0.25rem;
+}
+
+.sessionTimeText {
+    color: #888;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        gap: 1.5rem;
+        max-height: none;
+    }
+    
+    .rightColumn {
+        max-height: 300px;
+    }
+}
+
+@media (min-width: 768px) {
+    .detailRow {
+        flex-direction: row;
+        align-items: baseline;
+        gap: 1rem;
+    }
+    
+    .label {
+        flex-shrink: 0;
+        width: 120px;
+    }
+    
+    .value {
+        flex: 1;
+    }
+}

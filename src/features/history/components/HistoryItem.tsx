@@ -20,7 +20,7 @@ type HistoryItemProps = {
     startTime: string;
     thumbnail?: string;
     title: string;
-    url?: string;
+    onClick?: () => void;
 };
 
 export const HistoryItem = ({
@@ -30,7 +30,7 @@ export const HistoryItem = ({
     startTime,
     thumbnail,
     title,
-    url,
+    onClick,
 }: HistoryItemProps) => {
     const Thumbnail = useMemo<ReactNode>(() => {
         const applicationIcons: Record<string, ReactNode> = {
@@ -58,23 +58,17 @@ export const HistoryItem = ({
     }, [application, thumbnail]);
 
     const Title = useMemo<ReactNode>(() => {
-        if (url) {
-            return (
-                <a className={style.title} href={url}>
-                    {title}
-                </a>
-            );
-        }
-
         return <div className={style.title}>{title}</div>;
-    }, [title, url]);
+    }, [title]);
+
     return (
-        <div className={style.container}>
+        <div className={style.container} onClick={onClick}>
             <div className={style.thumbnail}>
                 {Thumbnail}
                 <div className={style.timeContainer}>
                     <div className={style.timeBadge}>
-                        {new Date(startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(finishTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} -{" "}
+                        {new Date(finishTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </div>
                 </div>
             </div>
