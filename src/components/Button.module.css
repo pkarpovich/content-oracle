@@ -57,46 +57,28 @@
 }
 
 .contained {
-    background: linear-gradient(
-        135deg,
-        var(--base-800) 0%,
-        var(--base-850) 100%
-    ) !important;
+    background: var(--base-800) !important;
     color: var(--secondary-text-color) !important;
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 var(--base-700),
-        0 1px 0 var(--base-700);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border: 1px solid var(--border-color) !important;
 }
 
 .contained:not(:disabled):hover {
-    background: linear-gradient(
-        135deg,
-        var(--base-700) 0%,
-        var(--base-800) 100%
-    ) !important;
-    box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 var(--base-600),
-        0 2px 0 var(--base-600);
+    background: var(--base-700) !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 .outlined {
     background: var(--base-900);
     color: var(--primary-text-color);
     border: 1px solid var(--border-color);
-    box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 var(--base-850);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .outlined:not(:disabled):hover {
     background: var(--base-850);
     border-color: var(--ui-color);
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 var(--base-800);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .text {
@@ -115,35 +97,21 @@
 }
 
 .secondary {
-    background: linear-gradient(
-        135deg,
-        var(--magenta) 0%,
-        var(--purple) 100%
-    );
+    background: var(--magenta);
     color: var(--paper);
-    box-shadow:
-        0 8px 32px oklch(55% 0.2 350 / 0.3),
-        inset 0 1px 0 oklch(70% 0.15 350 / 0.3);
+    box-shadow: 0 4px 12px oklch(55% 0.2 350 / 0.25);
 }
 
 .secondary:not(:disabled):hover {
-    background: linear-gradient(
-        135deg,
-        var(--magenta-dim) 0%,
-        var(--purple-dim) 100%
-    );
-    box-shadow:
-        0 12px 40px oklch(55% 0.2 350 / 0.4),
-        inset 0 1px 0 oklch(70% 0.15 350 / 0.4);
+    background: var(--magenta-dim);
+    box-shadow: 0 6px 16px oklch(55% 0.2 350 / 0.3);
 }
 
 .default {
     background: var(--base-850);
     color: var(--primary-text-color);
     border: 1px solid var(--border-color-subtle);
-    box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 var(--base-800);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .default:not(:disabled):hover {
@@ -227,4 +195,52 @@
     100% {
         transform: rotate(360deg);
     }
+}
+
+:global([data-theme="light"]) .contained {
+    background: var(--base-100) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-color: var(--base-200) !important;
+}
+
+:global([data-theme="light"]) .contained:not(:disabled):hover {
+    background: var(--base-50) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .outlined {
+    background: var(--paper);
+    border-color: var(--base-200);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+:global([data-theme="light"]) .outlined:not(:disabled):hover {
+    background: var(--base-50);
+    border-color: var(--base-300);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="light"]) .text:not(:disabled):hover {
+    background: var(--base-100);
+}
+
+:global([data-theme="light"]) .default {
+    background: var(--base-100);
+    border-color: var(--base-200);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+:global([data-theme="light"]) .default:not(:disabled):hover {
+    background: var(--base-50);
+    border-color: var(--base-300);
+}
+
+:global([data-theme="light"]) .disabled {
+    background: var(--base-100) !important;
+    border-color: var(--base-200) !important;
+}
+
+:global([data-theme="light"]) .loader {
+    border-color: var(--base-300);
+    border-top-color: var(--base-600);
 }

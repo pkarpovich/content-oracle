@@ -23,20 +23,13 @@
 
 .button {
     margin-top: 8px;
-    background: linear-gradient(145deg, 
-        rgba(34, 197, 94, 0.8),
-        rgba(22, 163, 74, 0.8)
-    );
-    backdrop-filter: blur(12px);
+    background: var(--green);
     border: 1px solid rgba(34, 197, 94, 0.3);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .button:hover:not(:disabled) {
-    background: linear-gradient(145deg, 
-        rgba(34, 197, 94, 0.9),
-        rgba(22, 163, 74, 0.9)
-    );
+    background: var(--green-dim);
     border-color: rgba(34, 197, 94, 0.4);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
@@ -47,10 +40,7 @@
 }
 
 .button:disabled {
-    background: linear-gradient(145deg, 
-        rgba(107, 114, 128, 0.4),
-        rgba(75, 85, 99, 0.4)
-    );
+    background: var(--base-600);
     border-color: rgba(107, 114, 128, 0.2);
     opacity: 0.6;
 }

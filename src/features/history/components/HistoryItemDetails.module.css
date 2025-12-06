@@ -152,13 +152,42 @@
         align-items: baseline;
         gap: 1rem;
     }
-    
+
     .label {
         flex-shrink: 0;
         width: 120px;
     }
-    
+
     .value {
         flex: 1;
     }
+}
+
+:global([data-theme="light"]) .artist {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .application {
+    color: var(--faint-text-color);
+}
+
+:global([data-theme="light"]) .label {
+    color: var(--primary-text-color);
+}
+
+:global([data-theme="light"]) .value {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .sessionItem {
+    border-color: var(--base-200);
+    background: var(--base-50);
+}
+
+:global([data-theme="light"]) .sessionNumber {
+    color: var(--primary-text-color);
+}
+
+:global([data-theme="light"]) .sessionTimeText {
+    color: var(--muted-text-color);
 }

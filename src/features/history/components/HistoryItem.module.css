@@ -130,3 +130,22 @@
     font-size: 12px;
     margin-bottom: 0;
 }
+
+:global([data-theme="light"]) .container {
+    background: var(--paper);
+    border-color: var(--base-200);
+}
+
+:global([data-theme="light"]) .container:hover {
+    background: var(--base-50);
+    border-color: var(--base-300);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.08),
+        0 0 0 1px var(--base-200);
+}
+
+:global([data-theme="light"]) .timeBadge {
+    background: var(--base-100);
+    border-color: var(--base-200);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}

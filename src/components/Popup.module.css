@@ -80,3 +80,13 @@
         transform: scale(1);
     }
 }
+
+:global([data-theme="light"]) .overlay {
+    background-color: oklch(50% 0.01 85 / 0.4);
+}
+
+:global([data-theme="light"]) .popup {
+    background-color: var(--paper);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border-color: var(--base-200);
+}

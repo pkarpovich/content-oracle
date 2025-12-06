@@ -28,14 +28,9 @@
 }
 
 .sortTabActive {
-    background: linear-gradient(145deg, 
-        var(--primary),
-        oklch(from var(--primary) calc(l * 0.9) c h)
-    );
+    background: var(--primary);
     color: rgba(0, 0, 0, 0.85);
-    box-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .container {
@@ -224,12 +219,7 @@
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    background: linear-gradient(145deg, 
-        rgba(255, 255, 255, 0.1),
-        rgba(255, 255, 255, 0.05)
-    );
-    backdrop-filter: blur(12px);
-    transform: translate3d(0, 0, 0);
+    background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     color: rgba(255, 255, 255, 0.9);
@@ -238,32 +228,29 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-width: 100px;
-    
+
     & > svg {
         transition: all 0.3s ease;
     }
-    
+
     &:hover:not(:disabled) {
-        background: linear-gradient(145deg, 
-            rgba(255, 255, 255, 0.15),
-            rgba(255, 255, 255, 0.08)
-        );
+        background: rgba(255, 255, 255, 0.12);
         border-color: rgba(255, 255, 255, 0.3);
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        
+
         & > svg {
             transform: scale(1.1);
         }
     }
-    
+
     &:disabled {
         opacity: 0.4;
         cursor: not-allowed;
         background: rgba(255, 255, 255, 0.03);
         border-color: rgba(255, 255, 255, 0.1);
     }
-    
+
     &:active:not(:disabled) {
         transform: translateY(0);
     }
@@ -288,10 +275,7 @@
 
 .progressFill {
     height: 100%;
-    background: linear-gradient(90deg, 
-        var(--primary),
-        oklch(from var(--primary) calc(l * 0.9) c h)
-    );
+    background: var(--primary);
     border-radius: 2px;
     transition: width 0.3s ease;
 }
@@ -306,4 +290,83 @@
     color: rgba(255, 255, 255, 0.4);
     font-size: 0.75rem;
     text-align: center;
+}
+
+:global([data-theme="light"]) .sortingTabs {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--base-200);
+}
+
+:global([data-theme="light"]) .sortTab {
+    color: var(--muted-text-color);
+
+    &:hover:not(.sortTabActive) {
+        background: rgba(0, 0, 0, 0.03);
+        color: var(--primary-text-color);
+    }
+}
+
+:global([data-theme="light"]) .sortTabActive {
+    color: var(--black);
+}
+
+:global([data-theme="light"]) .artist {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .publishedDate {
+    color: var(--faint-text-color);
+}
+
+:global([data-theme="light"]) .expiryIndicator > p {
+    color: var(--faint-text-color);
+}
+
+:global([data-theme="light"]) .expiryDot {
+    background: var(--base-400);
+
+    &[data-urgent="true"] {
+        background: var(--orange);
+    }
+}
+
+:global([data-theme="light"]) .progress p {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .actionGroupTitle {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .navigationBar {
+    border-top-color: var(--base-200);
+}
+
+:global([data-theme="light"]) .navButton {
+    background: var(--base-100);
+    border-color: var(--base-200);
+    color: var(--primary-text-color);
+
+    &:hover:not(:disabled) {
+        background: var(--base-50);
+        border-color: var(--base-300);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    &:disabled {
+        background: var(--base-100);
+        border-color: var(--base-150);
+    }
+}
+
+:global([data-theme="light"]) .progressBar {
+    background: var(--base-200);
+}
+
+:global([data-theme="light"]) .progressText {
+    color: var(--primary-text-color);
+}
+
+:global([data-theme="light"]) .keyboardHints {
+    color: var(--faint-text-color);
 }

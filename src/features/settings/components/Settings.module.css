@@ -59,48 +59,26 @@
 }
 
 .tabActive {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.15),
-        rgba(255, 255, 255, 0.08)
-    );
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    transform: translate3d(0, 0, 0);
+    background: rgba(255, 255, 255, 0.12);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: var(--primary);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    
+
     &:hover {
         transform: translateY(-1px);
-        background: linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.2),
-            rgba(255, 255, 255, 0.12)
-        );
+        background: rgba(255, 255, 255, 0.15);
     }
 }
 
 .contentContainer {
     width: 100%;
     max-width: 1200px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    transform: translate3d(0, 0, 0);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--base-900);
+    border: 1px solid var(--border-color-subtle);
     border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 16px 64px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     min-height: 500px;
-    
-    @supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
-        backdrop-filter: none;
-        background: linear-gradient(145deg,
-            rgba(44, 44, 46, 0.95),
-            rgba(52, 52, 58, 0.9)
-        );
-    }
 }
 
 .tabContent {
@@ -131,4 +109,35 @@
     margin-top: 16px;
     width: 100%;
     max-width: 1200px;
+}
+
+:global([data-theme="light"]) .tabsContainer {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--base-200);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="light"]) .tab {
+    color: var(--muted-text-color);
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.04);
+        color: var(--primary-text-color);
+    }
+}
+
+:global([data-theme="light"]) .tabActive {
+    background: var(--paper);
+    border-color: var(--base-200);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    &:hover {
+        background: var(--base-50);
+    }
+}
+
+:global([data-theme="light"]) .contentContainer {
+    background: var(--paper);
+    border-color: var(--base-200);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }

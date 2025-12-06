@@ -1,0 +1,36 @@
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+
+    & > svg {
+        width: 20px;
+        height: 20px;
+        fill: var(--base-500);
+        transition: all 0.2s ease;
+    }
+
+    &:hover {
+        background: var(--base-850);
+
+        & > svg {
+            fill: var(--primary);
+        }
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+:global([data-theme="light"]) .button:hover {
+    background: var(--base-100);
+}

@@ -8,49 +8,17 @@
     padding: 16px;
     contain: layout;
     will-change: contents;
-    position: relative;
-
-    /* Premium grid enhancement */
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            radial-gradient(circle 150px at 20% 30%, oklch(0.08 0.04 85 / 0.02) 0%, transparent 60%),
-            radial-gradient(circle 120px at 80% 70%, oklch(0.06 0.03 280 / 0.015) 0%, transparent 60%);
-        pointer-events: none;
-        z-index: -1;
-        opacity: 0.6;
-        mix-blend-mode: overlay;
-    }
 
     @media (max-width: 768px) {
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
         gap: 24px;
         padding: 12px;
-
-        &::before {
-            opacity: 0.3;
-        }
     }
 
     @media (max-width: 480px) {
         grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 20px;
         padding: 8px;
-
-        &::before {
-            display: none;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        &::before {
-            animation: none;
-        }
     }
 }
 

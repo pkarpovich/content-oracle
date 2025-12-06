@@ -7,6 +7,7 @@ import HistoryIcon from "../icons/history.svg";
 import SettingsIcon from "../icons/settings.svg";
 import style from "./Header.module.css";
 import { Logo } from "./Logo.tsx";
+import { ThemeToggle } from "./ThemeToggle.tsx";
 import { Typography } from "./Typography.tsx";
 
 export const Header = () => {
@@ -49,6 +50,7 @@ export const Header = () => {
                 </div>
 
                 <div className={style.logo}>
+                    <ThemeToggle />
                     <Logo onClick={handleRefresh} />
                 </div>
 

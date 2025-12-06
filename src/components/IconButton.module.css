@@ -80,3 +80,17 @@
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
 }
+
+:global([data-theme="light"]) .button {
+    background-color: var(--base-100);
+}
+
+:global([data-theme="light"]) .button:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+:global([data-theme="light"]) .tooltip {
+    background: var(--paper);
+    border-color: var(--base-200);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

@@ -437,8 +437,131 @@
     .mobileOverlay {
         display: block;
     }
-    
+
     .sidebar {
         width: 280px;
+    }
+}
+
+:global([data-theme="light"]) .sidebar {
+    background: var(--paper);
+    border-color: var(--base-200);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 var(--paper);
+}
+
+:global([data-theme="light"]) .header {
+    border-bottom-color: var(--base-200);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+:global([data-theme="light"]) .itemCount {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .closeButton {
+    color: var(--muted-text-color);
+
+    &:hover {
+        color: var(--primary-text-color);
+        background: rgba(0, 0, 0, 0.05);
+    }
+}
+
+:global([data-theme="light"]) .filterSection {
+    border-bottom-color: var(--base-200);
+    background: transparent;
+}
+
+:global([data-theme="light"]) .sectionHeader {
+    &:hover {
+        background: rgba(0, 0, 0, 0.04);
+    }
+}
+
+:global([data-theme="light"]) .sectionTitle {
+    color: var(--primary-text-color);
+}
+
+:global([data-theme="light"]) .chevron {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .radioOption,
+:global([data-theme="light"]) .checkboxOption {
+    color: var(--primary-text-color);
+
+    &:hover {
+        color: var(--secondary-text-color);
+    }
+}
+
+:global([data-theme="light"]) .footer {
+    border-top-color: var(--base-200);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+:global([data-theme="light"]) .dateSeparator {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .slider {
+    background: var(--base-200);
+}
+
+:global([data-theme="light"]) .slider::-webkit-slider-thumb {
+    border-color: var(--base-300);
+}
+
+:global([data-theme="light"]) .slider::-moz-range-thumb {
+    border-color: var(--base-300);
+}
+
+:global([data-theme="light"]) .datePickerPopover {
+    background: var(--paper);
+    border-color: var(--base-200);
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 var(--paper);
+}
+
+:global([data-theme="light"]) .datePickerPopover :global(.rdp-root) {
+    color: var(--primary-text-color);
+}
+
+:global([data-theme="light"]) .dayPicker .rdp-day {
+    color: var(--primary-text-color);
+}
+
+:global([data-theme="light"]) .dayPicker .rdp-month_caption {
+    color: var(--primary-text-color);
+}
+
+:global([data-theme="light"]) .dayPicker .rdp-weekday {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .dayPicker .rdp-nav_button {
+    color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .closeDatePicker {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: var(--base-200);
+    color: var(--primary-text-color);
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.08);
+    }
+}
+
+@media (min-width: 1024px) {
+    :global([data-theme="light"]) .sidebar {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: var(--base-200);
+        box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.08),
+            inset 0 1px 0 var(--paper);
     }
 }

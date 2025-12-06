@@ -33,10 +33,7 @@
     justify-content: center;
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg,
-        var(--primary),
-        var(--primary-dark)
-    );
+    background: var(--primary);
     border-radius: 12px;
     margin-right: 16px;
     flex-shrink: 0;
@@ -68,4 +65,18 @@
     font-weight: 400;
     color: var(--muted-text-color);
     line-height: 1.3;
+}
+
+:global([data-theme="light"]) .button {
+    background: var(--base-100);
+    border-color: var(--base-200);
+}
+
+:global([data-theme="light"]) .button:hover {
+    background: var(--base-50);
+    border-color: var(--base-300);
+}
+
+:global([data-theme="light"]) .button:active {
+    background: var(--base-100);
 }

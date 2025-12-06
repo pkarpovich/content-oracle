@@ -99,15 +99,33 @@
     height: 24px;
     color: var(--primary);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     svg {
         width: 16px;
         height: 16px;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
+
     &.collapsed svg {
         transform: rotate(-90deg);
     }
+}
+
+:global([data-theme="light"]) .categoryLink:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+:global([data-theme="light"]) .collapseButton:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+:global([data-theme="light"]) .collapseButton:hover .collapseIcon {
+    color: var(--primary-text-color);
+}
+
+:global([data-theme="light"]) .categoryCount {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: var(--base-300);
+    color: var(--muted-text-color);
 }
 
