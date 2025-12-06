@@ -5,8 +5,8 @@
     border: none;
     border-radius: 8px;
     padding: 8px;
-    background-color: rgba(255, 255, 255, 0.1);
-    fill: rgba(255, 255, 255, 0.9);
+    background-color: var(--base-850);
+    fill: var(--primary-text-color);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     min-width: 32px;
@@ -14,7 +14,7 @@
     position: relative;
     font-size: 0.8rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--primary-text-color);
     gap: 6px;
 
     & > svg {
@@ -25,10 +25,10 @@
 
     &:hover {
         background-color: var(--primary);
-        fill: rgba(0, 0, 0, 0.8);
-        color: rgba(0, 0, 0, 0.8);
+        fill: var(--black);
+        color: var(--black);
         transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     &:active {
@@ -36,12 +36,11 @@
     }
 
     @media (hover: none) and (pointer: coarse) {
-        /* Touch devices: fuller button with text */
         min-height: 44px;
         padding: 12px 16px;
         justify-content: flex-start;
         width: 100%;
-        
+
         &:hover {
             transform: none;
         }
@@ -67,8 +66,8 @@
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%) translateY(-4px) translate3d(0, 0, 0);
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
+    background: var(--base-950);
+    color: var(--secondary-text-color);
     padding: 6px 8px;
     border-radius: 6px;
     font-size: 0.75rem;
@@ -79,5 +78,5 @@
     transition: all 0.2s ease;
     z-index: 1000;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
 }

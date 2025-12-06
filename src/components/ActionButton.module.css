@@ -3,8 +3,8 @@
     align-items: center;
     width: 100%;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--base-850);
+    border: 1px solid var(--border-color-subtle);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -16,14 +16,14 @@
     }
 
     &:hover {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.2);
+        background: var(--base-800);
+        border-color: var(--border-color);
         transform: translateY(-1px);
     }
 
     &:active {
         transform: scale(0.98);
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--base-850);
     }
 }
 
@@ -33,9 +33,9 @@
     justify-content: center;
     width: 48px;
     height: 48px;
-    background: linear-gradient(135deg, 
+    background: linear-gradient(135deg,
         var(--primary),
-        oklch(from var(--primary) calc(l * 0.8) c h)
+        var(--primary-dark)
     );
     border-radius: 12px;
     margin-right: 16px;
@@ -44,7 +44,7 @@
     & > svg {
         width: 24px;
         height: 24px;
-        fill: rgba(0, 0, 0, 0.8);
+        fill: var(--black);
     }
 }
 
@@ -59,13 +59,13 @@
 .title {
     font-size: 1rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--secondary-text-color);
     margin-bottom: 4px;
 }
 
 .description {
     font-size: 0.875rem;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--muted-text-color);
     line-height: 1.3;
 }

@@ -3,23 +3,79 @@
 @import url('https://fonts.googleapis.com/css2?family=Victor+Mono:ital,wght@0,100..700;1,100..700&display=swap');
 
 :root {
-    --primary: oklch(84.71% 0.2 84.93);
-    --primary-dark: oklch(0.794 0.171 71.188);
-    --primary-disabled: oklch(84.71% 0.2 84.93 / 0.5);
-    --bg-color: #0f0f0f;
-    --card-bg-color: #2c2c2e;
-    --card-bg-color-secondary: #34343a;
-    --shadow-color: oklch(84.71% 0.2 84.93);
-    --primary-text-color: var(--primary);
-    --secondary-text-color: #fff;
+    /* Flexoki Base Palette (Dark Theme) */
+    --black: #100F0F;
+    --base-950: #1C1B1A;
+    --base-900: #282726;
+    --base-850: #343331;
+    --base-800: #403E3C;
+    --base-700: #575653;
+    --base-600: #6F6E69;
+    --base-500: #878580;
+    --base-300: #B7B5AC;
+    --base-200: #CECDC3;
+    --base-150: #DAD8CE;
+    --base-100: #E6E4D9;
+    --base-50: #F2F0E5;
+    --paper: #FFFCF0;
+
+    /* Flexoki Accent Colors (400 for dark theme) */
+    --red: #D14D41;
+    --red-dim: #AF3029;
+    --orange: #DA702C;
+    --orange-dim: #BC5215;
+    --yellow: #D0A215;
+    --yellow-dim: #AD8301;
+    --green: #879A39;
+    --green-dim: #66800B;
+    --cyan: #3AA99F;
+    --cyan-dim: #24837B;
+    --blue: #4385BE;
+    --blue-dim: #205EA6;
+    --purple: #8B7EC8;
+    --purple-dim: #5E409D;
+    --magenta: #CE5D97;
+    --magenta-dim: #A02F6F;
+
+    /* Semantic Colors */
+    --primary: var(--yellow);
+    --primary-dark: var(--yellow-dim);
+    --primary-disabled: oklch(75% 0.12 85 / 0.5);
+    --primary-glow: oklch(75% 0.15 85 / 0.25);
+
+    /* Backgrounds */
+    --bg-color: var(--black);
+    --bg-secondary: var(--base-950);
+    --card-bg-color: var(--base-900);
+    --card-bg-color-secondary: var(--base-850);
+
+    /* Text */
+    --primary-text-color: var(--base-200);
+    --secondary-text-color: var(--base-100);
+    --muted-text-color: var(--base-500);
+    --faint-text-color: var(--base-600);
+
+    /* Borders & UI */
+    --border-color: var(--base-800);
+    --border-color-subtle: var(--base-850);
+    --ui-color: var(--base-700);
+    --ui-color-hover: var(--base-600);
+
+    /* Status */
+    --error-color: var(--red);
+    --success-color: var(--green);
+    --warning-color: var(--orange);
+    --info-color: var(--cyan);
+
+    /* Legacy mappings */
+    --shadow-color: var(--primary);
     --header-height: 50px;
     --sidebar-width: 80px;
     --sidebar-width-open: 350px;
-
-    --dota2-color: #e74c3c;
-    --dota2-color--secondary: #c0392b;
-    --cs2-color: #2980b9;
-    --cs2-color--secondary: #3498db;
+    --dota2-color: var(--red);
+    --dota2-color--secondary: var(--red-dim);
+    --cs2-color: var(--blue);
+    --cs2-color--secondary: var(--cyan);
     --thickness: 1px;
 
     font-family: "Victor Mono", monospace;
@@ -27,11 +83,11 @@
     font-weight: 400;
     letter-spacing: -0.02em;
 
-    background: linear-gradient(180deg, #262525 0%, #1a1a1a 100%);
+    background: linear-gradient(180deg, var(--base-900) 0%, var(--black) 100%);
     background-attachment: fixed;
     color: var(--primary-text-color);
 
-    color-scheme: light;
+    color-scheme: dark;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -57,16 +113,17 @@ html {
                     0deg,
                     transparent,
                     transparent 2px,
-                    rgba(255,255,255,.03) 2px,
-                    rgba(255,255,255,.03) 4px
+                    var(--base-850) 2px,
+                    transparent 4px
             ),
             repeating-linear-gradient(
                     90deg,
                     transparent,
                     transparent 2px,
-                    rgba(255,255,255,.03) 2px,
-                    rgba(255,255,255,.03) 4px
+                    var(--base-850) 2px,
+                    transparent 4px
             );
+    background-blend-mode: overlay;
 }
 
 body {

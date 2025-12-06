@@ -4,26 +4,27 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: oklch(10% 0.01 85 / 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     animation: fadeIn 0.3s ease;
     border: 0;
+    backdrop-filter: blur(4px);
 }
 
 .popup {
     margin: 20px;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     position: relative;
     width: 400px;
     max-width: 90%;
     background-color: var(--card-bg-color);
     animation: scaleIn 0.3s ease;
-    border: none;
+    border: 1px solid var(--border-color);
 }
 
 .header {
@@ -48,13 +49,17 @@
     font-size: 24px;
     cursor: pointer;
     line-height: 1;
-    color: #333;
+    color: var(--muted-text-color);
     transition: color 0.3s;
 
     & > svg {
         width: 30px;
         height: 30px;
-        fill: var(--secondary-text-color);
+        fill: var(--muted-text-color);
+    }
+
+    &:hover > svg {
+        fill: var(--primary-text-color);
     }
 }
 

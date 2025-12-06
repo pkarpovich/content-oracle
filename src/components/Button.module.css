@@ -30,7 +30,7 @@
 
 .button:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 2px var(--base-600);
 }
 
 .button:disabled {
@@ -59,55 +59,55 @@
 .contained {
     background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0.08) 100%
+        var(--base-800) 0%,
+        var(--base-850) 100%
     ) !important;
-    color: rgba(255, 255, 255, 0.95) !important;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        0 1px 0 rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: var(--secondary-text-color) !important;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 var(--base-700),
+        0 1px 0 var(--base-700);
+    border: 1px solid var(--border-color) !important;
 }
 
 .contained:not(:disabled):hover {
     background: linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(255, 255, 255, 0.12) 100%
+        var(--base-700) 0%,
+        var(--base-800) 100%
     ) !important;
-    box-shadow: 
-        0 12px 40px rgba(0, 0, 0, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3),
-        0 2px 0 rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 var(--base-600),
+        0 2px 0 var(--base-600);
 }
 
 .outlined {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
-        0 4px 20px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: var(--base-900);
+    color: var(--primary-text-color);
+    border: 1px solid var(--border-color);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 var(--base-850);
 }
 
 .outlined:not(:disabled):hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    background: var(--base-850);
+    border-color: var(--ui-color);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 var(--base-800);
 }
 
 .text {
     background: transparent;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--primary-text-color);
     border: 1px solid transparent;
 }
 
 .text:not(:disabled):hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.9);
+    background: var(--base-900);
+    color: var(--secondary-text-color);
 }
 
 .primary {
@@ -117,38 +117,38 @@
 .secondary {
     background: linear-gradient(
         135deg,
-        rgba(233, 30, 99, 0.9) 0%,
-        rgba(156, 39, 176, 0.9) 100%
+        var(--magenta) 0%,
+        var(--purple) 100%
     );
-    color: rgba(255, 255, 255, 0.95);
-    box-shadow: 
-        0 8px 32px rgba(233, 30, 99, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    color: var(--paper);
+    box-shadow:
+        0 8px 32px oklch(55% 0.2 350 / 0.3),
+        inset 0 1px 0 oklch(70% 0.15 350 / 0.3);
 }
 
 .secondary:not(:disabled):hover {
     background: linear-gradient(
         135deg,
-        rgba(233, 30, 99, 1) 0%,
-        rgba(156, 39, 176, 1) 100%
+        var(--magenta-dim) 0%,
+        var(--purple-dim) 100%
     );
-    box-shadow: 
-        0 12px 40px rgba(233, 30, 99, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    box-shadow:
+        0 12px 40px oklch(55% 0.2 350 / 0.4),
+        inset 0 1px 0 oklch(70% 0.15 350 / 0.4);
 }
 
 .default {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
-        0 4px 20px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: var(--base-850);
+    color: var(--primary-text-color);
+    border: 1px solid var(--border-color-subtle);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 var(--base-800);
 }
 
 .default:not(:disabled):hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.25);
+    background: var(--base-800);
+    border-color: var(--border-color);
 }
 
 .small {
@@ -173,9 +173,9 @@
 }
 
 .disabled {
-    background: rgba(255, 255, 255, 0.05) !important;
-    color: rgba(255, 255, 255, 0.4) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    background: var(--base-900) !important;
+    color: var(--muted-text-color) !important;
+    border-color: var(--border-color-subtle) !important;
     box-shadow: none !important;
     cursor: not-allowed;
     transform: none !important;
@@ -209,15 +209,15 @@
     position: absolute;
     width: 18px;
     height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--base-600);
+    border-top-color: var(--base-200);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
 
 .contained .loader {
-    border-color: rgba(0, 0, 0, 0.3);
-    border-top-color: rgba(0, 0, 0, 0.8);
+    border-color: var(--base-700);
+    border-top-color: var(--base-300);
 }
 
 @keyframes spin {

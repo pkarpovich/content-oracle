@@ -9,8 +9,8 @@
     align-items: center;
     background: linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0.05) 100%
+        var(--base-850) 0%,
+        var(--base-900) 100%
     );
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -20,10 +20,10 @@
     padding: 0 20px;
     min-height: 60px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 
-        0 4px 24px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 var(--base-800),
+        0 0 0 1px var(--border-color-subtle);
     position: relative;
 }
 
@@ -38,9 +38,9 @@
     padding: 2px;
     background: linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(255, 255, 255, 0.05) 100%
+        var(--base-700) 0%,
+        var(--base-800) 50%,
+        var(--base-850) 100%
     );
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: xor;
@@ -51,29 +51,29 @@
 
 .inputContainer:hover {
     transform: translateY(-1px);
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.16),
+        inset 0 1px 0 var(--base-700),
+        0 0 0 1px var(--border-color);
 }
 
 .inputContainer:focus-within,
 .focused {
     transform: translateY(-2px);
-    box-shadow: 
-        0 12px 40px rgba(0, 0, 0, 0.15),
-        0 0 0 3px rgba(255, 255, 255, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.2);
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.2),
+        0 0 0 3px var(--base-850),
+        inset 0 1px 0 var(--base-600),
+        0 0 0 1px var(--ui-color);
 }
 
 .inputContainer:focus-within::before,
 .focused::before {
     background: linear-gradient(
         145deg,
-        rgba(255, 255, 255, 0.3) 0%,
-        rgba(255, 255, 255, 0.15) 50%,
-        rgba(255, 255, 255, 0.1) 100%
+        var(--base-600) 0%,
+        var(--base-700) 50%,
+        var(--base-800) 100%
     );
 }
 
@@ -84,18 +84,18 @@
     transform: translateY(-50%);
     font-size: 15px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--muted-text-color);
     background: linear-gradient(
-        135deg, 
-        rgba(0, 0, 0, 0) 0%, 
-        rgba(0, 0, 0, 0) 100%
+        135deg,
+        transparent 0%,
+        transparent 100%
     );
     padding: 0;
     pointer-events: none;
     z-index: 2;
     letter-spacing: 0.01em;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0);
+    border: 1px solid transparent;
     backdrop-filter: blur(0px);
     box-shadow: 0 0 0 rgba(0, 0, 0, 0);
     transition:
@@ -114,30 +114,30 @@
     left: 16px;
     font-size: 11px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--secondary-text-color);
     background: linear-gradient(
-        135deg, 
-        rgba(0, 0, 0, 0.6) 0%, 
-        rgba(0, 0, 0, 0.4) 100%
+        135deg,
+        var(--base-900) 0%,
+        var(--black) 100%
     );
     backdrop-filter: blur(12px);
     padding: 3px 10px;
     border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 var(--base-800);
 }
 
 .required {
-    color: rgba(255, 107, 107, 0.9);
+    color: var(--error-color);
     margin-left: 3px;
     font-weight: 600;
 }
 
 .icon {
     margin-right: 16px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--faint-text-color);
     display: flex;
     align-items: center;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -146,7 +146,7 @@
 
 .inputContainer:focus-within .icon,
 .focused .icon {
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--primary-text-color);
 }
 
 .input {
@@ -156,7 +156,7 @@
     padding: 20px 0;
     font-size: 14px;
     background-color: transparent;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--primary-text-color);
     font-weight: 400;
     letter-spacing: 0.01em;
     z-index: 1;
@@ -164,23 +164,23 @@
 }
 
 .input::placeholder {
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--faint-text-color);
     font-weight: 400;
     letter-spacing: 0.005em;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .inputContainer:focus-within .input::placeholder {
-    color: rgba(255, 255, 255, 0.2);
+    color: var(--base-700);
 }
 
 .input:disabled {
     cursor: not-allowed;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--muted-text-color);
 }
 
 .input:disabled::placeholder {
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--faint-text-color);
 }
 
 .inputContainer:has(.input:disabled) {
@@ -189,44 +189,44 @@
 }
 
 .inputContainer:has(.input:disabled) .label {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--muted-text-color);
 }
 
 .inputContainer:has(.input:disabled) .icon {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--muted-text-color);
 }
 
 .errorBorder {
-    border-color: rgba(255, 107, 107, 0.6) !important;
-    background: rgba(255, 107, 107, 0.08) !important;
-    box-shadow: 
-        0 8px 32px rgba(255, 107, 107, 0.15),
-        0 0 0 4px rgba(255, 107, 107, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--error-color) !important;
+    background: oklch(50% 0.15 25 / 0.1) !important;
+    box-shadow:
+        0 8px 32px oklch(50% 0.15 25 / 0.15),
+        0 0 0 4px oklch(50% 0.15 25 / 0.08),
+        inset 0 1px 0 var(--base-800) !important;
 }
 
 .errorBorder:focus-within,
 .errorBorder.focused {
-    border-color: rgba(255, 107, 107, 0.8) !important;
-    background: rgba(255, 107, 107, 0.12) !important;
-    box-shadow: 
-        0 12px 40px rgba(255, 107, 107, 0.2),
-        0 0 0 4px rgba(255, 107, 107, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15),
-        0 2px 0 rgba(255, 107, 107, 0.08) !important;
+    border-color: var(--red) !important;
+    background: oklch(50% 0.15 25 / 0.15) !important;
+    box-shadow:
+        0 12px 40px oklch(50% 0.15 25 / 0.2),
+        0 0 0 4px oklch(50% 0.15 25 / 0.12),
+        inset 0 1px 0 var(--base-700),
+        0 2px 0 oklch(50% 0.15 25 / 0.08) !important;
 }
 
 .errorText {
-    color: rgba(255, 107, 107, 0.9);
+    color: var(--error-color);
     font-size: 12px;
     font-weight: 500;
     margin-top: 12px;
     margin-left: 8px;
-    background: rgba(255, 107, 107, 0.12);
+    background: oklch(50% 0.15 25 / 0.12);
     backdrop-filter: blur(12px);
     padding: 8px 16px;
     border-radius: 12px;
-    border: 1px solid rgba(255, 107, 107, 0.2);
-    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.1);
+    border: 1px solid var(--red-dim);
+    box-shadow: 0 4px 16px oklch(50% 0.15 25 / 0.1);
     letter-spacing: 0.005em;
 }
