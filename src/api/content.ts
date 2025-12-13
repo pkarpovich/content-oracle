@@ -101,14 +101,21 @@ export const addToWatchlist = async (videoId: string, status?: string): Promise<
     return await resp.json();
 };
 
-export type MarkVideoStatusRequest = {
+export type VideoStatusItem = {
     video_id: string;
     status: string;
+};
+
+export type VideoStatusResult = {
+    video_id: string;
+    success: boolean;
+    message?: string;
 };
 
 export type MarkVideoStatusResponse = {
     success: boolean;
     message: string;
+    results?: VideoStatusResult[];
 };
 
 export enum VideoStatus {
@@ -122,7 +129,22 @@ export const markVideoStatus = async (videoId: string, status: VideoStatus): Pro
     const resp = await fetch(`${BaseURL}/api/mark-video-status`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ video_id: videoId, status }),
+        body: JSON.stringify([{ video_id: videoId, status }]),
+    });
+
+    if (!resp.ok) {
+        const errorText = await resp.text();
+        throw new Error(errorText || "Failed to mark video status");
+    }
+
+    return await resp.json();
+};
+
+export const markVideoStatusBatch = async (items: VideoStatusItem[]): Promise<MarkVideoStatusResponse> => {
+    const resp = await fetch(`${BaseURL}/api/mark-video-status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(items),
     });
 
     if (!resp.ok) {

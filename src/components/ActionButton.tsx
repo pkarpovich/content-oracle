@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 import styles from "./ActionButton.module.css";
 
-type Variant = "default" | "primary" | "ghost" | "danger";
+type Variant = "default" | "primary" | "danger";
 
 type Props = {
     icon: ReactNode;

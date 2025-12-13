@@ -6,6 +6,7 @@ import { VideoStatus } from "../api/content.ts";
 import { useBlockChannel } from "../features/content/api/useBlockChannel.ts";
 import { useGetContentTriage } from "../features/content/api/useGetContentTriage.ts";
 import { useMarkVideoStatus } from "../features/content/api/useMarkVideoStatus.ts";
+import { useMarkVideoStatusBatch } from "../features/content/api/useMarkVideoStatusBatch.ts";
 import { useTriageQueue, SortOption } from "../hooks/useTriageQueue.ts";
 import { formatDate, formatRelativeTime } from "../utils/date.ts";
 import { ExpiryIndicator } from "./ExpiryIndicator.tsx";
@@ -29,13 +30,16 @@ type ContentTriageModalProps = {
 };
 
 const ANIMATION_DURATION = 250;
+const ENTRY_DELAY = 50;
 
 export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps) => {
     const { data: contentItems = [], error, isLoading } = useGetContentTriage();
     const { mutate: markVideoStatus } = useMarkVideoStatus();
+    const { mutate: markVideoStatusBatch } = useMarkVideoStatusBatch();
     const { mutate: blockChannelApi } = useBlockChannel();
     const [sortBy, setSortBy] = useState<SortOption>(SortOption.DEFAULT);
     const [exitDirection, setExitDirection] = useState<ExitDirection>(null);
+    const [isEntering, setIsEntering] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const pendingActionRef = useRef<(() => void) | null>(null);
 
@@ -59,8 +63,8 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
             markVideoStatus({ videoId: item.id, status });
         },
         onSkipChannel: (_, videoIds) => {
-            videoIds.forEach((videoId) => {
-                markVideoStatus({ videoId, status: VideoStatus.Skipped });
+            markVideoStatusBatch({
+                items: videoIds.map((videoId) => ({ videoId, status: VideoStatus.Skipped })),
             });
         },
         onBlockChannel: (channelId) => {
@@ -79,12 +83,22 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
             setTimeout(() => {
                 action();
                 setExitDirection(null);
-                setIsAnimating(false);
-                pendingActionRef.current = null;
 
                 if (progress.isComplete) {
+                    setIsAnimating(false);
+                    pendingActionRef.current = null;
                     onClose();
+                    return;
                 }
+
+                setTimeout(() => {
+                    setIsEntering(true);
+                    setTimeout(() => {
+                        setIsEntering(false);
+                        setIsAnimating(false);
+                        pendingActionRef.current = null;
+                    }, ANIMATION_DURATION);
+                }, ENTRY_DELAY);
             }, ANIMATION_DURATION);
         },
         [isAnimating, progress.isComplete, onClose],
@@ -200,6 +214,7 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                     [styles.exitLeft]: exitDirection === "left",
                     [styles.exitRight]: exitDirection === "right",
                     [styles.exitUp]: exitDirection === "up",
+                    [styles.entering]: isEntering,
                 })}>
                     <div className={styles.preview}>
                         <img alt={currentItem.title} className={styles.previewImage} src={currentItem.thumbnail} />
@@ -207,9 +222,16 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
 
                     <div className={styles.header}>
                         <Typography variant="h3">{currentItem.title}</Typography>
-                        <Typography className={styles.artist} variant="text">
-                            by {currentItem.artist.name}
-                        </Typography>
+                        <div className={styles.channelBadge}>
+                            <Typography className={styles.artist} variant="text">
+                                {currentItem.artist.name}
+                            </Typography>
+                            {getChannelStats(currentItem.artist.id).remaining > 1 && (
+                                <span className={styles.channelVideoBadge}>
+                                    {getChannelStats(currentItem.artist.id).remaining} videos
+                                </span>
+                            )}
+                        </div>
                         {currentItem.publishedAt && (
                             <>
                                 <Typography className={styles.publishedDate} variant="text">
@@ -254,7 +276,6 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                                         icon={<SkipIcon />}
                                         onClick={() => animateAndExecute("left", () => processItem(VideoStatus.Skipped))}
                                         title="Skip Item"
-                                        variant="ghost"
                                     />
                                 </div>
                             </div>
@@ -300,20 +321,26 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                 </button>
 
                 <div className={styles.progressSection}>
-                    <div className={styles.progressBar}>
-                        <div
-                            className={styles.progressFill}
-                            style={{
-                                width: `${activeQueue.length > 0 ? (currentIndex / activeQueue.length) * 100 : 0}%`,
-                            }}
-                        />
+                    <div className={styles.progressBarContainer}>
+                        <div className={styles.progressBar}>
+                            <div
+                                className={styles.progressFill}
+                                style={{
+                                    width: `${activeQueue.length > 0 ? (currentIndex / activeQueue.length) * 100 : 0}%`,
+                                }}
+                            />
+                        </div>
+                        <span className={styles.progressCount}>
+                            {currentIndex}/{activeQueue.length}
+                        </span>
                     </div>
-                    <Typography className={styles.progressText} variant="text">
-                        Item {currentIndex} of {activeQueue.length}
-                        {progress.processed > 0 && ` (${progress.processed} already processed)`}
-                    </Typography>
+                    {progress.processed > 0 && (
+                        <Typography className={styles.processedCount} variant="text">
+                            {progress.processed} processed this session
+                        </Typography>
+                    )}
                     <Typography className={styles.keyboardHints} variant="text">
-                        ← → arrows • Space to skip • Enter to mark watched
+                        ← → • Space skip • Enter watched
                     </Typography>
                 </div>
 
