@@ -49,6 +49,22 @@
 .leftColumn {
     display: flex;
     flex-direction: column;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out;
+}
+
+.exitLeft {
+    transform: translateX(-100%) rotate(-5deg);
+    opacity: 0;
+}
+
+.exitRight {
+    transform: translateX(100%) rotate(5deg);
+    opacity: 0;
+}
+
+.exitUp {
+    transform: translateY(-50%) scale(0.9);
+    opacity: 0;
 }
 
 .rightColumn {

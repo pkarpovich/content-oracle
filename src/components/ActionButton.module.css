@@ -80,3 +80,196 @@
 :global([data-theme="light"]) .button:active {
     background: var(--base-100);
 }
+
+/* Variants */
+.default {
+    /* Default styling already applied */
+}
+
+.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+
+    & .iconContainer {
+        background: rgba(0, 0, 0, 0.15);
+
+        & > svg {
+            fill: var(--black);
+        }
+    }
+
+    & .title {
+        color: var(--black);
+    }
+
+    & .description {
+        color: rgba(0, 0, 0, 0.7);
+    }
+
+    &:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        box-shadow: 0 4px 16px var(--primary-glow);
+    }
+
+    &:active {
+        background: var(--primary);
+    }
+}
+
+.ghost {
+    background: transparent;
+    border-color: var(--border-color);
+    border-style: dashed;
+
+    & .iconContainer {
+        background: var(--base-800);
+
+        & > svg {
+            fill: var(--base-500);
+        }
+    }
+
+    & .title {
+        color: var(--muted-text-color);
+    }
+
+    & .description {
+        color: var(--faint-text-color);
+    }
+
+    &:hover {
+        background: var(--base-850);
+        border-color: var(--base-700);
+        border-style: solid;
+
+        & .iconContainer {
+            background: var(--base-700);
+
+            & > svg {
+                fill: var(--base-300);
+            }
+        }
+
+        & .title {
+            color: var(--secondary-text-color);
+        }
+    }
+
+    &:active {
+        background: transparent;
+    }
+}
+
+.danger {
+    background: var(--base-850);
+    border-color: var(--red-dim);
+
+    & .iconContainer {
+        background: var(--red-dim);
+
+        & > svg {
+            fill: var(--base-100);
+        }
+    }
+
+    & .title {
+        color: var(--red);
+    }
+
+    & .description {
+        color: var(--muted-text-color);
+    }
+
+    &:hover {
+        background: var(--red-dim);
+        border-color: var(--red);
+
+        & .iconContainer {
+            background: var(--red);
+        }
+
+        & .title {
+            color: var(--base-100);
+        }
+
+        & .description {
+            color: rgba(255, 255, 255, 0.7);
+        }
+    }
+
+    &:active {
+        background: var(--base-850);
+    }
+}
+
+/* Light theme variants */
+:global([data-theme="light"]) .primary {
+    background: var(--primary);
+    border-color: var(--primary);
+
+    & .iconContainer {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    &:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+}
+
+:global([data-theme="light"]) .ghost {
+    background: transparent;
+    border-color: var(--base-300);
+
+    & .iconContainer {
+        background: var(--base-200);
+
+        & > svg {
+            fill: var(--base-500);
+        }
+    }
+
+    &:hover {
+        background: var(--base-100);
+        border-color: var(--base-400);
+
+        & .iconContainer {
+            background: var(--base-300);
+
+            & > svg {
+                fill: var(--base-700);
+            }
+        }
+    }
+}
+
+:global([data-theme="light"]) .danger {
+    background: var(--base-50);
+    border-color: var(--red);
+
+    & .iconContainer {
+        background: var(--red);
+
+        & > svg {
+            fill: var(--paper);
+        }
+    }
+
+    & .title {
+        color: var(--red);
+    }
+
+    &:hover {
+        background: var(--red);
+        border-color: var(--red-dim);
+
+        & .title {
+            color: var(--paper);
+        }
+
+        & .description {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+}

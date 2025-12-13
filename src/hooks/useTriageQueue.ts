@@ -288,12 +288,8 @@ export const useTriageQueue = ({
 
         dispatch({ type: ActionType.SET_CURRENT_INDEX, index: bestPosition });
 
-        channelVideos.forEach((video) => {
-            onProcessItem?.(video, VideoStatus.Skipped);
-        });
-
         onSkipChannel?.(channelId, videoIds);
-    }, [currentItem, items, activeQueue, state.currentIndex, onProcessItem, onSkipChannel]);
+    }, [currentItem, items, activeQueue, state.currentIndex, onSkipChannel]);
 
     const blockChannel = useCallback(() => {
         if (!currentItem) return;

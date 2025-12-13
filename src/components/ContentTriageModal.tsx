@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import clsx from "clsx";
 
 import { VideoStatus } from "../api/content.ts";
 import { useBlockChannel } from "../features/content/api/useBlockChannel.ts";
@@ -19,16 +21,23 @@ import { BottomSheet } from "./BottomSheet.tsx";
 import styles from "./ContentTriageModal.module.css";
 import { Typography } from "./Typography.tsx";
 
+type ExitDirection = "left" | "right" | "up" | null;
+
 type ContentTriageModalProps = {
     isOpen: boolean;
     onClose: () => void;
 };
+
+const ANIMATION_DURATION = 250;
 
 export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps) => {
     const { data: contentItems = [], error, isLoading } = useGetContentTriage();
     const { mutate: markVideoStatus } = useMarkVideoStatus();
     const { mutate: blockChannelApi } = useBlockChannel();
     const [sortBy, setSortBy] = useState<SortOption>(SortOption.DEFAULT);
+    const [exitDirection, setExitDirection] = useState<ExitDirection>(null);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const pendingActionRef = useRef<(() => void) | null>(null);
 
     const {
         currentItem,
@@ -59,6 +68,28 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
         },
     });
 
+    const animateAndExecute = useCallback(
+        (direction: ExitDirection, action: () => void) => {
+            if (isAnimating) return;
+
+            setIsAnimating(true);
+            setExitDirection(direction);
+            pendingActionRef.current = action;
+
+            setTimeout(() => {
+                action();
+                setExitDirection(null);
+                setIsAnimating(false);
+                pendingActionRef.current = null;
+
+                if (progress.isComplete) {
+                    onClose();
+                }
+            }, ANIMATION_DURATION);
+        },
+        [isAnimating, progress.isComplete, onClose],
+    );
+
     const handleAction = useCallback(
         (action: () => void) => {
             action();
@@ -72,22 +103,22 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
 
     const handleKeyPress = useCallback(
         (event: KeyboardEvent) => {
-            if (!currentItem) return;
+            if (!currentItem || isAnimating) return;
 
             const keyActions: Record<string, () => void> = {
                 ArrowLeft: goToPrevious,
                 ArrowRight: goToNext,
-                Enter: () => handleAction(() => processItem(VideoStatus.Watched)),
+                Enter: () => animateAndExecute("right", () => processItem(VideoStatus.Watched)),
                 Escape: onClose,
                 Space: () => {
                     event.preventDefault();
-                    handleAction(() => processItem(VideoStatus.Skipped));
+                    animateAndExecute("left", () => processItem(VideoStatus.Skipped));
                 },
             };
 
             keyActions[event.code]?.();
         },
-        [currentItem, goToPrevious, goToNext, handleAction, processItem, onClose],
+        [currentItem, isAnimating, goToPrevious, goToNext, animateAndExecute, processItem, onClose],
     );
 
     useEffect(() => {
@@ -155,7 +186,7 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                 {sortOptions.map((option) => (
                     <button
                         key={option.value}
-                        className={`${styles.sortTab} ${sortBy === option.value ? styles.sortTabActive : ""}`}
+                        className={clsx(styles.sortTab, sortBy === option.value && styles.sortTabActive)}
                         onClick={() => setSortBy(option.value)}
                         type="button"
                     >
@@ -165,7 +196,11 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
             </div>
 
             <div className={styles.container}>
-                <div className={styles.leftColumn}>
+                <div className={clsx(styles.leftColumn, {
+                    [styles.exitLeft]: exitDirection === "left",
+                    [styles.exitRight]: exitDirection === "right",
+                    [styles.exitUp]: exitDirection === "up",
+                })}>
                     <div className={styles.preview}>
                         <img alt={currentItem.title} className={styles.previewImage} src={currentItem.thumbnail} />
                     </div>
@@ -203,21 +238,23 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                                 <ActionButton
                                     description="Add to watch later list"
                                     icon={<BookmarkIcon />}
-                                    onClick={() => handleAction(() => processItem(VideoStatus.WatchLater))}
+                                    onClick={() => animateAndExecute("right", () => processItem(VideoStatus.WatchLater))}
                                     title="Save for Later"
+                                    variant="primary"
                                 />
-                                <div className={`${styles.actions} ${styles.twoColumns}`}>
+                                <div className={clsx(styles.actions, styles.twoColumns)}>
                                     <ActionButton
                                         description="Mark as watched"
                                         icon={<CheckIcon />}
-                                        onClick={() => handleAction(() => processItem(VideoStatus.Watched))}
+                                        onClick={() => animateAndExecute("right", () => processItem(VideoStatus.Watched))}
                                         title="Mark as Watched"
                                     />
                                     <ActionButton
                                         description="Skip this video"
                                         icon={<SkipIcon />}
-                                        onClick={() => handleAction(() => processItem(VideoStatus.Skipped))}
+                                        onClick={() => animateAndExecute("left", () => processItem(VideoStatus.Skipped))}
                                         title="Skip Item"
+                                        variant="ghost"
                                     />
                                 </div>
                             </div>
@@ -227,7 +264,7 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                             <Typography className={styles.actionGroupTitle} variant="text">
                                 Channel Actions
                             </Typography>
-                            <div className={`${styles.actions} ${getChannelStats(currentItem.artist.id).remaining > 1 ? styles.twoColumns : ''}`}>
+                            <div className={clsx(styles.actions, getChannelStats(currentItem.artist.id).remaining > 1 && styles.twoColumns)}>
                                 {getChannelStats(currentItem.artist.id).remaining > 1 && (
                                     <ActionButton
                                         description="Hide channel this session"
@@ -239,15 +276,16 @@ export const ContentTriageModal = ({ isOpen, onClose }: ContentTriageModalProps)
                                                 </span>
                                             </div>
                                         }
-                                        onClick={() => handleAction(() => skipChannel())}
+                                        onClick={() => animateAndExecute("up", () => skipChannel())}
                                         title="Mute Channel"
                                     />
                                 )}
                                 <ActionButton
                                     description="Block channel permanently"
                                     icon={<XIcon />}
-                                    onClick={() => handleAction(() => blockChannel())}
+                                    onClick={() => animateAndExecute("up", () => blockChannel())}
                                     title="Block Channel"
+                                    variant="danger"
                                 />
                             </div>
                         </div>

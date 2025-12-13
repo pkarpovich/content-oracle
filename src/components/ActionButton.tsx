@@ -1,16 +1,21 @@
 import type { ReactNode } from "react";
 
+import clsx from "clsx";
+
 import styles from "./ActionButton.module.css";
+
+type Variant = "default" | "primary" | "ghost" | "danger";
 
 type Props = {
     icon: ReactNode;
     title: string;
     description: string;
     onClick: () => void;
+    variant?: Variant;
 };
 
-export const ActionButton = ({ icon, title, description, onClick }: Props) => (
-    <button className={styles.button} onClick={onClick} type="button">
+export const ActionButton = ({ icon, title, description, onClick, variant = "default" }: Props) => (
+    <button className={clsx(styles.button, styles[variant])} onClick={onClick} type="button">
         <div className={styles.iconContainer}>
             {icon}
         </div>
