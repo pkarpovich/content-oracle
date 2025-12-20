@@ -1,55 +1,41 @@
 .sidebar {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 320px;
-    height: 100vh;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    transform: translateX(-100%) translate3d(0, 0, 0);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    transition: transform 0.3s ease;
-    z-index: 1000;
+    top: calc(var(--header-height) + 32px);
+    left: 24px;
+    width: 280px;
+    max-height: calc(100vh - var(--header-height) - 64px);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-}
-
-.sidebarOpen {
-    transform: translateX(0) translate3d(0, 0, 0);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .mobileOverlay {
+    display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
-    display: none;
 }
 
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
+    padding: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transform: translate3d(0, 0, 0);
     flex-shrink: 0;
 }
 
 .headerContent {
     display: flex;
-    flex-direction: row;
     align-items: center;
     gap: 12px;
 }
@@ -60,6 +46,7 @@
 }
 
 .closeButton {
+    display: none;
     background: none;
     border: none;
     color: rgba(255, 255, 255, 0.7);
@@ -67,7 +54,7 @@
     padding: 4px;
     border-radius: 4px;
     transition: all 0.2s ease;
-    
+
     &:hover {
         color: white;
         background: rgba(255, 255, 255, 0.1);
@@ -77,7 +64,7 @@
 .content {
     flex: 1;
     overflow-y: auto;
-    padding: 0 0 20px 0;
+    padding-bottom: 16px;
 }
 
 .filterSection {
@@ -90,21 +77,15 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 16px 24px;
+    padding: 12px 20px;
+    margin-bottom: 10px;
     background: none;
     border: none;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    margin-bottom: 10px;
-    
+
     &:hover {
         background: rgba(255, 255, 255, 0.06);
-    }
-}
-
-@supports (backdrop-filter: blur(1px)) and (not (-webkit-touch-callout: default)) {
-    .sectionHeader:hover {
-        backdrop-filter: blur(8px);
     }
 }
 
@@ -117,7 +98,7 @@
 .chevron {
     color: rgba(255, 255, 255, 0.5);
     transition: transform 0.2s ease;
-    
+
     svg {
         display: block;
     }
@@ -128,10 +109,17 @@
 }
 
 .sectionContent {
-    padding: 0 24px 20px 24px;
+    padding: 0 20px 16px;
 }
 
-.searchInput {
+.footer {
+    padding: 16px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    flex-shrink: 0;
+}
+
+.clearButton {
     width: 100%;
 }
 
@@ -151,47 +139,26 @@
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
     transition: color 0.2s ease;
-    
+
     &:hover {
         color: white;
     }
-    
+
     input {
         margin: 0;
         cursor: pointer;
-    }
-    
-    input[type="checkbox"],
-    input[type="radio"] {
         accent-color: var(--primary);
     }
-    
+
     span {
         user-select: none;
     }
 }
 
-.footer {
-    padding: 20px 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transform: translate3d(0, 0, 0);
-    flex-shrink: 0;
-}
-
-.clearButton {
-    width: 100%;
-}
-
 .dateRangeInputs {
     display: flex;
-    justify-content: space-between;
     align-items: baseline;
     gap: 15px;
-    width: 100%;
-    min-width: 0;
 }
 
 .dateInputWrapper {
@@ -199,9 +166,9 @@
 }
 
 .dateInputContainer {
-    width: 120px;
+    width: 100px;
     cursor: pointer;
-    
+
     &:hover .dateInput {
         border-color: rgba(255, 255, 255, 0.3);
     }
@@ -215,10 +182,6 @@
     color: rgba(255, 255, 255, 0.6);
     font-size: 16px;
     font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 16px;
 }
 
 .sliderContainer {
@@ -235,41 +198,40 @@
     border-radius: 3px;
     background: rgba(255, 255, 255, 0.2);
     outline: none;
-    transition: all 0.2s ease;
-}
 
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.2s ease;
-}
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
 
-.slider::-webkit-slider-thumb:hover {
-    background: oklch(from var(--primary) calc(l * 1.1) c h);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
-}
+        &:hover {
+            background: oklch(from var(--primary) calc(l * 1.1) c h);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+    }
 
-.slider::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.2s ease;
-}
+    &::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--primary);
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
 
-.slider::-moz-range-thumb:hover {
-    background: oklch(from var(--primary) calc(l * 1.1) c h);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: scale(1.1);
+        &:hover {
+            background: oklch(from var(--primary) calc(l * 1.1) c h);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+    }
 }
 
 .sliderValue {
@@ -277,98 +239,95 @@
     font-weight: 600;
     font-size: 14px;
     text-align: center;
-    min-width: 20px;
 }
 
 .datePickerPopover {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    transform: translate3d(0, 0, 0);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
     padding: 16px;
-    box-shadow: 
-        0 12px 40px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     z-index: 9999;
-}
-    
-.datePickerPopover :global(.rdp-root) {
-    --rdp-accent-color: var(--primary);
-    --rdp-accent-background-color: var(--primary);
-    --rdp-background-color: transparent;
-    --rdp-outline: none;
-    --rdp-today-color: var(--primary);
-    --rdp-range_middle-background-color: rgba(from var(--primary) r g b / 0.3);
-    --rdp-range_middle-color: #fefefe;
-    --rdp-range_start-background: var(--primary);
-    --rdp-range_start-color: white;
-    --rdp-range_end-background: var(--primary);
-    --rdp-range_end-color: white;
-    color: white;
+
+    :global(.rdp-root) {
+        --rdp-accent-color: var(--primary);
+        --rdp-accent-background-color: var(--primary);
+        --rdp-background-color: transparent;
+        --rdp-outline: none;
+        --rdp-today-color: var(--primary);
+        --rdp-range_middle-background-color: rgba(from var(--primary) r g b / 0.3);
+        --rdp-range_middle-color: #fefefe;
+        --rdp-range_start-background: var(--primary);
+        --rdp-range_start-color: white;
+        --rdp-range_end-background: var(--primary);
+        --rdp-range_end-color: white;
+        color: white;
+    }
 }
 
-.dayPicker .rdp-day {
-    color: rgba(255, 255, 255, 0.8);
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    background: transparent;
-}
+.dayPicker {
+    .rdp-day {
+        color: rgba(255, 255, 255, 0.8);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        background: transparent;
 
-.dayPicker .rdp-day:hover:not(.rdp-day_selected) {
-    background: rgba(255, 138, 0, 0.2) !important;
-    color: white;
-}
+        &:hover:not(.rdp-day_selected) {
+            background: rgba(255, 138, 0, 0.2) !important;
+            color: white;
+        }
+    }
 
-.dayPicker .rdp-day_selected {
-    background: #ff8a00 !important;
-    color: white !important;
-}
+    .rdp-day_selected {
+        background: #ff8a00 !important;
+        color: white !important;
 
-.dayPicker .rdp-day_selected:hover {
-    background: #ff9d26 !important;
-}
+        &:hover {
+            background: #ff9d26 !important;
+        }
+    }
 
-.dayPicker .rdp-day_range_start,
-.dayPicker .rdp-day_range_end {
-    background: #ff8a00 !important;
-    color: white !important;
-}
+    .rdp-day_range_start,
+    .rdp-day_range_end {
+        background: #ff8a00 !important;
+        color: white !important;
+    }
 
-.dayPicker .rdp-day_range_middle {
-    background: rgba(255, 138, 0, 0.3) !important;
-    color: white !important;
-}
+    .rdp-day_range_middle {
+        background: rgba(255, 138, 0, 0.3) !important;
+        color: white !important;
+    }
 
-.dayPicker .rdp-day_today {
-    font-weight: bold;
-    color: #ff8a00;
-    background: transparent;
-}
+    .rdp-day_today {
+        font-weight: bold;
+        color: #ff8a00;
+        background: transparent;
+    }
 
-.dayPicker .rdp-month_caption {
-    color: white;
-    font-weight: 600;
-}
+    .rdp-month_caption {
+        color: white;
+        font-weight: 600;
+    }
 
-.dayPicker .rdp-weekday {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 12px;
-    font-weight: 500;
-}
+    .rdp-weekday {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+        font-weight: 500;
+    }
 
-.dayPicker .rdp-nav_button {
-    color: rgba(255, 255, 255, 0.7);
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
+    .rdp-nav_button {
+        color: rgba(255, 255, 255, 0.7);
+        border-radius: 6px;
+        transition: all 0.2s ease;
 
-.dayPicker .rdp-nav_button:hover {
-    background: rgba(255, 138, 0, 0.2) !important;
-    color: white;
+        &:hover {
+            background: rgba(255, 138, 0, 0.2) !important;
+            color: white;
+        }
+    }
 }
-
 
 .closeDatePicker {
     width: 100%;
@@ -381,187 +340,164 @@
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+
     &:hover {
         background: rgba(255, 255, 255, 0.15);
     }
 }
 
-/* Desktop Layout */
-@media (min-width: 1024px) {
-    .sidebar {
-        position: fixed;
-        top: calc(var(--header-height) + 32px);
-        left: 24px;
-        width: 320px;
-        height: calc(100vh - var(--header-height) - 64px);
-        transform: none;
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(32px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 
-            0 12px 40px rgba(0, 0, 0, 0.25),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        z-index: 100;
-    }
-    
-    .header {
-        padding: 20px 20px 16px 20px;
-    }
-    
-    .closeButton {
-        display: none;
-    }
-    
-    .content {
-        padding: 0 0 16px 0;
-    }
-    
-    .sectionContent {
-        padding: 0 20px 16px 20px;
-    }
-    
-    .sectionHeader {
-        padding: 12px 20px;
-    }
-    
-    .footer {
-        padding: 16px 20px;
-    }
-}
-
-/* Mobile Layout */
 @media (max-width: 1023px) {
+    .sidebar {
+        top: 0;
+        left: 0;
+        bottom: 0;
+        max-height: none;
+        border-radius: 0;
+        z-index: 1000;
+        translate: -100% 0;
+        transition: translate 0.3s ease;
+    }
+
+    .sidebarOpen {
+        translate: 0 0;
+    }
+
     .mobileOverlay {
         display: block;
     }
 
+    .closeButton {
+        display: block;
+    }
+
+    .header {
+        padding: 20px 24px;
+    }
+
+    .content {
+        padding-bottom: 20px;
+    }
+
+    .sectionHeader {
+        padding: 16px 24px;
+    }
+
+    .sectionContent {
+        padding: 0 24px 20px;
+    }
+
+    .footer {
+        padding: 20px 24px;
+    }
+}
+
+:global([data-theme="light"]) {
     .sidebar {
-        width: 280px;
-    }
-}
-
-:global([data-theme="light"]) .sidebar {
-    background: var(--paper);
-    border-color: var(--base-200);
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 var(--paper);
-}
-
-:global([data-theme="light"]) .header {
-    border-bottom-color: var(--base-200);
-    background: rgba(0, 0, 0, 0.02);
-}
-
-:global([data-theme="light"]) .itemCount {
-    color: var(--muted-text-color);
-}
-
-:global([data-theme="light"]) .closeButton {
-    color: var(--muted-text-color);
-
-    &:hover {
-        color: var(--primary-text-color);
-        background: rgba(0, 0, 0, 0.05);
-    }
-}
-
-:global([data-theme="light"]) .filterSection {
-    border-bottom-color: var(--base-200);
-    background: transparent;
-}
-
-:global([data-theme="light"]) .sectionHeader {
-    &:hover {
-        background: rgba(0, 0, 0, 0.04);
-    }
-}
-
-:global([data-theme="light"]) .sectionTitle {
-    color: var(--primary-text-color);
-}
-
-:global([data-theme="light"]) .chevron {
-    color: var(--muted-text-color);
-}
-
-:global([data-theme="light"]) .radioOption,
-:global([data-theme="light"]) .checkboxOption {
-    color: var(--primary-text-color);
-
-    &:hover {
-        color: var(--secondary-text-color);
-    }
-}
-
-:global([data-theme="light"]) .footer {
-    border-top-color: var(--base-200);
-    background: rgba(0, 0, 0, 0.02);
-}
-
-:global([data-theme="light"]) .dateSeparator {
-    color: var(--muted-text-color);
-}
-
-:global([data-theme="light"]) .slider {
-    background: var(--base-200);
-}
-
-:global([data-theme="light"]) .slider::-webkit-slider-thumb {
-    border-color: var(--base-300);
-}
-
-:global([data-theme="light"]) .slider::-moz-range-thumb {
-    border-color: var(--base-300);
-}
-
-:global([data-theme="light"]) .datePickerPopover {
-    background: var(--paper);
-    border-color: var(--base-200);
-    box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 var(--paper);
-}
-
-:global([data-theme="light"]) .datePickerPopover :global(.rdp-root) {
-    color: var(--primary-text-color);
-}
-
-:global([data-theme="light"]) .dayPicker .rdp-day {
-    color: var(--primary-text-color);
-}
-
-:global([data-theme="light"]) .dayPicker .rdp-month_caption {
-    color: var(--primary-text-color);
-}
-
-:global([data-theme="light"]) .dayPicker .rdp-weekday {
-    color: var(--muted-text-color);
-}
-
-:global([data-theme="light"]) .dayPicker .rdp-nav_button {
-    color: var(--muted-text-color);
-}
-
-:global([data-theme="light"]) .closeDatePicker {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: var(--base-200);
-    color: var(--primary-text-color);
-
-    &:hover {
-        background: rgba(0, 0, 0, 0.08);
-    }
-}
-
-@media (min-width: 1024px) {
-    :global([data-theme="light"]) .sidebar {
         background: rgba(255, 255, 255, 0.9);
         border-color: var(--base-200);
-        box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.08),
-            inset 0 1px 0 var(--paper);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+
+    .header {
+        border-bottom-color: var(--base-200);
+        background: rgba(0, 0, 0, 0.02);
+    }
+
+    .itemCount {
+        color: var(--muted-text-color);
+    }
+
+    .closeButton {
+        color: var(--muted-text-color);
+
+        &:hover {
+            color: var(--primary-text-color);
+            background: rgba(0, 0, 0, 0.05);
+        }
+    }
+
+    .filterSection {
+        border-bottom-color: var(--base-200);
+        background: transparent;
+    }
+
+    .sectionHeader:hover {
+        background: rgba(0, 0, 0, 0.04);
+    }
+
+    .sectionTitle {
+        color: var(--primary-text-color);
+    }
+
+    .chevron {
+        color: var(--muted-text-color);
+    }
+
+    .radioOption,
+    .checkboxOption {
+        color: var(--primary-text-color);
+
+        &:hover {
+            color: var(--secondary-text-color);
+        }
+    }
+
+    .footer {
+        border-top-color: var(--base-200);
+        background: rgba(0, 0, 0, 0.02);
+    }
+
+    .dateSeparator {
+        color: var(--muted-text-color);
+    }
+
+    .slider {
+        background: var(--base-200);
+
+        &::-webkit-slider-thumb {
+            border-color: var(--base-300);
+        }
+
+        &::-moz-range-thumb {
+            border-color: var(--base-300);
+        }
+    }
+
+    .datePickerPopover {
+        background: var(--paper);
+        border-color: var(--base-200);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+
+        :global(.rdp-root) {
+            color: var(--primary-text-color);
+        }
+    }
+
+    .dayPicker {
+        .rdp-day {
+            color: var(--primary-text-color);
+        }
+
+        .rdp-month_caption {
+            color: var(--primary-text-color);
+        }
+
+        .rdp-weekday {
+            color: var(--muted-text-color);
+        }
+
+        .rdp-nav_button {
+            color: var(--muted-text-color);
+        }
+    }
+
+    .closeDatePicker {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: var(--base-200);
+        color: var(--primary-text-color);
+
+        &:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
     }
 }

@@ -1,9 +1,9 @@
 .pageContainer {
-    min-height: calc(100vh - var(--header-height) - 64px);
+    padding-left: calc(280px + 48px);
 }
 
 .mainContent {
-    min-height: 0;
+    min-width: 0;
 }
 
 .navigation {
@@ -17,8 +17,8 @@
 .breadcrumb {
     color: var(--primary);
     text-decoration: none;
-    transition: all 0.2s ease;
-    
+    transition: color 0.2s ease;
+
     &:hover {
         color: oklch(from var(--primary) calc(l * 1.1) c h);
     }
@@ -50,9 +50,7 @@
 }
 
 .filtersButton {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: none;
 }
 
 .count {
@@ -66,25 +64,15 @@
     font-size: 13px;
 }
 
-@media (min-width: 1024px) {
-    .filtersButton {
-        display: none;
-    }
-    
-    .mainContent {
-        margin-left: 368px;
-    }
-}
-
 @media (max-width: 1023px) {
     .pageContainer {
-        display: flex;
-        flex-direction: column;
+        padding-left: 0;
     }
 
-    .mainContent {
-        margin-left: 0;
-        min-height: auto;
+    .filtersButton {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .navigation {
