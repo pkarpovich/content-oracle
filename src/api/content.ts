@@ -180,6 +180,7 @@ export type GetContentByCategoryRequest = {
     include_blocked?: boolean;
     order_by?: string;
     channel_ids?: string[];
+    search?: string;
 };
 
 export type QueryFilters = {
@@ -196,6 +197,7 @@ export type QueryFilters = {
     limit: number;
     offset: number;
     channel_ids?: string[];
+    search?: string;
 };
 
 export type GetContentByCategoryResponse = {

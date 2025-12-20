@@ -16,6 +16,8 @@ export const CategoryPage = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [additionalContent, setAdditionalContent] = useState<Content[]>([]);
     const [localHasMore, setLocalHasMore] = useState<boolean | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [filters, setFilters] = useState<FilterState>({
         status: [],
         excluded_statuses: [],
@@ -36,6 +38,13 @@ export const CategoryPage = () => {
         );
     }, [categoryName]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
     const hasUserFilters = useMemo(() => {
         return filters.status.length > 0 ||
             filters.excluded_statuses.length > 0 ||
@@ -47,8 +56,9 @@ export const CategoryPage = () => {
             filters.include_shorts !== undefined ||
             filters.include_blocked !== undefined ||
             filters.order_by !== undefined ||
-            filters.channel_ids.length > 0;
-    }, [filters]);
+            filters.channel_ids.length > 0 ||
+            debouncedSearch !== "";
+    }, [filters, debouncedSearch]);
 
     const request: GetContentByCategoryRequest = useMemo(() => {
         const baseRequest: GetContentByCategoryRequest = {
@@ -66,6 +76,7 @@ export const CategoryPage = () => {
             include_blocked: filters.include_blocked,
             order_by: filters.order_by,
             channel_ids: filters.channel_ids.length > 0 ? filters.channel_ids : undefined,
+            search: debouncedSearch || undefined,
         };
 
         if (baseRequest.include_shorts === undefined && (
@@ -81,7 +92,7 @@ export const CategoryPage = () => {
         }
 
         return baseRequest;
-    }, [category, filters, hasUserFilters]);
+    }, [category, filters, hasUserFilters, debouncedSearch]);
 
     const { data: response, error } = useGetCategoryContent(request);
     const { mutate: loadMore, isPending: isLoadingMore } = useLoadMoreContent();
@@ -165,7 +176,30 @@ export const CategoryPage = () => {
             />
             
             <div className={styles.mainContent}>
-                
+                <div className={styles.searchContainer}>
+                    <svg className={styles.searchIcon} width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Search videos..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className={styles.searchInput}
+                    />
+                    {searchQuery && (
+                        <button
+                            type="button"
+                            className={styles.clearSearchButton}
+                            onClick={() => setSearchQuery("")}
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </button>
+                    )}
+                </div>
+
                 <ContentList
                     category={category}
                     content={content}

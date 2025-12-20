@@ -64,6 +64,64 @@
     font-size: 13px;
 }
 
+.searchContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 14px;
+    color: var(--base-500);
+    pointer-events: none;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 12px 44px;
+    font-size: 14px;
+    color: var(--base-200);
+    background: var(--base-850);
+    border: 1px solid var(--base-700);
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.15s ease;
+
+    &::placeholder {
+        color: var(--base-500);
+    }
+
+    &:focus {
+        border-color: var(--primary);
+        background: var(--base-900);
+        box-shadow: 0 0 0 3px oklch(from var(--primary) l c h / 0.1);
+    }
+}
+
+.clearSearchButton {
+    position: absolute;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: var(--base-700);
+    border: none;
+    border-radius: 50%;
+    color: var(--base-400);
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background: var(--base-600);
+        color: var(--base-200);
+    }
+}
+
 @media (max-width: 1023px) {
     .pageContainer {
         padding-left: 0;
@@ -96,4 +154,29 @@
 
 :global([data-theme="light"]) .breadcrumbCurrent {
     color: var(--muted-text-color);
+}
+
+:global([data-theme="light"]) .searchInput {
+    color: var(--primary-text-color);
+    background: var(--base-100);
+    border-color: var(--base-200);
+
+    &::placeholder {
+        color: var(--base-400);
+    }
+
+    &:focus {
+        background: var(--paper);
+        border-color: var(--primary);
+    }
+}
+
+:global([data-theme="light"]) .clearSearchButton {
+    background: var(--base-200);
+    color: var(--base-500);
+
+    &:hover {
+        background: var(--base-300);
+        color: var(--primary-text-color);
+    }
 }
