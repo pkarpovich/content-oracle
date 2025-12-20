@@ -6,14 +6,10 @@
     max-height: calc(100vh - var(--header-height) - 64px);
     display: flex;
     flex-direction: column;
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--base-900);
+    border: 1px solid var(--base-800);
     border-radius: 16px;
-    box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .mobileOverlay {
@@ -28,21 +24,34 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--base-800);
     flex-shrink: 0;
 }
 
 .headerContent {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+}
+
+.headerTitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--base-300);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .itemCount {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 12px;
+    color: var(--base-500);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.itemCount::before {
+    content: '·';
+    margin-right: 8px;
 }
 
 .closeButton {
@@ -65,11 +74,36 @@
     flex: 1;
     overflow-y: auto;
     padding-bottom: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--base-700) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--base-700);
+        border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: var(--base-600);
+    }
 }
 
 .filterSection {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--base-800);
+    background: transparent;
+    transition: background 0.2s ease;
+}
+
+.filterSectionActive {
+    background: oklch(from var(--primary) l c h / 0.03);
+    border-bottom-color: oklch(from var(--primary) l c h / 0.15);
 }
 
 .sectionHeader {
@@ -77,31 +111,57 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 12px 20px;
-    margin-bottom: 10px;
+    padding: 14px 20px;
     background: none;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.04);
     }
 }
 
+.sectionTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .sectionTitle {
-    color: white;
+    color: var(--base-200);
     font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     margin: 0;
 }
 
+.activeBadge {
+    width: 6px;
+    height: 6px;
+    background: var(--primary);
+    border-radius: 50%;
+}
+
 .chevron {
-    color: rgba(255, 255, 255, 0.5);
-    transition: transform 0.2s ease;
+    color: var(--base-500);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
 
     svg {
         display: block;
     }
+}
+
+.sectionHeader:hover .chevron {
+    color: var(--base-300);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .chevronOpen {
@@ -109,146 +169,368 @@
 }
 
 .sectionContent {
-    padding: 0 20px 16px;
+    padding: 4px 20px 16px;
 }
 
 .footer {
     padding: 16px 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid var(--base-800);
+    background: var(--base-900);
     flex-shrink: 0;
 }
 
 .clearButton {
     width: 100%;
+    background: transparent !important;
+    border: 1px dashed var(--base-600) !important;
+    color: var(--base-400) !important;
+    font-size: 12px !important;
+    padding: 10px 16px !important;
+    min-height: 40px !important;
+    transition: all 0.2s ease !important;
+
+    &:hover {
+        border-color: var(--error-color) !important;
+        border-style: solid !important;
+        color: var(--error-color) !important;
+        background: oklch(from var(--error-color) l c h / 0.08) !important;
+    }
 }
 
 .radioGroup,
 .checkboxGroup {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 6px;
 }
 
 .radioOption,
 .checkboxOption {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     cursor: pointer;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.8);
-    transition: color 0.2s ease;
+    font-size: 13px;
+    color: var(--base-300);
+    padding: 10px 12px;
+    margin: 0 -12px;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 
     &:hover {
-        color: white;
+        color: var(--base-100);
+        background: rgba(255, 255, 255, 0.04);
     }
 
     input {
-        margin: 0;
-        cursor: pointer;
-        accent-color: var(--primary);
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
     }
 
     span {
         user-select: none;
+        transition: transform 0.15s ease;
+    }
+
+    &:active span {
+        transform: translateX(2px);
     }
 }
 
-.dateRangeInputs {
-    display: flex;
-    align-items: baseline;
-    gap: 15px;
-}
-
-.dateInputWrapper {
+.checkboxOption::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--base-600);
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: transparent;
     position: relative;
 }
 
-.dateInputContainer {
-    width: 100px;
-    cursor: pointer;
+.checkboxOption:hover::before {
+    border-color: var(--base-500);
+}
 
-    &:hover .dateInput {
-        border-color: rgba(255, 255, 255, 0.3);
+.checkboxOption:has(input:checked)::before {
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px oklch(from var(--primary) l c h / 0.3);
+}
+
+.checkboxOption::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    width: 6px;
+    height: 10px;
+    border: solid var(--black);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+}
+
+.checkboxOption:has(input:checked)::after {
+    transform: rotate(45deg) scale(1);
+    opacity: 1;
+}
+
+.checkboxOption:has(input:checked) {
+    color: var(--base-100);
+}
+
+.checkboxOption:has(input:checked) span {
+    font-weight: 500;
+}
+
+.radioOption::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--base-600);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: transparent;
+    position: relative;
+}
+
+.radioOption:hover::before {
+    border-color: var(--base-500);
+}
+
+.radioOption::after {
+    content: '';
+    position: absolute;
+    left: 17px;
+    width: 10px;
+    height: 10px;
+    background: var(--primary);
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 8px oklch(from var(--primary) l c h / 0.4);
+}
+
+.radioOption:has(input:checked)::before {
+    border-color: var(--primary);
+}
+
+.radioOption:has(input:checked)::after {
+    transform: scale(1);
+}
+
+.radioOption:has(input:checked) {
+    color: var(--base-100);
+}
+
+.radioOption:has(input:checked) span {
+    font-weight: 500;
+}
+
+.datePresets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.datePresetButton {
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--base-400);
+    background: transparent;
+    border: 1px solid var(--base-700);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+        color: var(--base-200);
+        border-color: var(--base-600);
+        background: var(--base-850);
     }
 }
 
-.dateInput {
-    pointer-events: none;
+.datePresetActive {
+    color: var(--black);
+    background: var(--primary);
+    border-color: var(--primary);
+
+    &:hover {
+        color: var(--black);
+        background: var(--primary);
+        border-color: var(--primary);
+    }
 }
 
-.dateSeparator {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 16px;
+.customDateButton {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
     font-weight: 500;
+    color: var(--base-500);
+    background: transparent;
+    border: 1px dashed var(--base-700);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+
+    &:hover {
+        color: var(--base-300);
+        border-color: var(--base-600);
+    }
+}
+
+.customDateActive {
+    color: var(--base-200);
+    border-style: solid;
+    border-color: var(--base-600);
+    background: var(--base-850);
+}
+
+.customDateRange {
+    font-variant-numeric: tabular-nums;
 }
 
 .sliderContainer {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.sliderTrack {
+    position: relative;
+    height: 32px;
+    display: flex;
+    align-items: center;
 }
 
 .slider {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.2);
+    height: 4px;
+    border-radius: 2px;
+    background: var(--base-700);
     outline: none;
+    cursor: pointer;
 
     &::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-        background: var(--primary);
-        cursor: pointer;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.2s ease;
+        background: var(--base-900);
+        cursor: grab;
+        border: 3px solid var(--primary);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.3),
+            0 0 0 0 oklch(from var(--primary) l c h / 0);
+    }
 
-        &:hover {
-            background: oklch(from var(--primary) calc(l * 1.1) c h);
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
+    &::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+        box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.4),
+            0 0 0 4px oklch(from var(--primary) l c h / 0.15);
+    }
+
+    &::-webkit-slider-thumb:active {
+        cursor: grabbing;
+        transform: scale(1.05);
     }
 
     &::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-        background: var(--primary);
-        cursor: pointer;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.2s ease;
+        background: var(--base-900);
+        cursor: grab;
+        border: 3px solid var(--primary);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.3),
+            0 0 0 0 oklch(from var(--primary) l c h / 0);
+    }
 
-        &:hover {
-            background: oklch(from var(--primary) calc(l * 1.1) c h);
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
-        }
+    &::-moz-range-thumb:hover {
+        transform: scale(1.15);
+        box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.4),
+            0 0 0 4px oklch(from var(--primary) l c h / 0.15);
+    }
+
+    &::-moz-range-thumb:active {
+        cursor: grabbing;
+    }
+
+    &::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 2px;
+    }
+
+    &::-moz-range-track {
+        height: 4px;
+        border-radius: 2px;
+        background: var(--base-700);
     }
 }
 
+.sliderLabels {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2px;
+}
+
+.sliderLabel {
+    font-size: 10px;
+    color: var(--base-500);
+    font-weight: 500;
+}
+
 .sliderValue {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--base-850);
+    border-radius: 8px;
+    border: 1px solid var(--base-700);
+}
+
+.sliderValueNumber {
     color: var(--primary);
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: 700;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    min-width: 24px;
     text-align: center;
 }
 
+.sliderValueLabel {
+    color: var(--base-400);
+    font-size: 12px;
+    font-weight: 500;
+}
+
 .datePickerPopover {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--base-900);
+    border: 1px solid var(--base-700);
     border-radius: 12px;
     padding: 16px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
     z-index: 9999;
 
     :global(.rdp-root) {
@@ -257,92 +539,114 @@
         --rdp-background-color: transparent;
         --rdp-outline: none;
         --rdp-today-color: var(--primary);
-        --rdp-range_middle-background-color: rgba(from var(--primary) r g b / 0.3);
-        --rdp-range_middle-color: #fefefe;
+        --rdp-range_middle-background-color: oklch(from var(--primary) l c h / 0.25);
+        --rdp-range_middle-color: var(--base-100);
         --rdp-range_start-background: var(--primary);
-        --rdp-range_start-color: white;
+        --rdp-range_start-color: var(--black);
         --rdp-range_end-background: var(--primary);
-        --rdp-range_end-color: white;
-        color: white;
+        --rdp-range_end-color: var(--black);
+        color: var(--base-200);
     }
 }
 
 .dayPicker {
-    .rdp-day {
-        color: rgba(255, 255, 255, 0.8);
+    :global(.rdp-day) {
+        color: var(--base-300);
         border-radius: 6px;
-        transition: all 0.2s ease;
-        background: transparent;
-
-        &:hover:not(.rdp-day_selected) {
-            background: rgba(255, 138, 0, 0.2) !important;
-            color: white;
-        }
-    }
-
-    .rdp-day_selected {
-        background: #ff8a00 !important;
-        color: white !important;
-
-        &:hover {
-            background: #ff9d26 !important;
-        }
-    }
-
-    .rdp-day_range_start,
-    .rdp-day_range_end {
-        background: #ff8a00 !important;
-        color: white !important;
-    }
-
-    .rdp-day_range_middle {
-        background: rgba(255, 138, 0, 0.3) !important;
-        color: white !important;
-    }
-
-    .rdp-day_today {
-        font-weight: bold;
-        color: #ff8a00;
+        transition: all 0.15s ease;
         background: transparent;
     }
 
-    .rdp-month_caption {
-        color: white;
+    :global(.rdp-day:hover:not(.rdp-day_selected)) {
+        background: oklch(from var(--primary) l c h / 0.15) !important;
+        color: var(--base-100);
+    }
+
+    :global(.rdp-day_selected) {
+        background: var(--primary) !important;
+        color: var(--black) !important;
         font-weight: 600;
     }
 
-    .rdp-weekday {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 12px;
-        font-weight: 500;
+    :global(.rdp-day_selected:hover) {
+        background: oklch(from var(--primary) calc(l * 1.1) c h) !important;
     }
 
-    .rdp-nav_button {
-        color: rgba(255, 255, 255, 0.7);
-        border-radius: 6px;
-        transition: all 0.2s ease;
+    :global(.rdp-day_range_start),
+    :global(.rdp-day_range_end) {
+        background: var(--primary) !important;
+        color: var(--black) !important;
+    }
 
-        &:hover {
-            background: rgba(255, 138, 0, 0.2) !important;
-            color: white;
-        }
+    :global(.rdp-day_range_middle) {
+        background: oklch(from var(--primary) l c h / 0.25) !important;
+        color: var(--base-100) !important;
+    }
+
+    :global(.rdp-day_today) {
+        font-weight: 700;
+        color: var(--primary);
+        background: transparent;
+        position: relative;
+    }
+
+    :global(.rdp-day_today::after) {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        background: var(--primary);
+        border-radius: 50%;
+    }
+
+    :global(.rdp-month_caption) {
+        color: var(--base-100);
+        font-weight: 600;
+    }
+
+    :global(.rdp-weekday) {
+        color: var(--base-500);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    :global(.rdp-nav) button {
+        color: var(--base-400);
+        border-radius: 6px;
+        transition: all 0.15s ease;
+    }
+
+    :global(.rdp-nav) button:hover {
+        background: oklch(from var(--primary) l c h / 0.15) !important;
+        color: var(--base-100);
+    }
+
+    :global(.rdp-day_outside) {
+        color: var(--base-600);
+        opacity: 0.5;
     }
 }
 
 .closeDatePicker {
     width: 100%;
     margin-top: 12px;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    color: white;
+    padding: 10px;
+    background: var(--base-800);
+    border: 1px solid var(--base-700);
+    border-radius: 8px;
+    color: var(--base-200);
     font-size: 12px;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.15);
+        background: var(--base-750);
+        border-color: var(--base-600);
     }
 }
 
@@ -393,18 +697,33 @@
 
 :global([data-theme="light"]) {
     .sidebar {
-        background: rgba(255, 255, 255, 0.9);
+        background: var(--paper);
         border-color: var(--base-200);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     }
 
     .header {
         border-bottom-color: var(--base-200);
-        background: rgba(0, 0, 0, 0.02);
+    }
+
+    .headerTitle {
+        color: var(--muted-text-color);
     }
 
     .itemCount {
-        color: var(--muted-text-color);
+        color: var(--base-400);
+    }
+
+    .content {
+        scrollbar-color: var(--base-300) transparent;
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--base-300);
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: var(--base-400);
+        }
     }
 
     .closeButton {
@@ -421,8 +740,17 @@
         background: transparent;
     }
 
+    .filterSectionActive {
+        background: oklch(from var(--primary) l c h / 0.04);
+        border-bottom-color: oklch(from var(--primary) l c h / 0.2);
+    }
+
     .sectionHeader:hover {
-        background: rgba(0, 0, 0, 0.04);
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    .sectionHeader:hover .chevron {
+        background: rgba(0, 0, 0, 0.05);
     }
 
     .sectionTitle {
@@ -439,28 +767,109 @@
 
         &:hover {
             color: var(--secondary-text-color);
+            background: rgba(0, 0, 0, 0.03);
         }
+    }
+
+    .checkboxOption::before,
+    .radioOption::before {
+        border-color: var(--base-300);
+    }
+
+    .checkboxOption:hover::before,
+    .radioOption:hover::before {
+        border-color: var(--base-400);
+    }
+
+    .checkboxOption::after {
+        border-color: var(--paper);
     }
 
     .footer {
         border-top-color: var(--base-200);
-        background: rgba(0, 0, 0, 0.02);
+        background: var(--base-50);
     }
 
-    .dateSeparator {
+    .clearButton {
+        border-color: var(--base-300) !important;
+        color: var(--muted-text-color) !important;
+
+        &:hover {
+            border-color: var(--error-color) !important;
+            color: var(--error-color) !important;
+            background: oklch(from var(--error-color) l c h / 0.06) !important;
+        }
+    }
+
+    .datePresetButton {
         color: var(--muted-text-color);
+        border-color: var(--base-200);
+
+        &:hover {
+            color: var(--primary-text-color);
+            border-color: var(--base-300);
+            background: var(--base-100);
+        }
+    }
+
+    .datePresetActive {
+        color: var(--paper);
+        background: var(--primary);
+        border-color: var(--primary);
+
+        &:hover {
+            color: var(--paper);
+            background: var(--primary);
+        }
+    }
+
+    .customDateButton {
+        color: var(--muted-text-color);
+        border-color: var(--base-300);
+
+        &:hover {
+            color: var(--primary-text-color);
+            border-color: var(--base-400);
+        }
+    }
+
+    .customDateActive {
+        color: var(--primary-text-color);
+        border-color: var(--base-400);
+        background: var(--base-100);
     }
 
     .slider {
         background: var(--base-200);
 
         &::-webkit-slider-thumb {
-            border-color: var(--base-300);
+            background: var(--paper);
+            border-color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
 
         &::-moz-range-thumb {
-            border-color: var(--base-300);
+            background: var(--paper);
+            border-color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
         }
+
+        &::-moz-range-track {
+            background: var(--base-200);
+        }
+    }
+
+    .sliderValue {
+        background: var(--base-100);
+        border-color: var(--base-200);
+    }
+
+    .sliderValueLabel {
+        color: var(--muted-text-color);
+    }
+
+    .sliderLabel {
+        color: var(--muted-text-color);
     }
 
     .datePickerPopover {
@@ -474,30 +883,44 @@
     }
 
     .dayPicker {
-        .rdp-day {
+        :global(.rdp-day) {
             color: var(--primary-text-color);
         }
 
-        .rdp-month_caption {
+        :global(.rdp-day_selected) {
+            color: var(--paper) !important;
+        }
+
+        :global(.rdp-day_range_start),
+        :global(.rdp-day_range_end) {
+            color: var(--paper) !important;
+        }
+
+        :global(.rdp-month_caption) {
             color: var(--primary-text-color);
         }
 
-        .rdp-weekday {
+        :global(.rdp-weekday) {
             color: var(--muted-text-color);
         }
 
-        .rdp-nav_button {
+        :global(.rdp-nav) button {
             color: var(--muted-text-color);
+        }
+
+        :global(.rdp-day_outside) {
+            color: var(--base-300);
         }
     }
 
     .closeDatePicker {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--base-100);
         border-color: var(--base-200);
         color: var(--primary-text-color);
 
         &:hover {
-            background: rgba(0, 0, 0, 0.08);
+            background: var(--base-150);
+            border-color: var(--base-300);
         }
     }
 }

@@ -2,8 +2,6 @@ import { useEffect, useState, useCallback } from "react";
 import { Popover } from "react-tiny-popover";
 import { DayPicker, DateRange } from "react-day-picker";
 import { Button } from "../../../components/Button.tsx";
-import { Input } from "../../../components/Input.tsx";
-import { Typography } from "../../../components/Typography.tsx";
 import styles from "./FilterSidebar.module.css";
 import "react-day-picker/style.css";
 
@@ -63,7 +61,7 @@ type FilterSectionProps = {
 
 const FilterSection = ({ title, children, defaultOpen = true, hasActiveFilters = false }: FilterSectionProps) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
-    
+
     useEffect(() => {
         if (hasActiveFilters) {
             setIsOpen(true);
@@ -71,18 +69,19 @@ const FilterSection = ({ title, children, defaultOpen = true, hasActiveFilters =
     }, [hasActiveFilters]);
 
     return (
-        <div className={styles.filterSection}>
+        <div className={`${styles.filterSection} ${hasActiveFilters ? styles.filterSectionActive : ''}`}>
             <button
                 className={styles.sectionHeader}
                 onClick={() => setIsOpen(!isOpen)}
                 type="button"
             >
-                <Typography variant="h4" className={styles.sectionTitle}>
-                    {title}
-                </Typography>
+                <div className={styles.sectionTitleRow}>
+                    <span className={styles.sectionTitle}>{title}</span>
+                    {hasActiveFilters && <span className={styles.activeBadge} />}
+                </div>
                 <div className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                 </div>
             </button>
@@ -179,6 +178,61 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
         setShowDatePicker(false);
     }, []);
 
+    const handleDatePreset = useCallback((preset: string) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let start: Date | undefined;
+        let end: Date | undefined = new Date();
+        end.setHours(23, 59, 59, 999);
+
+        switch (preset) {
+            case 'today':
+                start = today;
+                break;
+            case '7days':
+                start = new Date(today);
+                start.setDate(start.getDate() - 7);
+                break;
+            case '30days':
+                start = new Date(today);
+                start.setDate(start.getDate() - 30);
+                break;
+            case '90days':
+                start = new Date(today);
+                start.setDate(start.getDate() - 90);
+                break;
+            case 'year':
+                start = new Date(today.getFullYear(), 0, 1);
+                break;
+            case 'clear':
+                start = undefined;
+                end = undefined;
+                break;
+        }
+
+        onFiltersChange?.({
+            ...filters,
+            start_date: start,
+            end_date: end
+        });
+    }, [filters, onFiltersChange]);
+
+    const getActiveDatePreset = useCallback(() => {
+        if (!filters.start_date) return null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const start = new Date(filters.start_date);
+        start.setHours(0, 0, 0, 0);
+        const diffDays = Math.round((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) return 'today';
+        if (diffDays === 7) return '7days';
+        if (diffDays === 30) return '30days';
+        if (diffDays === 90) return '90days';
+        if (start.getMonth() === 0 && start.getDate() === 1 && start.getFullYear() === today.getFullYear()) return 'year';
+        return 'custom';
+    }, [filters.start_date]);
+
     const hasActiveFilters = filters.status.length > 0 || 
         filters.excluded_statuses.length > 0 || 
         filters.excluded_video_ids.length > 0 || 
@@ -200,16 +254,16 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
             <div className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
                 <div className={styles.header}>
                     <div className={styles.headerContent}>
-                        <Typography variant="h3">Filters</Typography>
+                        <span className={styles.headerTitle}>Filters</span>
                         {totalItems !== undefined && (
-                            <Typography variant="text" className={styles.itemCount}>
-                                {totalItems} items total
-                            </Typography>
+                            <span className={styles.itemCount}>
+                                {totalItems.toLocaleString()} videos
+                            </span>
                         )}
                     </div>
                     <button className={styles.closeButton} onClick={onClose} type="button">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </button>
                 </div>
@@ -246,53 +300,63 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                     </FilterSection>
 
                     <FilterSection title="Date Range" hasActiveFilters={filters.start_date !== undefined || filters.end_date !== undefined} defaultOpen={false}>
-                        <div className={styles.dateRangeInputs}>
-                            <Popover
-                                isOpen={showDatePicker}
-                                positions={['left', 'right', 'bottom', 'top']}
-                                padding={8}
-                                containerStyle={{ zIndex: "9999" }}
-                                clickOutsideCapture={true}
-                                onClickOutside={handleOnClickOutside}
-                                content={
-                                    <div className={styles.datePickerPopover} onClick={handlePopoverContentClick}>
-                                        <DayPicker
-                                            mode="range"
-                                            selected={{
-                                                from: filters.start_date,
-                                                to: filters.end_date,
-                                            }}
-                                            showOutsideDays={true}
-                                            captionLayout="dropdown"
-                                            onSelect={handleDateRangeSelect}
-                                            className={styles.dayPicker}
-                                        />
-                                    </div>
-                                }
-                            >
-                                <div className={styles.dateInputWrapper}>
-                                    <div className={styles.dateRangeInputs}>
-                                        <div className={styles.dateInputContainer} onClick={handleDatePickerToggle}>
-                                            <Input
-                                                placeholder="Start Date"
-                                                value={filters.start_date ? filters.start_date.toLocaleDateString() : ""}
-                                                readOnly={true}
-                                                className={styles.dateInput}
-                                            />
-                                        </div>
-                                        <span className={styles.dateSeparator}>-</span>
-                                        <div className={styles.dateInputContainer} onClick={handleDatePickerToggle}>
-                                            <Input
-                                                placeholder="End Date"
-                                                value={filters.end_date ? filters.end_date.toLocaleDateString() : ""}
-                                                readOnly={true}
-                                                className={styles.dateInput}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </Popover>
+                        <div className={styles.datePresets}>
+                            {[
+                                { key: 'today', label: 'Today' },
+                                { key: '7days', label: '7 days' },
+                                { key: '30days', label: '30 days' },
+                                { key: '90days', label: '90 days' },
+                                { key: 'year', label: 'This year' },
+                            ].map(preset => (
+                                <button
+                                    key={preset.key}
+                                    type="button"
+                                    className={`${styles.datePresetButton} ${getActiveDatePreset() === preset.key ? styles.datePresetActive : ''}`}
+                                    onClick={() => handleDatePreset(preset.key)}
+                                >
+                                    {preset.label}
+                                </button>
+                            ))}
                         </div>
+                        <Popover
+                            isOpen={showDatePicker}
+                            positions={['left', 'right', 'bottom', 'top']}
+                            padding={8}
+                            containerStyle={{ zIndex: "9999" }}
+                            clickOutsideCapture={true}
+                            onClickOutside={handleOnClickOutside}
+                            content={
+                                <div className={styles.datePickerPopover} onClick={handlePopoverContentClick}>
+                                    <DayPicker
+                                        mode="range"
+                                        selected={{
+                                            from: filters.start_date,
+                                            to: filters.end_date,
+                                        }}
+                                        showOutsideDays={true}
+                                        captionLayout="dropdown"
+                                        onSelect={handleDateRangeSelect}
+                                        className={styles.dayPicker}
+                                    />
+                                </div>
+                            }
+                        >
+                            <button
+                                type="button"
+                                className={`${styles.customDateButton} ${getActiveDatePreset() === 'custom' ? styles.customDateActive : ''}`}
+                                onClick={handleDatePickerToggle}
+                            >
+                                {getActiveDatePreset() === 'custom' && filters.start_date && filters.end_date ? (
+                                    <span className={styles.customDateRange}>
+                                        {filters.start_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                        {' → '}
+                                        {filters.end_date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                    </span>
+                                ) : (
+                                    <span>Custom range...</span>
+                                )}
+                            </button>
+                        </Popover>
                     </FilterSection>
 
                     <FilterSection title="Subscription" hasActiveFilters={filters.is_subscribed !== undefined} defaultOpen={false}>
@@ -350,17 +414,25 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
 
                     <FilterSection title="Minimum Ranking" hasActiveFilters={filters.min_ranking !== undefined && filters.min_ranking > 0} defaultOpen={false}>
                         <div className={styles.sliderContainer}>
-                            <input
-                                type="range"
-                                min="0"
-                                max="10"
-                                step="1"
-                                value={filters.min_ranking ?? 0}
-                                onChange={(e) => handleRankingChange(e.target.value)}
-                                className={styles.slider}
-                            />
+                            <div className={styles.sliderTrack}>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="10"
+                                    step="1"
+                                    value={filters.min_ranking ?? 0}
+                                    onChange={(e) => handleRankingChange(e.target.value)}
+                                    className={styles.slider}
+                                />
+                            </div>
+                            <div className={styles.sliderLabels}>
+                                <span className={styles.sliderLabel}>0</span>
+                                <span className={styles.sliderLabel}>5</span>
+                                <span className={styles.sliderLabel}>10</span>
+                            </div>
                             <div className={styles.sliderValue}>
-                                {filters.min_ranking ?? 0}
+                                <span className={styles.sliderValueNumber}>{filters.min_ranking ?? 0}</span>
+                                <span className={styles.sliderValueLabel}>min rank</span>
                             </div>
                         </div>
                     </FilterSection>
