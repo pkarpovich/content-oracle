@@ -179,6 +179,7 @@ export type GetContentByCategoryRequest = {
     include_shorts?: boolean;
     include_blocked?: boolean;
     order_by?: string;
+    channel_ids?: string[];
 };
 
 export type QueryFilters = {
@@ -194,6 +195,7 @@ export type QueryFilters = {
     order_by?: string;
     limit: number;
     offset: number;
+    channel_ids?: string[];
 };
 
 export type GetContentByCategoryResponse = {

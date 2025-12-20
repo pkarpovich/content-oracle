@@ -27,6 +27,7 @@ export const CategoryPage = () => {
         include_shorts: undefined,
         include_blocked: undefined,
         order_by: undefined,
+        channel_ids: [],
     });
 
     const category = useMemo(() => {
@@ -36,16 +37,17 @@ export const CategoryPage = () => {
     }, [categoryName]);
 
     const hasUserFilters = useMemo(() => {
-        return filters.status.length > 0 || 
-            filters.excluded_statuses.length > 0 || 
-            filters.excluded_video_ids.length > 0 || 
-            filters.is_subscribed !== undefined || 
-            filters.min_ranking !== undefined || 
-            filters.start_date !== undefined || 
-            filters.end_date !== undefined || 
-            filters.include_shorts !== undefined || 
-            filters.include_blocked !== undefined || 
-            filters.order_by !== undefined;
+        return filters.status.length > 0 ||
+            filters.excluded_statuses.length > 0 ||
+            filters.excluded_video_ids.length > 0 ||
+            filters.is_subscribed !== undefined ||
+            filters.min_ranking !== undefined ||
+            filters.start_date !== undefined ||
+            filters.end_date !== undefined ||
+            filters.include_shorts !== undefined ||
+            filters.include_blocked !== undefined ||
+            filters.order_by !== undefined ||
+            filters.channel_ids.length > 0;
     }, [filters]);
 
     const request: GetContentByCategoryRequest = useMemo(() => {
@@ -63,6 +65,7 @@ export const CategoryPage = () => {
             include_shorts: filters.include_shorts,
             include_blocked: filters.include_blocked,
             order_by: filters.order_by,
+            channel_ids: filters.channel_ids.length > 0 ? filters.channel_ids : undefined,
         };
 
         if (baseRequest.include_shorts === undefined && (
@@ -117,6 +120,7 @@ export const CategoryPage = () => {
                 include_shorts: appliedFilters.include_shorts,
                 include_blocked: appliedFilters.include_blocked,
                 order_by: appliedFilters.order_by,
+                channel_ids: appliedFilters.channel_ids || [],
             });
         }
     }, [appliedFilters]);

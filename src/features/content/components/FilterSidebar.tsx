@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Popover } from "react-tiny-popover";
 import { DayPicker, DateRange } from "react-day-picker";
 import { Button } from "../../../components/Button.tsx";
+import { useGetSettings } from "../../settings/api/useGetSettings.ts";
 import styles from "./FilterSidebar.module.css";
 import "react-day-picker/style.css";
 
@@ -24,6 +25,7 @@ export type FilterState = {
     include_shorts?: boolean;
     include_blocked?: boolean;
     order_by?: string;
+    channel_ids: string[];
 };
 
 const STATUS_OPTIONS = [
@@ -96,6 +98,17 @@ const FilterSection = ({ title, children, defaultOpen = true, hasActiveFilters =
 
 export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose, totalItems }: FilterSidebarProps) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [channelSearch, setChannelSearch] = useState("");
+    const { data: settings } = useGetSettings();
+
+    const filteredChannels = useMemo(() => {
+        if (!settings?.subscriptions) return [];
+        if (!channelSearch.trim()) return settings.subscriptions;
+        const search = channelSearch.toLowerCase();
+        return settings.subscriptions.filter(channel =>
+            channel.name.toLowerCase().includes(search)
+        );
+    }, [settings?.subscriptions, channelSearch]);
 
     const handleFilterChange = useCallback((key: keyof FilterState, value: any) => {
         const newFilters = { ...filters, [key]: value };
@@ -123,8 +136,10 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
             include_shorts: undefined,
             include_blocked: undefined,
             order_by: undefined,
+            channel_ids: [],
         };
         onFiltersChange?.(clearedFilters);
+        setChannelSearch("");
     }, [onFiltersChange]);
 
     const handleDateRangeSelect = useCallback((range: DateRange | undefined) => {
@@ -233,16 +248,17 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
         return 'custom';
     }, [filters.start_date]);
 
-    const hasActiveFilters = filters.status.length > 0 || 
-        filters.excluded_statuses.length > 0 || 
-        filters.excluded_video_ids.length > 0 || 
-        filters.is_subscribed !== undefined || 
-        filters.min_ranking !== undefined || 
-        filters.start_date !== undefined || 
-        filters.end_date !== undefined || 
-        filters.include_shorts !== undefined || 
-        filters.include_blocked !== undefined || 
-        filters.order_by !== undefined;
+    const hasActiveFilters = filters.status.length > 0 ||
+        filters.excluded_statuses.length > 0 ||
+        filters.excluded_video_ids.length > 0 ||
+        filters.is_subscribed !== undefined ||
+        filters.min_ranking !== undefined ||
+        filters.start_date !== undefined ||
+        filters.end_date !== undefined ||
+        filters.include_shorts !== undefined ||
+        filters.include_blocked !== undefined ||
+        filters.order_by !== undefined ||
+        filters.channel_ids.length > 0;
 
     return (
         <>
@@ -388,6 +404,33 @@ export const FilterSidebar = ({ filters, onFiltersChange, isOpen = true, onClose
                                 />
                                 <span>Not Subscribed</span>
                             </label>
+                        </div>
+                    </FilterSection>
+
+                    <FilterSection title="Channels" hasActiveFilters={filters.channel_ids.length > 0} defaultOpen={false}>
+                        <div className={styles.channelFilter}>
+                            <input
+                                type="text"
+                                placeholder="Search channels..."
+                                value={channelSearch}
+                                onChange={(e) => setChannelSearch(e.target.value)}
+                                className={styles.channelSearchInput}
+                            />
+                            <div className={styles.channelList}>
+                                {filteredChannels.map(channel => (
+                                    <label key={channel.channelId} className={styles.checkboxOption}>
+                                        <input
+                                            type="checkbox"
+                                            checked={filters.channel_ids.includes(channel.channelId)}
+                                            onChange={(e) => handleMultiSelectChange("channel_ids", channel.channelId, e.target.checked)}
+                                        />
+                                        <span className={styles.channelName}>{channel.name}</span>
+                                    </label>
+                                ))}
+                                {filteredChannels.length === 0 && channelSearch && (
+                                    <div className={styles.noChannels}>No channels found</div>
+                                )}
+                            </div>
                         </div>
                     </FilterSection>
 
