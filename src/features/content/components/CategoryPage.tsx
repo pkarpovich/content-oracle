@@ -1,10 +1,11 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useParams } from "@tanstack/react-router";
 
-import { Category, type GetContentByCategoryRequest } from "../../../api/content.ts";
+import { Category, type Content, type GetContentByCategoryRequest } from "../../../api/content.ts";
 import { Typography } from "../../../components/Typography.tsx";
 import { useGetCategoryContent } from "../api/useGetCategoryContent.ts";
 import { useOpenContent } from "../api/useOpenContent.ts";
+import { useLoadMoreContent } from "../api/useLoadMoreContent.ts";
 import { ContentList } from "./ContentList.tsx";
 import { FilterSidebar, type FilterState } from "./FilterSidebar.tsx";
 import styles from "./CategoryPage.module.css";
@@ -13,6 +14,8 @@ export const CategoryPage = () => {
     const { categoryName } = useParams({ from: "/category/$categoryName" });
     const { mutate: openContent } = useOpenContent();
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [additionalContent, setAdditionalContent] = useState<Content[]>([]);
+    const [localHasMore, setLocalHasMore] = useState<boolean | null>(null);
     const [filters, setFilters] = useState<FilterState>({
         status: [],
         excluded_statuses: [],
@@ -78,9 +81,28 @@ export const CategoryPage = () => {
     }, [category, filters, hasUserFilters]);
 
     const { data: response, error } = useGetCategoryContent(request);
+    const { mutate: loadMore, isPending: isLoadingMore } = useLoadMoreContent();
 
-    const content = response?.contentList || [];
+    const baseContent = response?.contentList || [];
+    const content = useMemo(() => [...baseContent, ...additionalContent], [baseContent, additionalContent]);
     const appliedFilters = response?.appliedFilter;
+
+    useEffect(() => {
+        setAdditionalContent([]);
+        setLocalHasMore(null);
+    }, [request]);
+
+    const handleLoadMore = useCallback(() => {
+        loadMore(
+            { category: category || "", currentCount: content.length, request },
+            {
+                onSuccess: (result) => {
+                    setAdditionalContent(prev => [...prev, ...result.content]);
+                    setLocalHasMore(result.hasMore);
+                }
+            }
+        );
+    }, [loadMore, category, content.length, request]);
 
     useEffect(() => {
         if (appliedFilters) {
@@ -101,11 +123,12 @@ export const CategoryPage = () => {
 
     const meta = useMemo(() => {
         if (!response) return undefined;
+        const baseHasMore = response.offset + response.limit < response.total;
         return {
             total: response.total,
-            hasMore: response.offset + response.limit < response.total
+            hasMore: localHasMore !== null ? localHasMore : baseHasMore
         };
-    }, [response]);
+    }, [response, localHasMore]);
 
     if (error) {
         return (
@@ -144,6 +167,8 @@ export const CategoryPage = () => {
                     content={content}
                     meta={meta}
                     onOpenUrl={openContent}
+                    onLoadMore={handleLoadMore}
+                    isLoadingMore={isLoadingMore}
                 />
             </div>
         </div>

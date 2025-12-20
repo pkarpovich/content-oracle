@@ -10,21 +10,28 @@ type Props = {
     content: Content[];
     onOpenUrl: (url: string) => void;
     meta?: CategoryMeta;
+    onLoadMore?: () => void;
+    isLoadingMore?: boolean;
 };
 
-export const ContentList = memo(({ category, content, onOpenUrl, meta }: Props) => {
+export const ContentList = memo(({ category, content, onOpenUrl, meta, onLoadMore, isLoadingMore }: Props) => {
     const { mutate: loadMoreContent, isPending } = useLoadMoreContent();
 
     const hasMore = meta?.hasMore ?? false;
+    const isLoading = isLoadingMore ?? isPending;
 
     const handleLoadMore = useCallback(() => {
-        if (!isPending && hasMore) {
+        if (isLoading || !hasMore) return;
+
+        if (onLoadMore) {
+            onLoadMore();
+        } else {
             loadMoreContent({
                 category: category,
                 currentCount: content.length
             });
         }
-    }, [loadMoreContent, category, content.length, isPending, hasMore]);
+    }, [loadMoreContent, category, content.length, isLoading, hasMore, onLoadMore]);
     
     return (
         <div className={styles.listContainer}>
@@ -43,10 +50,10 @@ export const ContentList = memo(({ category, content, onOpenUrl, meta }: Props) 
                 />
             ))}
             {hasMore && (
-                <LoadMoreCard 
-                    key="load-more" 
+                <LoadMoreCard
+                    key="load-more"
                     onClick={handleLoadMore}
-                    isLoading={isPending}
+                    isLoading={isLoading}
                 />
             )}
         </div>
